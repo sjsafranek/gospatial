@@ -49,3 +49,8 @@ div.featProps {
   display: inline;
   text-align: center;
 }
+
+div.button:hover h4{
+  background-color: lightgrey;
+  color: black;
+}

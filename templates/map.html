@@ -80,8 +80,8 @@
         <!-- Utils -->
         <script src='/find-utils.js'></script>
 
-       <!-- Leaflet Libraries to Map -->
-       <script src='/add_leaflet_libraries.js'></script>
+        <!-- Leaflet Libraries to Map -->
+        <!-- <script src='/add_leaflet_libraries.js'></script> -->
 
     </head>
     <body>
@@ -91,102 +91,8 @@
         <script>
 
             var map = initMap("map", [{{.Datasource}}]);
-            add_leaflet_libraries(map);
 
-            // Draw Features
-            var drawnItems = L.featureGroup().addTo(map);
-            map.addControl(new L.Control.Draw({
-                draw: { circle: false },
-                edit: { featureGroup: drawnItems }
-            }));
-
-            var feature_types = {
-                "marker": "Point",
-                "polygon": "Polygon",
-                "rectangle": "Polygon",
-                "polyline": "LineString"
-            };
-
-            function sendFeature(id) {
-                var results;
-                var feature = drawnItems._layers[id];
-                var payload = {
-                    "geometry": {
-                        "type": feature_types[feature.layerType],
-                        "coordinates": []
-                    },
-                    "properties": getProperties()
-                }
-                if (payload.geometry.type == "Point") {
-                    payload.geometry.coordinates.push(feature._latlng.lng);
-                    payload.geometry.coordinates.push(feature._latlng.lat);
-                } else if (payload.geometry.type == "LineString") {
-                    for (var i = 0; i < feature._latlngs.length; i++) {
-                        payload.geometry.coordinates.push([feature._latlngs[i].lng,feature._latlngs[i].lat])
-                    }
-                } else if (payload.geometry.type == "Polygon") {
-                    payload.geometry.coordinates.push([]);
-                    for (var i = 0; i < feature._latlngs.length; i++) {
-                        payload.geometry.coordinates[0].push([feature._latlngs[i].lng,feature._latlngs[i].lat])
-                    }
-                } else {
-                    alert("Unknown feature type!")
-                    return results
-                }
-                results = Utils.postRequest(
-                    '/api/v1/layer/' + $('#layers').val() + '/feature',
-                    JSON.stringify(payload)
-                );
-                map.getLayer($('#layers').val());
-                map.removeLayer(drawnItems._layers[id]);
-                $("#properties .attr").val("");
-                return results;
-            }
-
-            var popup = L.popup();
-            function onMapClick(e) {
-                if (e.target.editing._enabled) {  console.log('editing enabled')  }
-                else {
-                    popup
-                        .setLatLng(e.latlng)
-                        .setContent("<input type='button' value='Submit Feature' onClick='sendFeature(" + e.target._leaflet_id + ")'/>")
-                        .openOn(map);
-                }
-            }
-
-            map.on('draw:created', function(event) {
-                var layer = event.layer;
-                layer.on('click', onMapClick);
-                layer.options.color='blue';
-                layer.layerType = event.layerType;
-                drawnItems.addLayer(layer);
-            });
-
-
-            var featureProperties = L.control({position: 'bottomleft'});
-            featureProperties.onAdd = function (map) {
-                var div = L.DomUtil.create('div', 'info legend properties_form');
-                div.innerHTML = "<h4>Feature Properties</h4>";
-                div.innerHTML += "<a href='#' id='add_property'><i class='fa fa-plus' style='padding-left:5px; margin-right:0px;'></i>Add Field</a><br>";
-                div.innerHTML += "<div id='properties'>";
-                div.innerHTML += "</div>";
-                return div;
-            };
-            featureProperties.addTo(map);
-
-            $("#add_property").on("click", function() {
-                $("#properties").append("<input type='text' class='field' placeholder='field'><input type='text' class='attr' placeholder='attribute'><br>");
-            });
-
-            function getProperties() {
-                var prop = {};
-                var fields = $("#properties .field");
-                var attrs = $("#properties .attr");
-                for (var _i=0; _i < fields.length; _i++) {
-                    prop[fields[_i].value] = attrs[_i].value;
-                }
-                return prop;
-            }
+            // map.enableWriting();
 
         </script>
 

@@ -314,7 +314,8 @@
         var logo = L.control({position : 'topleft'});
         logo.onAdd = function () {
             this._div = L.DomUtil.create('div', 'logo');
-            this._div.innerHTML = "<div><img class='img-logo' src='/images/compass.png' alt='logo'></div>"
+            // this._div.innerHTML = "<div><img class='img-logo' src='/images/compass.png' alt='logo'></div>"
+            this._div.innerHTML = "<div><img class='img-logo' src='/images/HyperCube2.png' alt='logo'></div>"
             return this._div;
         };
         logo.addTo(map);

@@ -50,7 +50,7 @@ var routes = Routes{
 	Route{
 		"DebugMode",
 		"GET",
-		"/management/mode/debug",
+		"/management/mode/{md}",
 		DebugModeHandler,
 	},
 	// Web Client Routes

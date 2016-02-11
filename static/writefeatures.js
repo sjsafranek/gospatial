@@ -6,26 +6,6 @@
     // CREATE MAP OBJ
         var map = L.map('map',{maxZoom: 22 });
 
-    // Prepare baselayers
-        osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{ 
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> | F.I.N.D.'
-        }).addTo(map);
-        var baseMaps = {};
-        baseMaps["OSM"] = osm;
-        baseMaps["Topographic"] = L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22});
-        baseMaps["Streets"] = L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22});
-        baseMaps["Imagery"] = L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22});
-
-    // BUILDINGS
-        var osmb = new OSMBuildings(map)
-           .date(new Date(2015, 5, 15, 17, 30))
-           .load()
-           .click(function(id) {
-                console.log('feature id clicked:', id);
-           }
-        );
-
-        var overlayMaps = { Buildings: osmb };
 
     // STORE CONFIG
         map.datasources = datasources;
@@ -191,9 +171,32 @@
         });
 
 
+    // Prepare baselayers
+        osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{ 
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+        }).addTo(map);
+        var baseMaps = {
+            "OSM": osm,
+            "Topographic": L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22}),
+            "Streets": L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22}),
+            "Imagery": L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22})
+        };
+
+    // BUILDINGS
+        var osmb = new OSMBuildings(map)
+           .date(new Date(2015, 5, 15, 17, 30))
+           .load()
+           .click(function(id) {
+                console.log('feature id clicked:', id);
+           }
+        );
+
+        var overlayMaps = { Buildings: osmb };
 
     // Baselayers
         L.control.layers(baseMaps, overlayMaps, {position: 'topright'}).addTo(map);
+
+
 
     // Drawing
         map.enableDrawing = function() {
@@ -307,6 +310,14 @@
                 return prop;
             }
         }
+
+        var logo = L.control({position : 'topleft'});
+        logo.onAdd = function () {
+            this._div = L.DomUtil.create('div', 'logo');
+            this._div.innerHTML = "<div><img class='img-logo' src='/images/compass.png' alt='logo'></div>"
+            return this._div;
+        };
+        logo.addTo(map);
 
 
     // LAUNCH MAP OBJ

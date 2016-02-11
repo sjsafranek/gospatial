@@ -8,19 +8,15 @@
         <!--  Leaflet.draw-master  -->
         <script src="/Leaflet.draw-master/libs/leaflet-src.js"></script>
         <link rel="stylesheet" href="/Leaflet.draw-master/libs/leaflet.css" />
-
         <script src="/Leaflet.draw-master/src/Leaflet.draw.js"></script>
         <link rel="stylesheet" href="/Leaflet.draw-master/dist/leaflet.draw.css" />
-
         <script src="/Leaflet.draw-master/src/Toolbar.js"></script>
         <script src="/Leaflet.draw-master/src/Tooltip.js"></script>
-
         <script src="/Leaflet.draw-master/src/ext/GeometryUtil.js"></script>
         <script src="/Leaflet.draw-master/src/ext/LatLngUtil.js"></script>
         <script src="/Leaflet.draw-master/src/ext/LineUtil.Intersect.js"></script>
         <script src="/Leaflet.draw-master/src/ext/Polygon.Intersect.js"></script>
         <script src="/Leaflet.draw-master/src/ext/Polyline.Intersect.js"></script>
-
         <script src="/Leaflet.draw-master/src/draw/DrawToolbar.js"></script>
         <script src="/Leaflet.draw-master/src/draw/handler/Draw.Feature.js"></script>
         <script src="/Leaflet.draw-master/src/draw/handler/Draw.SimpleShape.js"></script>
@@ -29,13 +25,10 @@
         <script src="/Leaflet.draw-master/src/draw/handler/Draw.Marker.js"></script>
         <script src="/Leaflet.draw-master/src/draw/handler/Draw.Polygon.js"></script>
         <script src="/Leaflet.draw-master/src/draw/handler/Draw.Rectangle.js"></script>
-
         <script src="/Leaflet.draw-master/src/edit/EditToolbar.js"></script>
         <script src="/Leaflet.draw-master/src/edit/handler/EditToolbar.Edit.js"></script>
         <script src="/Leaflet.draw-master/src/edit/handler/EditToolbar.Delete.js"></script>
-
         <script src="/Leaflet.draw-master/src/Control.Draw.js"></script>
-
         <script src="/Leaflet.draw-master/src/edit/handler/Edit.Poly.js"></script>
         <script src="/Leaflet.draw-master/src/edit/handler/Edit.SimpleShape.js"></script>
         <script src="/Leaflet.draw-master/src/edit/handler/Edit.Circle.js"></script>
@@ -54,15 +47,13 @@
         <!-- Leaflet.buildigns -->
         <script src="/osmbuildings/dist/OSMBuildings-Leaflet.js"></script>
 
-        <!-- D3 and JQuery -->
-        <script src="/js/jquery-1.11.0.js"></script>  <!-- | JQUERY -->
-        <!-- <script src="/js/jquery-ui-1.11.4.js"></script> -->  <!-- JQUERY UI -->
-        <script src = "/js/d3.js"></script>
+        <!-- JQuery -->
+        <script src="/jquery/jquery-1.11.0.js"></script>  <!-- | JQUERY -->
 
         <!-- LOCATE CONTROL -->
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="/L.Control.Locate.min.css" />
-        <script src="/L.Control.Locate.min.js" ></script>
+        <link rel="stylesheet" href="/leaflet.locate/L.Control.Locate.min.css" />
+        <script src="/leaflet.locate/L.Control.Locate.min.js" ></script>
 
         <!-- HEAT MAP -->
     <!--
@@ -74,14 +65,10 @@
         <link rel="stylesheet" href="/font-awesome-4.3.0/css/font-awesome.min.css">
 
         <!-- MapClient -->
-        <script src='/writefeatures.js'></script>
-        <link href="/css/mapClient.css" rel="stylesheet">
+        <script src='/find/find-utils.js'></script>
+        <script src='/find/find-map.js'></script>
+        <link href="/find/find-style.css" rel="stylesheet">
 
-        <!-- Utils -->
-        <script src='/find-utils.js'></script>
-
-        <!-- Leaflet Libraries to Map -->
-        <!-- <script src='/add_leaflet_libraries.js'></script> -->
 
     </head>
     <body>
@@ -89,11 +76,7 @@
         <div id='map'> </div>
 
         <script>
-
             var map = initMap("map", [{{.Datasource}}]);
-
-            // map.enableWriting();
-
         </script>
 
     </body>

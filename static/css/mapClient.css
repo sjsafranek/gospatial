@@ -58,8 +58,8 @@ div.button:hover h4{
 	color: black;
 }
 
-/*
-div.logo {
+
+div.logo-compass {
 	pointer-events: none;
 	top: 7px;
 	position: absolute;
@@ -70,9 +70,9 @@ img.img-logo-compass {
 	width: 40px;
 	height: auto;
 }
-*/
 
-div.logo {
+
+div.logo-hypercube {
 	pointer-events: none;
 	top: 6px;
 	position: absolute;

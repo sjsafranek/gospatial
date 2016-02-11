@@ -313,9 +313,10 @@
 
         var logo = L.control({position : 'topleft'});
         logo.onAdd = function () {
-            this._div = L.DomUtil.create('div', 'logo');
-            // this._div.innerHTML = "<div><img class='img-logo-compass' src='/images/compass.png' alt='logo'></div>"
-            this._div.innerHTML = "<div><img class='img-logo-hypercube' src='/images/HyperCube2.png' alt='logo'></div>"
+            // this._div = L.DomUtil.create('div', 'logo-compass');
+            // this._div.innerHTML = "<img class='img-logo-compass' src='/images/compass.png' alt='logo'>"
+            this._div = L.DomUtil.create('div', 'logo-hypercube');
+            this._div.innerHTML = "<img class='img-logo-hypercube' src='/images/HyperCube2.png' alt='logo'>"
             return this._div;
         };
         logo.addTo(map);

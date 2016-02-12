@@ -6,7 +6,6 @@
     // CREATE MAP OBJ
         var map = L.map('map',{maxZoom: 22 });
 
-
     // STORE CONFIG
         map.datasources = datasources;
 

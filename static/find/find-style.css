@@ -3,16 +3,21 @@
 
 body {
 	font: 14px/16px Arial, Helvetica, sans-serif;
-	color: #555;
+	/*color: #555;*/
+	/*color: #777;*/
 }
 
 h4, strong {
 	margin: 0 0 5px;
-	color: #777;
+	/*color: #777;*/
 }
 
 i#zoom {
 	padding-top: 3px;
+}
+
+#location strong {
+	color: black !important;
 }
 
 #map {

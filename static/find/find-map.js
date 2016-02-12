@@ -196,8 +196,9 @@
     // Prepare baselayers
         osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{ 
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
-        }).addTo(map);
-        var baseMaps = {
+        });
+        osm.addTo(map);
+        map._baseMaps = {
             "OSM": osm,
             "Topographic": L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22}),
             "Streets": L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22}),
@@ -216,7 +217,7 @@
         var overlayMaps = { Buildings: osmb };
 
     // Baselayers
-        L.control.layers(baseMaps, overlayMaps, {position: 'topright'}).addTo(map);
+        L.control.layers(map._baseMaps, overlayMaps, {position: 'topright'}).addTo(map);
 
 
 

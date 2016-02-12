@@ -310,8 +310,11 @@
             featurePropertiesControl = L.control({position: 'bottomleft'});
             featurePropertiesControl.onAdd = function () {
                 var div = L.DomUtil.create('div', 'info legend properties_form');
-                div.innerHTML = "<h4>Feature Properties</h4>";
-                div.innerHTML += "<a href='#' id='add_property'><i class='fa fa-plus' style='padding-left:5px; margin-right:0px;'></i>Add Field</a><br>";
+                div.innerHTML = "<div>";
+                div.innerHTML += "<strong>Feature Properties </strong>";
+                // div.innerHTML += "<a href='#' id='add_property'><i class='fa fa-plus'></i>Add Field</a>";
+                div.innerHTML += "<a href='#' id='add_property'>[Add Field]</a>";
+                div.innerHTML += "</div>";
                 div.innerHTML += "<div id='properties'>";
                 div.innerHTML += "</div>";
                 return div;

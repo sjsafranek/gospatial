@@ -6,9 +6,13 @@ body {
 	color: #555;
 }
 
-h4 {
+h4, strong {
 	margin: 0 0 5px;
 	color: #777;
+}
+
+i#zoom {
+	padding-top: 3px;
 }
 
 #map {

@@ -53,14 +53,24 @@
                     layer.on({
                         mouseover: function(feature){
                             var properties = feature.target.feature.properties;
-                            var results = "";
+                            var results = "<table>";
+                            results += "<th>Field</th><th>Attribute</th>";
                             for (var item in properties) {
-                                results += item + ": " + properties[item] + "<br>";
+                                results += "<tr><td>" + item + "</td><td>" + properties[item] + "</td></tr>";
                             }
+                            results += "</table>";
                             $("#attributes")[0].innerHTML = results;
                         },
                         mouseout: function(){
                             $("#attributes")[0].innerHTML = "Hover over features";
+                        },
+                        click: function(feature) {
+                            var properties = feature.target.feature.properties;
+                            var results = "";
+                            for (var item in properties) {
+                                results += item + ": " + properties[item] + "<br>";
+                            }
+                            layer.bindPopup(results);
                         }
                     });
                 }
@@ -119,7 +129,6 @@
         // }
 
 
-
     // PREVENT EVENT PROPOGATION TO MAP FOR LEAFLET CONTROL ELEMENTS
         map.preventPropogation = function(obj) {
             // http://gis.stackexchange.com/questions/104507/disable-panning-dragging-on-leaflet-map-for-div-within-map
@@ -134,12 +143,26 @@
         }
 
 
+    // Mouse LatLng Position
+        mouseLocationControl = L.control({position: 'bottomright'});
+        mouseLocationControl.onAdd = function (map) {
+            // var div = L.DomUtil.create('div', 'info legend');
+            var div = L.DomUtil.create('div');
+            div.innerHTML = "<div id='location'></div>";
+            return div;
+        };
+        mouseLocationControl.addTo(map);
+        map.preventPropogation(mouseLocationControl);
+        map.on('mousemove', function(e) {
+            $("#location")[0].innerHTML = "<strong>Lat, Lon : " + e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4) + "</strong>";
+        });
+
 
     // ATTRIBUTE LEGEND
         featureAttributesControl = L.control({position: 'bottomright'});
         featureAttributesControl.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'info legend');
-            div.innerHTML = "<h4>Attributes</h4><div id='attributes'>Hover over features</div>";
+            div.innerHTML = "<div id='attributes'>Hover over features</div>";
             return div;
         };
         featureAttributesControl.addTo(map);

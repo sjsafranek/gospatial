@@ -65,6 +65,8 @@
         <link rel="stylesheet" href="/font-awesome-4.3.0/css/font-awesome.min.css">
 
         <!-- MapClient -->
+        <script src='/find/L.Find.js'></script>
+        <script src='/find/L.Find.Draw.js'></script>
         <script src='/find/find-utils.js'></script>
         <script src='/find/find-map.js'></script>
         <link href="/find/find-style.css" rel="stylesheet">
@@ -76,7 +78,7 @@
         <div id='map'> </div>
 
         <script>
-            var map = initMap("map", [{{.Datasource}}]);
+            initialize("map", [{{.Datasource}}]);
         </script>
 
     </body>

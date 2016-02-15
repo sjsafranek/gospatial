@@ -1,0 +1,22 @@
+TRACE: 2016/02/14 01:33:20 db.go:186: Cache Manager loop
+INFO: 2016/02/14 01:33:22 layerHandlers.go:38: 127.0.0.1:36538 3d5e751d85324cec84919e1e9a4c4f25 read layer
+TRACE: 2016/02/14 01:33:22 db.go:100: Checking cache
+TRACE: 2016/02/14 01:33:22 db.go:24: Connecting to database
+DEBUG: 2016/02/14 01:33:22 db.go:108: Retrieve 3d5e751d85324cec84919e1e9a4c4f25 from database
+DEBUG: 2016/02/14 01:33:22 db.go:141: Unmarshal 3d5e751d85324cec84919e1e9a4c4f25
+DEBUG: 2016/02/14 01:33:22 db.go:150: Insert 3d5e751d85324cec84919e1e9a4c4f25 to cache
+TRACE: 2016/02/14 01:33:29 db.go:100: Checking cache
+DEBUG: 2016/02/14 01:33:29 db.go:102: Retrieve 3d5e751d85324cec84919e1e9a4c4f25 from cache
+INFO: 2016/02/14 01:33:29 featureHandlers.go:24: 127.0.0.1:36538 3d5e751d85324cec84919e1e9a4c4f25 new feature
+TRACE: 2016/02/14 01:33:29 db.go:58: Checking cache
+DEBUG: 2016/02/14 01:33:29 db.go:60: Update 3d5e751d85324cec84919e1e9a4c4f25 cache
+TRACE: 2016/02/14 01:33:29 db.go:24: Connecting to database
+DEBUG: 2016/02/14 01:33:29 db.go:73: Encoding 3d5e751d85324cec84919e1e9a4c4f25 to []byte
+DEBUG: 2016/02/14 01:33:29 db.go:79: Inserting 3d5e751d85324cec84919e1e9a4c4f25 to database
+INFO: 2016/02/14 01:33:29 layerHandlers.go:38: 127.0.0.1:36538 3d5e751d85324cec84919e1e9a4c4f25 read layer
+TRACE: 2016/02/14 01:33:29 db.go:100: Checking cache
+DEBUG: 2016/02/14 01:33:29 db.go:102: Retrieve 3d5e751d85324cec84919e1e9a4c4f25 from cache
+TRACE: 2016/02/14 01:33:35 db.go:186: Cache Manager loop
+TRACE: 2016/02/14 01:33:50 db.go:186: Cache Manager loop
+INFO: 2016/02/14 01:33:53 superuserHandlers.go:20: su
+INFO: 2016/02/14 01:33:53 superuserHandlers.go:21: su

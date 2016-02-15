@@ -3,7 +3,6 @@ package app
 import (
 	"github.com/gorilla/mux"
 	"html/template"
-	"io/ioutil"
 	"net/http"
 	// "regexp"
 )
@@ -36,14 +35,4 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	ds := vars["ds"]
 	tmpl, _ := template.ParseFiles(map_tmpl)
 	tmpl.Execute(w, MapData{Datasource: ds})
-}
-
-func WebClientLogHandler(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		Error.Println("reading body")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	WebClient.Println(body)
 }

@@ -16,7 +16,6 @@ L.Find = L.Class.extend({
     },
 
     addTo: function(map) {
-        // map.addLayer(this);
         find = this;
         this._map = map;
         this.addUiControls();
@@ -224,8 +223,7 @@ L.Find = L.Class.extend({
                     results = data;
                 }
                 catch(err){  console.log('Error:', err);  }
-            },
-            error: function(xhr,errmsg,err) {
+            },rror: function(xhr,errmsg,err) {
                 console.log(xhr.status,xhr.responseText,errmsg,err);
                 result = null;
             }

@@ -4,13 +4,18 @@
  * Email:  sjsafranek@gmail.com
  */
 
-L.Find.Draw = L.Class.extend({
+// L.Find.Draw = L.Class.extend({
+L.Find.Draw = L.Find.extend({
     
     options: {},
 
     initialize: function(datasources, options) {
         L.setOptions(this, options || {});
         this.find = L.find(datasources);
+        // console.log(L.Find.prototype.initialize.call);
+        // this.find = L.Find.prototype.initialize(datasources);
+        // console.log(this.find);
+        // console.log(this);
         this._featureTypes = {
             "marker": "Point",
             "polygon": "Polygon",
@@ -22,7 +27,6 @@ L.Find.Draw = L.Class.extend({
     },
 
     addTo: function(map) {
-        // map.addLayer(this);
         this._map = map;
         this.find.addTo(map);
         this._addMeasureControl();

@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-var SuperuserKey string = "stefanrocks"
+var SuperuserKey string = "su"
 var AppMode string = "standard"
 
 type Message struct {

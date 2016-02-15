@@ -14,6 +14,7 @@ type Route struct {
 type Routes []Route
 
 var routes = Routes{
+
 	// Layers
 	Route{
 		"ViewLayer",
@@ -33,6 +34,7 @@ var routes = Routes{
 		"/api/v1/layer/{ds}",
 		DeleteLayerHandler,
 	},
+
 	// Features
 	Route{
 		"NewFeature",
@@ -46,6 +48,7 @@ var routes = Routes{
 		"/api/v1/layer/{ds}/feature/{k}",
 		ViewFeatureHandler,
 	},
+
 	// Superuser Routes
 	Route{
 		"DebugMode",
@@ -53,13 +56,8 @@ var routes = Routes{
 		"/management/mode/{md}",
 		DebugModeHandler,
 	},
+
 	// Web Client Routes
-	Route{
-		"ClientLogging",
-		"POST",
-		"/log",
-		WebClientLogHandler,
-	},
 	Route{
 		"Map",
 		"GET",

@@ -30,9 +30,15 @@ type MapData struct {
 }
 
 func MapHandler(w http.ResponseWriter, r *http.Request) {
-	map_tmpl := "./templates/map.html"
 	vars := mux.Vars(r)
 	ds := vars["ds"]
-	tmpl, _ := template.ParseFiles(map_tmpl)
-	tmpl.Execute(w, MapData{Datasource: ds})
+	if SuperuserKey == r.FormValue("apikey") {
+		map_tmpl := "./templates/map_admin.html"
+		tmpl, _ := template.ParseFiles(map_tmpl)
+		tmpl.Execute(w, MapData{Datasource: ds})
+	} else {
+		map_tmpl := "./templates/map_standard.html"
+		tmpl, _ := template.ParseFiles(map_tmpl)
+		tmpl.Execute(w, MapData{Datasource: ds})
+	}
 }

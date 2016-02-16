@@ -12,10 +12,9 @@ L.Find.Draw = L.Find.extend({
     initialize: function(datasources, options) {
         L.setOptions(this, options || {});
         this.find = L.find(datasources);
-        // console.log(L.Find.prototype.initialize.call);
         // this.find = L.Find.prototype.initialize(datasources);
-        // console.log(this.find);
-        // console.log(this);
+        // L.Find.prototype.initialize.call(datasources);
+        console.log(this.find);
         this._featureTypes = {
             "marker": "Point",
             "polygon": "Polygon",

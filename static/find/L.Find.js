@@ -150,6 +150,24 @@ L.Find = L.Class.extend({
                 });
             },
             onEachFeature: function (feature, layer) {
+
+                function highlightFeature(e) {
+                    var layer = e.target;
+                    layer.setStyle({
+                        weight: 5,
+                        color: '#000',
+                        dashArray: '',
+                        fillOpacity: 0.5
+                    });
+                    if (!L.Browser.ie && !L.Browser.opera) {
+                        layer.bringToFront();
+                    }
+                }
+
+                function resetHighlight(e) {
+                    featureLayer.resetStyle(e.target);
+                }
+
                 // layer.bindPopup(
                 //     "<button onclick=map.editfeature(" + JSON.stringify(feature) + ")>Edit</button>"
                 // );
@@ -163,9 +181,11 @@ L.Find = L.Class.extend({
                         }
                         results += "</table>";
                         $("#attributes")[0].innerHTML = results;
+                        highlightFeature(feature);
                     },
-                    mouseout: function(){
+                    mouseout: function(e){
                         $("#attributes")[0].innerHTML = "Hover over features";
+                        resetHighlight(e);
                     },
                     click: function(feature) {
                         var properties = feature.target.feature.properties;

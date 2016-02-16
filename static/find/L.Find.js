@@ -168,6 +168,10 @@ L.Find = L.Class.extend({
                     featureLayer.resetStyle(e.target);
                 }
 
+                function zoomToFeature(e) {
+                    map.fitBounds(e.target.getBounds());
+                }
+                
                 // layer.bindPopup(
                 //     "<button onclick=map.editfeature(" + JSON.stringify(feature) + ")>Edit</button>"
                 // );

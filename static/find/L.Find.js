@@ -13,6 +13,7 @@ L.Find = L.Class.extend({
 		this._map = null;
 		this.datasources = datasources;
 		this.featureLayers = {};
+		this.ws = null;
 	},
 
 	addTo: function(map) {
@@ -23,6 +24,7 @@ L.Find = L.Class.extend({
 		this._map.fitBounds(
 			find.featureLayers[$('#layers').val()].getBounds()
 		);
+		this.ws = this.getWebSocket();
 		return this;
 	},
 
@@ -264,7 +266,28 @@ L.Find = L.Class.extend({
 			}
 		});
 		return results;
+	},
+
+
+	getWebSocket: function() {
+		find = this;
+		console.log("Opening websocket");
+		var url = "ws://" + window.location.host + "/ws/" + find.datasources[0];
+		ws = new WebSocket(url);
+		ws.onopen = function(e) { 
+			console.log("Websocket is open");
+		};
+		ws.onmessage = function(e) {
+			console.log(e.data);
+			find.getLayer($('#layers').val());
+		};
+		ws.onclose = function(e) { 
+			console.log("Websocket is closed"); 
+		}
+		ws.onerror = function(e) { console.log(e); }
+		return ws;
 	}
+
 
 });
 

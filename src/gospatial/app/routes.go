@@ -64,4 +64,12 @@ var routes = Routes{
 		"/map/{ds}",
 		MapHandler,
 	},
+
+	// Web Socket Route
+	Route{
+		"Socket",
+		"GET",
+		"/ws/{ds}",
+		serveWs,
+	},
 }

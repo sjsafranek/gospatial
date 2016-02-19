@@ -88,7 +88,7 @@ L.Find.Draw = L.Class.extend({
 			else {
 				popup
 					.setLatLng(e.latlng)
-					.setContent("<div class='button' value='Submit Feature' onClick='Find.sendFeature(" + e.target._leaflet_id + ")'><h4>Submit Feature</h4><div>")
+					.setContent("<div class='button' value='Submit Feature' onClick='FindGeo.sendFeature(" + e.target._leaflet_id + ")'><h4>Submit Feature</h4><div>")
 					.openOn(map);
 			}
 		}
@@ -175,6 +175,7 @@ L.Find.Draw = L.Class.extend({
 			success: function (data) {
 				try {
 					results = data;
+					find.find.ws.send("update");
 				}
 				catch(err){  console.log('Error:', err);  }
 			},

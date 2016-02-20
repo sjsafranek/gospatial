@@ -278,7 +278,6 @@ L.Find = L.Class.extend({
 			console.log("Websocket is open");
 		};
 		ws.onmessage = function(e) {
-			console.log(e.data);
 			find.getLayer($('#layers').val());
 		};
 		ws.onclose = function(e) { 

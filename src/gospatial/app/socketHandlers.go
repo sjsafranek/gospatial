@@ -15,11 +15,11 @@ type hub struct {
 	Sockets map[*websocket.Conn]string
 }
 
-func (h hub) broadcast(c *connection) {
+func (h hub) broadcast(conn *connection) {
+	Trace.Println("Broadcasting message to open websocket connections")
 	for i := range h.Sockets {
-		Info.Println(h.Sockets[i])
-		if i != c.ws && h.Sockets[i] == c.ds {
-			i.WriteMessage(websocket.TextMessage, []byte(`message`))
+		if i != conn.ws && h.Sockets[i] == conn.ds {
+			i.WriteMessage(websocket.TextMessage, []byte(`update layer`))
 		}
 	}
 }
@@ -29,17 +29,18 @@ var Hub = hub{
 }
 
 func messageListener(conn *connection) {
+	defer func() {
+		Debug.Printf("Disconnecting websocket connection")
+		conn.ws.Close()
+		delete(Hub.Sockets, conn.ws)
+	}()
 	for {
-		defer func() {
-			conn.ws.Close()
-			delete(Hub.Sockets, conn.ws)
-		}()
 		_, message, err := conn.ws.ReadMessage()
 		if err != nil {
-			Error.Println(err)
+			Warning.Println(err)
 			break
 		}
-		Info.Println(string(message))
+		Debug.Printf("Message: %s %s", string(message), conn.ds)
 		Hub.broadcast(conn)
 	}
 }
@@ -53,6 +54,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func serveWs(w http.ResponseWriter, r *http.Request) {
+	Trace.Println("Establishing websocket connection")
 	vars := mux.Vars(r)
 	ds := vars["ds"]
 	ws, err := upgrader.Upgrade(w, r, nil)

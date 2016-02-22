@@ -175,7 +175,7 @@ L.Find.Draw = L.Class.extend({
 			success: function (data) {
 				try {
 					results = data;
-					find.find.ws.send("update");
+					// find.find.ws.send("update");
 				}
 				catch(err){  console.log('Error:', err);  }
 			},

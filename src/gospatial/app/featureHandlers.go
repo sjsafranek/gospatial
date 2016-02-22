@@ -53,6 +53,10 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	// Update websockets
+	conn := connection{ds: ds, ip: r.RemoteAddr}
+	Hub.broadcast(&conn)
+	// Report results
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }

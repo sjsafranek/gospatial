@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	// "github.com/gorilla/mux"
 	"gospatial/app"
 	"net/http"
@@ -13,14 +14,22 @@ var (
 	database string
 	bind     string
 	debug    bool
+	version  bool
 )
+
+const VERSION string = "1.2.0 "
 
 func init() {
 	flag.IntVar(&port, "p", 8080, "server port")
 	flag.StringVar(&database, "db", "bolt", "app database")
 	flag.StringVar(&app.SuperuserKey, "s", "su", "superuser key")
 	flag.BoolVar(&debug, "d", false, "debug mode")
+	flag.BoolVar(&version, "v", false, "App Version")
 	flag.Parse()
+	if version {
+		fmt.Println("Version:", VERSION)
+		os.Exit(0)
+	}
 }
 
 func main() {

@@ -23,13 +23,27 @@ func (h hub) broadcast(update bool, conn *connection) {
 		Viewers int  `json:"viewers"`
 	}
 	Trace.Println("Broadcasting message to open websocket connections")
-	Info.Println(conn.ds, h.Sockets, h.Sockets[conn.ds])
+	// Info.Println(conn.ds, h.Sockets, h.Sockets[conn.ds])
 	msg := Message{Update: update, Viewers: len(h.Sockets[conn.ds])}
 	for i := range h.Sockets[conn.ds] {
 		if h.Sockets[conn.ds][i] != conn.ws {
 			Trace.Println("Sending message to websocket")
 			h.Sockets[conn.ds][i].WriteJSON(msg)
 		}
+	}
+}
+
+func (h hub) broadcastAllDsViewers(update bool, ds string) {
+	type Message struct {
+		Update  bool `json:"update"`
+		Viewers int  `json:"viewers"`
+	}
+	Trace.Println(ds, "Broadcasting message to open websocket connections")
+	// Info.Println(ds, h.Sockets, h.Sockets[ds])
+	msg := Message{Update: update, Viewers: len(h.Sockets[ds])}
+	for i := range h.Sockets[ds] {
+		Trace.Println("Sending message to websocket")
+		h.Sockets[ds][i].WriteJSON(msg)
 	}
 }
 
@@ -80,6 +94,6 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 		Hub.Sockets[ds][conn.c] = ws
 		Info.Println("WebSocket connection open")
 	}
-	Hub.broadcast(false, &conn)
+	Hub.broadcastAllDsViewers(false, conn.ds)
 	go messageListener(&conn)
 }

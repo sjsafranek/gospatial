@@ -17,13 +17,18 @@ type hub struct {
 	Sockets map[string]map[int]*websocket.Conn
 }
 
-func (h hub) broadcast(conn *connection) {
+func (h hub) broadcast(update bool, conn *connection) {
+	type Message struct {
+		Update  bool `json:"update"`
+		Viewers int  `json:"viewers"`
+	}
 	Trace.Println("Broadcasting message to open websocket connections")
 	Info.Println(conn.ds, h.Sockets, h.Sockets[conn.ds])
+	msg := Message{Update: update, Viewers: len(h.Sockets[conn.ds])}
 	for i := range h.Sockets[conn.ds] {
 		if h.Sockets[conn.ds][i] != conn.ws {
 			Trace.Println("Sending message to websocket")
-			h.Sockets[conn.ds][i].WriteMessage(websocket.TextMessage, []byte(`update layer`))
+			h.Sockets[conn.ds][i].WriteJSON(msg)
 		}
 	}
 }
@@ -37,6 +42,7 @@ func messageListener(conn *connection) {
 		Debug.Printf("Disconnecting websocket connection")
 		conn.ws.Close()
 		delete(Hub.Sockets[conn.ds], conn.c)
+		Hub.broadcast(false, conn)
 	}()
 	for {
 		_, message, err := conn.ws.ReadMessage()
@@ -45,7 +51,6 @@ func messageListener(conn *connection) {
 			break
 		}
 		Debug.Printf("Message: %s %s", string(message), conn.ds)
-		// 	Hub.broadcast(conn)
 	}
 }
 
@@ -76,6 +81,7 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 		Info.Println("Socket added")
 		Info.Println(Hub.Sockets[ds])
 	}
+	Hub.broadcast(false, &conn)
 	go messageListener(&conn)
 }
 

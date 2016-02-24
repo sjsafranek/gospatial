@@ -8,6 +8,7 @@
 ### Added
  - Version flag (-v)
  - Viewer count to map.html template
+ - send json through websocket with viewer count and instructions to update layer
 
 ### Removed
  - 

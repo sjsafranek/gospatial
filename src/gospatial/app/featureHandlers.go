@@ -55,7 +55,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// Update websockets
 	conn := connection{ds: ds, ip: r.RemoteAddr}
-	Hub.broadcast(&conn)
+	Hub.broadcast(true, &conn)
 	// Report results
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)

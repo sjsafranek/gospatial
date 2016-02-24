@@ -68,6 +68,7 @@ L.Find = L.Class.extend({
 			var div = L.DomUtil.create('div', 'info legend');
 			div.innerHTML = '';
 			div.innerHTML += '<i class="fa fa-search-plus" id="zoom" style="padding-left:5px; margin-right:0px;"></i><select name="geojson" id="layers"></select>';
+			div.innerHTML += '<br>Viewers: <span id="viewers">1</span>';
 			return div;
 		};
 		geojsonLayerControl.addTo(this._map);
@@ -278,7 +279,12 @@ L.Find = L.Class.extend({
 			console.log("Websocket is open");
 		};
 		ws.onmessage = function(e) {
-			find.getLayer($('#layers').val());
+			var data = JSON.parse(e.data);
+			console.log(data);
+			if (data.update) {
+				find.getLayer($('#layers').val());
+			}
+			$("#viewers").text(data.viewers);
 		};
 		ws.onclose = function(e) { 
 			console.log("Websocket is closed"); 

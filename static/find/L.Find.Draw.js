@@ -100,6 +100,17 @@ L.Find.Draw = L.Class.extend({
 			layer.layerType = event.layerType;
 			find_draw.drawnItems.addLayer(layer);
 		});
+		// testing 1234
+		this._map.on("draw:drawstop", function(event) {
+			// console.log(event);
+			var key = Object.keys(find_draw.drawnItems._layers).pop();
+			console.log(find_draw.drawnItems._layers[key]);
+		});
+		this._map.on("draw:editstop", function(event) {
+			// console.log(event);
+			var key = Object.keys(find_draw.drawnItems._layers).pop();
+			console.log(find_draw.drawnItems._layers[key]);
+		});
 	},
 
 	preventPropogation: function(obj) {

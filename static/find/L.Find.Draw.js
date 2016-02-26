@@ -104,20 +104,68 @@ L.Find.Draw = L.Class.extend({
 		this._map.on("draw:drawstop", function(event) {
 			// console.log(event);
 			var key = Object.keys(find_draw.drawnItems._layers).pop();
-			feature_data = {
-				k: key,
-				geom: []
+			var feature = find_draw.drawnItems._layers[key];
+			//
+			var payload = {
+				"k": key,
+				"geometry": {
+					"type": find_draw._featureTypes[feature.layerType],
+					"coordinates": []
+				},
+				"properties": {}
 			}
-			console.log(find_draw.drawnItems._layers[key]);
+			if (payload.geometry.type == "Point") {
+				payload.geometry.coordinates.push(feature._latlng.lng);
+				payload.geometry.coordinates.push(feature._latlng.lat);
+			} else if (payload.geometry.type == "LineString") {
+				for (var i = 0; i < feature._latlngs.length; i++) {
+					payload.geometry.coordinates.push([feature._latlngs[i].lng,feature._latlngs[i].lat])
+				}
+			} else if (payload.geometry.type == "Polygon") {
+				payload.geometry.coordinates.push([]);
+				for (var i = 0; i < feature._latlngs.length; i++) {
+					payload.geometry.coordinates[0].push([feature._latlngs[i].lng,feature._latlngs[i].lat])
+				}
+			} else {
+				alert("Unknown feature type!")
+				return results
+			}
+			console.log(payload);
 			// Send through websocket
-			// find_draw.find.ws.send(find_draw.drawnItems._layers[key])
+			find_draw.find.ws.send(JSON.stringify(payload));
 		});
 		this._map.on("draw:editstop", function(event) {
 			// console.log(event);
 			var key = Object.keys(find_draw.drawnItems._layers).pop();
-			console.log(find_draw.drawnItems._layers[key]);
+			var feature = find_draw.drawnItems._layers[key];
+			//
+			var payload = {
+				"k": key,
+				"geometry": {
+					"type": find_draw._featureTypes[feature.layerType],
+					"coordinates": []
+				},
+				"properties": {}
+			}
+			if (payload.geometry.type == "Point") {
+				payload.geometry.coordinates.push(feature._latlng.lng);
+				payload.geometry.coordinates.push(feature._latlng.lat);
+			} else if (payload.geometry.type == "LineString") {
+				for (var i = 0; i < feature._latlngs.length; i++) {
+					payload.geometry.coordinates.push([feature._latlngs[i].lng,feature._latlngs[i].lat])
+				}
+			} else if (payload.geometry.type == "Polygon") {
+				payload.geometry.coordinates.push([]);
+				for (var i = 0; i < feature._latlngs.length; i++) {
+					payload.geometry.coordinates[0].push([feature._latlngs[i].lng,feature._latlngs[i].lat])
+				}
+			} else {
+				alert("Unknown feature type!")
+				return results
+			}
+			console.log(payload);
 			// Send through websocket
-			// find_draw.find.ws.send(find_draw.drawnItems._layers[key])
+			find_draw.find.ws.send(JSON.stringify(payload));
 		});
 	},
 
@@ -174,7 +222,7 @@ L.Find.Draw = L.Class.extend({
 			'/api/v1/layer/' + $('#layers').val() + '/feature',
 			JSON.stringify(payload)
 		);
-		console.log(this.$super);
+		// console.log(this.$super);
 		this.find.getLayer($('#layers').val());
 		map.removeLayer(this.drawnItems._layers[id]);
 		$("#properties .attr").val("");

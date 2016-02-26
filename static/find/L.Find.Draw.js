@@ -79,6 +79,35 @@ L.Find.Draw = L.Class.extend({
 		});
 	},
 
+	_packageFeature: function(feature) {
+		var payload = {
+			// "k": key,
+			"type": "Feature",
+			"geometry": {
+				"type": find_draw._featureTypes[feature.layerType],
+				"coordinates": []
+			},
+			"properties": {}
+		}
+		if (payload.geometry.type == "Point") {
+			payload.geometry.coordinates.push(feature._latlng.lng);
+			payload.geometry.coordinates.push(feature._latlng.lat);
+		} else if (payload.geometry.type == "LineString") {
+			for (var i = 0; i < feature._latlngs.length; i++) {
+				payload.geometry.coordinates.push([feature._latlngs[i].lng,feature._latlngs[i].lat])
+			}
+		} else if (payload.geometry.type == "Polygon") {
+			payload.geometry.coordinates.push([]);
+			for (var i = 0; i < feature._latlngs.length; i++) {
+				payload.geometry.coordinates[0].push([feature._latlngs[i].lng,feature._latlngs[i].lat])
+			}
+		} else {
+			alert("Unknown feature type!")
+			return results
+		}
+		return payload;
+	},
+
 	_addDrawEventHandlers: function() {
 		function onMapClick(e) {
 			var popup = L.popup();
@@ -102,70 +131,26 @@ L.Find.Draw = L.Class.extend({
 		});
 		// testing 1234
 		this._map.on("draw:drawstop", function(event) {
-			// console.log(event);
 			var key = Object.keys(find_draw.drawnItems._layers).pop();
 			var feature = find_draw.drawnItems._layers[key];
-			//
-			var payload = {
-				"k": key,
-				"geometry": {
-					"type": find_draw._featureTypes[feature.layerType],
-					"coordinates": []
-				},
-				"properties": {}
-			}
-			if (payload.geometry.type == "Point") {
-				payload.geometry.coordinates.push(feature._latlng.lng);
-				payload.geometry.coordinates.push(feature._latlng.lat);
-			} else if (payload.geometry.type == "LineString") {
-				for (var i = 0; i < feature._latlngs.length; i++) {
-					payload.geometry.coordinates.push([feature._latlngs[i].lng,feature._latlngs[i].lat])
-				}
-			} else if (payload.geometry.type == "Polygon") {
-				payload.geometry.coordinates.push([]);
-				for (var i = 0; i < feature._latlngs.length; i++) {
-					payload.geometry.coordinates[0].push([feature._latlngs[i].lng,feature._latlngs[i].lat])
-				}
-			} else {
-				alert("Unknown feature type!")
-				return results
-			}
+			var payload = find_draw._packageFeature(feature);
+			payload.key = key;
 			console.log(payload);
-			// Send through websocket
 			find_draw.find.ws.send(JSON.stringify(payload));
 		});
 		this._map.on("draw:editstop", function(event) {
-			// console.log(event);
 			var key = Object.keys(find_draw.drawnItems._layers).pop();
 			var feature = find_draw.drawnItems._layers[key];
-			//
-			var payload = {
-				"k": key,
-				"geometry": {
-					"type": find_draw._featureTypes[feature.layerType],
-					"coordinates": []
-				},
-				"properties": {}
-			}
-			if (payload.geometry.type == "Point") {
-				payload.geometry.coordinates.push(feature._latlng.lng);
-				payload.geometry.coordinates.push(feature._latlng.lat);
-			} else if (payload.geometry.type == "LineString") {
-				for (var i = 0; i < feature._latlngs.length; i++) {
-					payload.geometry.coordinates.push([feature._latlngs[i].lng,feature._latlngs[i].lat])
-				}
-			} else if (payload.geometry.type == "Polygon") {
-				payload.geometry.coordinates.push([]);
-				for (var i = 0; i < feature._latlngs.length; i++) {
-					payload.geometry.coordinates[0].push([feature._latlngs[i].lng,feature._latlngs[i].lat])
-				}
-			} else {
-				alert("Unknown feature type!")
-				return results
-			}
+			var payload = find_draw._packageFeature(feature);
+			payload.key = key;
 			console.log(payload);
-			// Send through websocket
 			find_draw.find.ws.send(JSON.stringify(payload));
+		});
+		this._map.on("draw:drawstart", function(event) {
+			console.log(event);
+		});
+		this._map.on("draw:editstart", function(event) {
+			console.log(event);
 		});
 	},
 

@@ -14,6 +14,7 @@ L.Find = L.Class.extend({
 		this.datasources = datasources;
 		this.featureLayers = {};
 		this.ws = null;
+		this._editFeatures = {};
 	},
 
 	addTo: function(map) {
@@ -279,12 +280,23 @@ L.Find = L.Class.extend({
 			console.log("Websocket is open");
 		};
 		ws.onmessage = function(e) {
+			console.log(e.data);
 			var data = JSON.parse(e.data);
 			console.log(data);
 			if (data.update) {
 				find.getLayer($('#layers').val());
 			}
 			$("#viewers").text(data.viewers);
+			if (data.key) {
+				if (find._editFeatures.hasOwnProperty(data.key)) {
+					find._map.removeLayer(find._editFeatures[data.key]);
+				}
+				if (!data.hasOwnProperty("remove")) {
+					var featureLayer = L.geoJson(data);
+					find._editFeatures[data.key] = featureLayer;
+					find._editFeatures[data.key].addTo(find._map);
+				}
+			}
 		};
 		ws.onclose = function(e) { 
 			console.log("Websocket is closed"); 

@@ -104,16 +104,20 @@ L.Find.Draw = L.Class.extend({
 		this._map.on("draw:drawstop", function(event) {
 			// console.log(event);
 			var key = Object.keys(find_draw.drawnItems._layers).pop();
+			feature_data = {
+				k: key,
+				geom: []
+			}
 			console.log(find_draw.drawnItems._layers[key]);
 			// Send through websocket
-			find_draw.find.ws.send(find_draw.drawnItems._layers[key])
+			// find_draw.find.ws.send(find_draw.drawnItems._layers[key])
 		});
 		this._map.on("draw:editstop", function(event) {
 			// console.log(event);
 			var key = Object.keys(find_draw.drawnItems._layers).pop();
 			console.log(find_draw.drawnItems._layers[key]);
 			// Send through websocket
-			find_draw.find.ws.send(find_draw.drawnItems._layers[key])
+			// find_draw.find.ws.send(find_draw.drawnItems._layers[key])
 		});
 	},
 

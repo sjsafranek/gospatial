@@ -91,7 +91,6 @@ L.Find.Draw = L.Class.extend({
 
 	_packageFeature: function(feature) {
 		var payload = {
-			// "k": key,
 			"type": "Feature",
 			"geometry": {
 				"type": find_draw._featureTypes[feature.layerType],
@@ -143,18 +142,22 @@ L.Find.Draw = L.Class.extend({
 		this._map.on("draw:drawstop", function(event) {
 			var key = Object.keys(find_draw.drawnItems._layers).pop();
 			var feature = find_draw.drawnItems._layers[key];
-			var payload = find_draw._packageFeature(feature);
-			payload.key = key;
-			payload.client = find_draw.uuid;
+			var payload = {
+				feature: find_draw._packageFeature(feature),
+				key: key,
+				client: find_draw.uuid
+			}
 			console.log(payload);
 			find_draw.find.ws.send(JSON.stringify(payload));
 		});
 		this._map.on("draw:editstop", function(event) {
 			var key = Object.keys(find_draw.drawnItems._layers).pop();
 			var feature = find_draw.drawnItems._layers[key];
-			var payload = find_draw._packageFeature(feature);
-			payload.key = key;
-			payload.client = find_draw.uuid;
+			var payload = {
+				feature: find_draw._packageFeature(feature),
+				key: key,
+				client: find_draw.uuid
+			}
 			console.log(payload);
 			find_draw.find.ws.send(JSON.stringify(payload));
 		});
@@ -190,6 +193,15 @@ L.Find.Draw = L.Class.extend({
 	},
 
 	sendFeature: function(id) {
+		// update websockets
+		var payload = {
+			feature: false,
+			key: id,
+			client: this.uuid
+		}
+		console.log(payload);
+		this.find.ws.send(JSON.stringify(payload));
+		// send new feature
 		var results;
 		var feature = this.drawnItems._layers[id];
 		var payload = {

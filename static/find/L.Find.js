@@ -294,12 +294,10 @@ L.Find = L.Class.extend({
 				if (find._editFeatures[data.client].hasOwnProperty(data.key)) {
 					find._map.removeLayer(find._editFeatures[data.client][data.key]);
 				}
-				if (!data.hasOwnProperty("remove")) {
-					var featureLayer = L.geoJson(data, {
+				if (data.feature) {
+					var featureLayer = L.geoJson(data.feature, {
 						style: {
-							weight: 2, 
-							color: "#B0171F", 
-							fillOpacity: 0.25
+							color: "#B0171F"
 						}
 					});
 					find._editFeatures[data.client][data.key] = featureLayer;

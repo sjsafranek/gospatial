@@ -57,25 +57,19 @@ func messageListener(conn *connection) {
 		Hub.broadcast(false, conn)
 	}()
 	for {
-		_, message, err := conn.ws.ReadMessage()
-		if err != nil {
-			Warning.Println(err)
-			break
-		}
-		Debug.Printf("Message: %s %s", string(message), conn.ds)
-
 		var m interface{}
-		err = conn.ws.ReadJSON(&m)
+		err := conn.ws.ReadJSON(&m)
 		if err != nil {
 			Error.Println(err)
+			return
 		}
+		Debug.Printf("Message: %v %s", m, conn.ds)
 		for i := range Hub.Sockets[conn.ds] {
 			if Hub.Sockets[conn.ds][i] != conn.ws {
 				Trace.Println("Sending message to websocket")
 				Hub.Sockets[conn.ds][i].WriteJSON(m)
 			}
 		}
-
 	}
 }
 

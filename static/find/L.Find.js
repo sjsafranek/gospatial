@@ -292,7 +292,13 @@ L.Find = L.Class.extend({
 					find._map.removeLayer(find._editFeatures[data.key]);
 				}
 				if (!data.hasOwnProperty("remove")) {
-					var featureLayer = L.geoJson(data);
+					var featureLayer = L.geoJson(data, {
+						style: {
+							weight: 2, 
+							color: "#B0171F", 
+							fillOpacity: 0.25
+						}
+					});
 					find._editFeatures[data.key] = featureLayer;
 					find._editFeatures[data.key].addTo(find._map);
 				}

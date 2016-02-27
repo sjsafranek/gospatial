@@ -270,6 +270,9 @@ L.Find = L.Class.extend({
 		return results;
 	},
 
+	randomColor: function() {
+		return '#'+Math.floor(Math.random()*16777215).toString(16);
+	},
 
 	getWebSocket: function() {
 		find = this;
@@ -289,7 +292,9 @@ L.Find = L.Class.extend({
 			$("#viewers").text(data.viewers);
 			if (data.key) {
 				if (!find._editFeatures.hasOwnProperty(data.client)) {
-					find._editFeatures[data.client] = {};
+					find._editFeatures[data.client] = {
+						color: find.randomColor()
+					};
 				}
 				if (find._editFeatures[data.client].hasOwnProperty(data.key)) {
 					find._map.removeLayer(find._editFeatures[data.client][data.key]);
@@ -297,9 +302,11 @@ L.Find = L.Class.extend({
 				if (data.feature) {
 					var featureLayer = L.geoJson(data.feature, {
 						style: {
-							color: "#B0171F"
+							fillOpacity: 0.5,
+							color: find._editFeatures[data.client].color
 						}
 					});
+					// featureLayer.editable.enable();
 					find._editFeatures[data.client][data.key] = featureLayer;
 					find._editFeatures[data.client][data.key].addTo(find._map);
 				}

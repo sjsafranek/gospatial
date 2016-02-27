@@ -288,8 +288,11 @@ L.Find = L.Class.extend({
 			}
 			$("#viewers").text(data.viewers);
 			if (data.key) {
-				if (find._editFeatures.hasOwnProperty(data.key)) {
-					find._map.removeLayer(find._editFeatures[data.key]);
+				if (!find._editFeatures.hasOwnProperty(data.client)) {
+					find._editFeatures[data.client] = {};
+				}
+				if (find._editFeatures[data.client].hasOwnProperty(data.key)) {
+					find._map.removeLayer(find._editFeatures[data.client][data.key]);
 				}
 				if (!data.hasOwnProperty("remove")) {
 					var featureLayer = L.geoJson(data, {
@@ -299,8 +302,8 @@ L.Find = L.Class.extend({
 							fillOpacity: 0.25
 						}
 					});
-					find._editFeatures[data.key] = featureLayer;
-					find._editFeatures[data.key].addTo(find._map);
+					find._editFeatures[data.client][data.key] = featureLayer;
+					find._editFeatures[data.client][data.key].addTo(find._map);
 				}
 			}
 		};

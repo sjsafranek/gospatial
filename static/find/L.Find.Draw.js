@@ -22,6 +22,7 @@ L.Find.Draw = L.Class.extend({
 		};
 		this.drawnItems = null;
 		this._map = null;
+		this.uuid = this._guid();
 	},
 
 	addTo: function(map) {
@@ -77,6 +78,15 @@ L.Find.Draw = L.Class.extend({
 		$("#add_property").on("click", function() {
 			$("#properties").append("<input type='text' class='field' placeholder='field'><input type='text' class='attr' placeholder='attribute'><br>");
 		});
+	},
+
+	_guid: function() {
+		function s4() {
+			return Math.floor((1 + Math.random()) * 0x10000)
+				.toString(16)
+				.substring(1);
+		}
+		return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 	},
 
 	_packageFeature: function(feature) {
@@ -135,6 +145,7 @@ L.Find.Draw = L.Class.extend({
 			var feature = find_draw.drawnItems._layers[key];
 			var payload = find_draw._packageFeature(feature);
 			payload.key = key;
+			payload.client = find_draw.uuid;
 			console.log(payload);
 			find_draw.find.ws.send(JSON.stringify(payload));
 		});
@@ -143,6 +154,7 @@ L.Find.Draw = L.Class.extend({
 			var feature = find_draw.drawnItems._layers[key];
 			var payload = find_draw._packageFeature(feature);
 			payload.key = key;
+			payload.client = find_draw.uuid;
 			console.log(payload);
 			find_draw.find.ws.send(JSON.stringify(payload));
 		});

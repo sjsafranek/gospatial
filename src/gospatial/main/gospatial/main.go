@@ -17,7 +17,7 @@ var (
 	version  bool
 )
 
-const VERSION string = "1.2.0 "
+const VERSION string = "1.3.0 "
 
 func init() {
 	flag.IntVar(&port, "p", 8080, "server port")

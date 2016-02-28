@@ -3,8 +3,7 @@
 ## Unreleased
 
 
-
-## 1.3.0 - 2016-02-24
+## 1.3.0 - 2016-02-28
 
 ### Added
  - Version flag (-v)
@@ -16,6 +15,7 @@
 
 ### Removed
  - package feature and featuretypes removed from find.draw
+
 
 ## 1.2.0 - 2016-02-23
 

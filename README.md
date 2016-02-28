@@ -1,5 +1,5 @@
 # GoSpatial
-Golang RESTful api for writing, storing, and serving GeoJSON data 
+Golang RESTful api for writing, storing, and serving GeoJSON data. GoSpatial also includes a mapping front end powered by Leaflet.js. Users are able to see what other 
 
 ## Requirements
 	github.com/gorilla/websocket
@@ -13,6 +13,9 @@ Golang RESTful api for writing, storing, and serving GeoJSON data
 	make install
 
 ## Run
+ - Execute the binary file produced in the projects `bin` directory
+ 	./bin/gospatial
+
 ### Command Line Agruments
 
 	Usage of ./bin/gospatial:
@@ -25,4 +28,5 @@ Golang RESTful api for writing, storing, and serving GeoJSON data
 	    	superuser key (default "su")
 	  -v	App Version
 
+ - `-d`
 

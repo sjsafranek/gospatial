@@ -7,13 +7,14 @@ Golang RESTful api for writing, storing, and serving GeoJSON data. GoSpatial als
 	github.com/boltdb/bolt
 
 ## Install
- - Get required golang packages
- - Run Makefile
+Get required golang packages by using `go get` or `getRequirements.sh`. Run Makefile.
+Example::
 	./getReuirements.sh
 	make install
 
 ## Run
  - Execute the binary file produced in the projects `bin` directory
+
  	./bin/gospatial
 
 ### Command Line Agruments

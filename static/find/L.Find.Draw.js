@@ -206,7 +206,7 @@ L.Find.Draw = L.Class.extend({
 				message += "responseText: " + xhr.responseText + "<br>";
 				message += "errmsg: " + errmsg + "<br>";
 				message += "Error:" + err;
-				find.errorMessage(message);
+				find.find.errorMessage(message);
 			}
 		});
 		return results;
@@ -235,7 +235,7 @@ L.Find.Draw = L.Class.extend({
 				message += "responseText: " + xhr.responseText + "<br>";
 				message += "errmsg: " + errmsg + "<br>";
 				message += "Error:" + err;
-				find.errorMessage(message);
+				find.find.errorMessage(message);
 			}
 		});
 		return results;

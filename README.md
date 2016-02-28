@@ -8,12 +8,16 @@ Golang RESTful api for writing, storing, and serving GeoJSON data. GoSpatial als
 
 ## Install
 Get required golang packages by using `go get` or `getRequirements.sh`. Run Makefile.
-Example::
+
+Example:
+
 	./getReuirements.sh
 	make install
 
 ## Run
- - Execute the binary file produced in the projects `bin` directory
+Execute the binary file produced in the projects `bin` directory
+
+Example:
 
  	./bin/gospatial
 

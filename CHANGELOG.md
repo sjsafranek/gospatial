@@ -10,6 +10,12 @@
  - Version flag (-v)
  - broadcastAllDsViewers for viewer count messaging
 
+### Changed
+ - use toGeoJSON to send feature payloads.
+ - refactor of sendFeature in find.draw
+
+### Removed
+ - package feature and featuretypes removed from find.draw
 
 ## 1.2.0 - 2016-02-23
 

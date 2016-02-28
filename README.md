@@ -9,17 +9,14 @@ Golang RESTful api for writing, storing, and serving GeoJSON data. GoSpatial als
 ## Install
 Get required golang packages by using `go get` or `getRequirements.sh`. Run Makefile.
 
-Example:
-
 	./getReuirements.sh
 	make install
 
 ## Run
 Execute the binary file produced in the projects `bin` directory
 
-Example:
-
  	./bin/gospatial
+
 
 ### Command Line Agruments
 
@@ -33,5 +30,12 @@ Example:
 	    	superuser key (default "su")
 	  -v	App Version
 
- - `-d`
+ - `-d`: places the server into "debug mode". While the server app is in this mode, logs will be written to a log file.
+ - `-db`: Specifies what database file to use. Default database is `bolt.db`.
+ - `-p`: Specifies the server port. Default port is `8080`.
+ - `-s`: Specifies the superuser key for management routes. Default key is `su`.
+ - `-v`: Prints the app version
+
+
+### Routes
 

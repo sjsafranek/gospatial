@@ -14,12 +14,6 @@ L.Find.Draw = L.Class.extend({
 		this.find = L.find(datasources);
 		// this.find = L.Find.prototype.initialize(datasources);
 		// L.Find.prototype.initialize.call(datasources);
-		this._featureTypes = {
-			"marker": "Point",
-			"polygon": "Polygon",
-			"rectangle": "Polygon",
-			"polyline": "LineString"
-		};
 		this.drawnItems = null;
 		this._map = null;
 		this.uuid = this._guid();
@@ -89,34 +83,6 @@ L.Find.Draw = L.Class.extend({
 		return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 	},
 
-	_packageFeature: function(feature) {
-		var payload = {
-			"type": "Feature",
-			"geometry": {
-				"type": find_draw._featureTypes[feature.layerType],
-				"coordinates": []
-			},
-			"properties": {}
-		}
-		if (payload.geometry.type == "Point") {
-			payload.geometry.coordinates.push(feature._latlng.lng);
-			payload.geometry.coordinates.push(feature._latlng.lat);
-		} else if (payload.geometry.type == "LineString") {
-			for (var i = 0; i < feature._latlngs.length; i++) {
-				payload.geometry.coordinates.push([feature._latlngs[i].lng,feature._latlngs[i].lat])
-			}
-		} else if (payload.geometry.type == "Polygon") {
-			payload.geometry.coordinates.push([]);
-			for (var i = 0; i < feature._latlngs.length; i++) {
-				payload.geometry.coordinates[0].push([feature._latlngs[i].lng,feature._latlngs[i].lat])
-			}
-		} else {
-			alert("Unknown feature type!")
-			return results
-		}
-		return payload;
-	},
-
 	_addDrawEventHandlers: function() {
 		function onMapClick(e) {
 			var popup = L.popup();
@@ -143,7 +109,7 @@ L.Find.Draw = L.Class.extend({
 			var key = Object.keys(find_draw.drawnItems._layers).pop();
 			var feature = find_draw.drawnItems._layers[key];
 			var payload = {
-				feature: find_draw._packageFeature(feature),
+				feature: feature.toGeoJSON(),
 				key: key,
 				client: find_draw.uuid
 			}
@@ -154,7 +120,7 @@ L.Find.Draw = L.Class.extend({
 			var key = Object.keys(find_draw.drawnItems._layers).pop();
 			var feature = find_draw.drawnItems._layers[key];
 			var payload = {
-				feature: find_draw._packageFeature(feature),
+				feature: feature.toGeoJSON(),
 				key: key,
 				client: find_draw.uuid
 			}
@@ -204,29 +170,8 @@ L.Find.Draw = L.Class.extend({
 		// send new feature
 		var results;
 		var feature = this.drawnItems._layers[id];
-		var payload = {
-			"geometry": {
-				"type": this._featureTypes[feature.layerType],
-				"coordinates": []
-			},
-			"properties": this.getProperties()
-		}
-		if (payload.geometry.type == "Point") {
-			payload.geometry.coordinates.push(feature._latlng.lng);
-			payload.geometry.coordinates.push(feature._latlng.lat);
-		} else if (payload.geometry.type == "LineString") {
-			for (var i = 0; i < feature._latlngs.length; i++) {
-				payload.geometry.coordinates.push([feature._latlngs[i].lng,feature._latlngs[i].lat])
-			}
-		} else if (payload.geometry.type == "Polygon") {
-			payload.geometry.coordinates.push([]);
-			for (var i = 0; i < feature._latlngs.length; i++) {
-				payload.geometry.coordinates[0].push([feature._latlngs[i].lng,feature._latlngs[i].lat])
-			}
-		} else {
-			alert("Unknown feature type!")
-			return results
-		}
+		var payload = feature.toGeoJSON();
+		payload.properties = this.getProperties();
 		results = this.postRequest(
 			'/api/v1/layer/' + $('#layers').val() + '/feature',
 			JSON.stringify(payload)
@@ -251,7 +196,6 @@ L.Find.Draw = L.Class.extend({
 			success: function (data) {
 				try {
 					results = data;
-					// find.find.ws.send("update");
 				}
 				catch(err){  console.log('Error:', err);  }
 			},

@@ -55,12 +55,12 @@ func DebugMode(status bool) {
 		// Warning = log.New(os.Stdout, "[SERVER] WARNING : ", log.LUTC|log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 		// Error = log.New(os.Stderr, "[SERVER] ERROR : ", log.LUTC|log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 		// WebClient = log.New(os.Stdout, "[SERVER] CLIENT : ", log.LUTC|log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
-		Trace = log.New(os.Stdout, "[FIND] TRACE\t", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile)
-		Info = log.New(os.Stdout, "[FIND] INFO\t", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile)
-		Debug = log.New(os.Stdout, "[FIND] DEBUG\t", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile)
-		Warning = log.New(os.Stdout, "[FIND] WARNING\t", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile)
-		Error = log.New(os.Stderr, "[FIND] ERROR\t", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile)
-		WebClient = log.New(os.Stdout, "[FIND] CLIENT\t", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile)
+		Trace = log.New(os.Stdout, "[FIND] TRACE | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile)
+		Info = log.New(os.Stdout, "[FIND] INFO  | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile)
+		Debug = log.New(os.Stdout, "[FIND] DEBUG | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile)
+		Warning = log.New(os.Stdout, "[FIND] WARN  | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile)
+		Error = log.New(os.Stderr, "[FIND] ERROR | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile)
+		// WebClient = log.New(os.Stdout, "[FIND] CLIE |", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile)
 		// CRITICAL
 	}
 }

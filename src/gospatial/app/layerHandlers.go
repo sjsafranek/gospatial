@@ -17,7 +17,6 @@ func (lyr *Layer) Save() error {
 }
 
 func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
-	Info.Println(r.RemoteAddr, "| POST\t|", "/api/v1/layer")
 	geojs := NewGeojson()
 	ds, _ := NewUUID()
 	lyr := Layer{Datasource: ds, Geojson: geojs}
@@ -26,9 +25,11 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"ok","datasource":"` + ds + `"}`
 	js, err := json.Marshal(data)
 	if err != nil {
+		Error.Println(r.RemoteAddr, "| POST | 500 |", "/api/v1/layer")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	Info.Println(r.RemoteAddr, "| POST | 200 |", "/api/v1/layer")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
@@ -36,11 +37,9 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds := vars["ds"]
-	// Info.Println(r.RemoteAddr, ds, "read layer")
-	Info.Println(r.RemoteAddr, "| GET\t|", "/api/v1/layer/"+ds)
-
 	lyr, err := DB.getLayer(ds)
 	if err != nil {
+		Info.Println(r.RemoteAddr, "| GET | 500 |", "/api/v1/layer"+ds)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -48,9 +47,11 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// http.StatusNotFound
 	js, err := json.Marshal(lyr)
 	if err != nil {
+		Info.Println(r.RemoteAddr, "| GET | 500 |", "/api/v1/layer"+ds)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	Info.Println(r.RemoteAddr, "| GET | 200 |", "/api/v1/layer"+ds)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
@@ -58,15 +59,14 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds := vars["ds"]
-	// Info.Println(r.RemoteAddr, ds, "delete layer")
-	Info.Println(r.RemoteAddr, "| DELETE\t|", "/api/v1/layer/"+ds)
-
 	data := DB.deleteLayer(ds)
 	js, err := json.Marshal(data)
 	if err != nil {
+		Info.Println(r.RemoteAddr, "| DELETE | 500 |", "/api/v1/layer"+ds)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	Info.Println(r.RemoteAddr, "| DELETE | 200 |", "/api/v1/layer"+ds)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }

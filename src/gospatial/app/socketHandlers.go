@@ -22,11 +22,11 @@ func (h hub) broadcast(update bool, conn *connection) {
 		Update  bool `json:"update"`
 		Viewers int  `json:"viewers"`
 	}
-	Trace.Println("Broadcasting message to open websocket connections")
+	Trace.Println("WebSockets | Broadcasting message to open connections")
 	msg := Message{Update: update, Viewers: len(h.Sockets[conn.ds])}
 	for i := range h.Sockets[conn.ds] {
 		if h.Sockets[conn.ds][i] != conn.ws {
-			Trace.Println("Sending message to websocket")
+			Trace.Println("WebSockets | Sending message to client")
 			h.Sockets[conn.ds][i].WriteJSON(msg)
 		}
 	}
@@ -37,10 +37,10 @@ func (h hub) broadcastAllDsViewers(update bool, ds string) {
 		Update  bool `json:"update"`
 		Viewers int  `json:"viewers"`
 	}
-	Trace.Println(ds, "Broadcasting message to open websocket connections")
+	Trace.Println("WebSockets | Broadcasting message to open connections")
 	msg := Message{Update: update, Viewers: len(h.Sockets[ds])}
 	for i := range h.Sockets[ds] {
-		Trace.Println("Sending message to websocket")
+		Trace.Println("WebSockets | Sending message to client")
 		h.Sockets[ds][i].WriteJSON(msg)
 	}
 }
@@ -51,7 +51,7 @@ var Hub = hub{
 
 func messageListener(conn *connection) {
 	defer func() {
-		Debug.Printf("Disconnecting websocket connection")
+		Debug.Printf("WebSockets | Disconnecting %s connection", conn.ip)
 		conn.ws.Close()
 		delete(Hub.Sockets[conn.ds], conn.c)
 		Hub.broadcast(false, conn)
@@ -60,13 +60,13 @@ func messageListener(conn *connection) {
 		var m interface{}
 		err := conn.ws.ReadJSON(&m)
 		if err != nil {
-			Error.Println(err)
+			Error.Printf("%s | %s", conn.ip, err)
 			return
 		}
-		Debug.Printf("Message: %v %s", m, conn.ds)
+		Debug.Printf("WebSockets | Message: %v %s", m, conn.ds)
 		for i := range Hub.Sockets[conn.ds] {
 			if Hub.Sockets[conn.ds][i] != conn.ws {
-				Trace.Println("Sending message to websocket")
+				Trace.Println("WebSockets | Sending message to client")
 				Hub.Sockets[conn.ds][i].WriteJSON(m)
 			}
 		}
@@ -82,13 +82,13 @@ var upgrader = websocket.Upgrader{
 }
 
 func serveWs(w http.ResponseWriter, r *http.Request) {
-	Trace.Println("Establishing websocket connection")
+	Trace.Println(r.RemoteAddr, "| Establishing websocket connection")
 	vars := mux.Vars(r)
 	ds := vars["ds"]
 	ip := r.RemoteAddr
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		Info.Println(err)
+		Error.Println(err)
 		return
 	}
 	conn := connection{ws: ws, ds: ds, ip: ip, c: len(Hub.Sockets[ds])}
@@ -97,7 +97,7 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 	} else {
 		Hub.Sockets[ds] = make(map[int]*websocket.Conn)
 		Hub.Sockets[ds][conn.c] = ws
-		Info.Println("WebSocket connection open")
+		Info.Println(r.RemoteAddr, "| WebSocket connection open")
 	}
 	Hub.broadcastAllDsViewers(false, conn.ds)
 	go messageListener(&conn)

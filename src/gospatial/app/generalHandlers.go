@@ -35,10 +35,12 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	if SuperuserKey == r.FormValue("apikey") {
 		map_tmpl := "./templates/map_admin.html"
 		tmpl, _ := template.ParseFiles(map_tmpl)
+		Info.Println(r.RemoteAddr, "| GET | 200 |", "/map/"+ds)
 		tmpl.Execute(w, MapData{Datasource: ds})
 	} else {
 		map_tmpl := "./templates/map_standard.html"
 		tmpl, _ := template.ParseFiles(map_tmpl)
+		Info.Println(r.RemoteAddr, "| GET | 200 |", "/map/"+ds)
 		tmpl.Execute(w, MapData{Datasource: ds})
 	}
 }

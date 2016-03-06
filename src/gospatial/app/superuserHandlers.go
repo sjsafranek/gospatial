@@ -17,7 +17,7 @@ type Message struct {
 func DebugModeHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	md := vars["md"]
-	Info.Println(r.FormValue("apikey"))
+	// Info.Println(r.FormValue("apikey"))
 	if SuperuserKey != r.FormValue("apikey") {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return

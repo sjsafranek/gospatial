@@ -21,7 +21,9 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	Info.Println(r.RemoteAddr, ds, "new feature")
+
+	Info.Println(r.RemoteAddr, "| POST\t|", "/api/v1/layer/"+ds+"/feature")
+	// Info.Println(r.RemoteAddr, ds, "new feature")
 	// get geojson
 	var geojs Geojson
 	err = json.Unmarshal(js, &geojs)
@@ -69,7 +71,10 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	Info.Println(r.RemoteAddr, ds, "read feature", k)
+
+	Info.Println(r.RemoteAddr, "| GET\t|", "/api/v1/layer/"+ds+"/feature/"+vars["k"])
+	// Info.Println(r.RemoteAddr, ds, "read feature", k)
+
 	data, err := DB.getLayer(ds)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

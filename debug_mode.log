@@ -1,8 +1,8 @@
-TRACE: 2016/02/20 16:31:59 db.go:34: Creating database
-TRACE: 2016/02/20 16:31:59 db.go:23: Connecting to database: ./bolt.db
-DEBUG: 2016/02/20 16:31:59 db.go:39: Creating 'layers' bucket if not found
-INFO: 2016/02/20 16:32:00 main.go:40: Magic happens on port 8080...
-INFO: 2016/02/20 16:32:07 superuserHandlers.go:20: 
+TRACE : 2016/03/06 12:54:24 db.go:34: Creating database
+TRACE : 2016/03/06 12:54:24 db.go:23: Connecting to database: ./bolt.db
+DEBUG : 2016/03/06 12:54:24 db.go:39: Creating 'layers' bucket if not found
+INFO : 2016/03/06 12:54:24 main.go:49: Magic happens on port 8080...
+: 2016/02/20 16:32:07 superuserHandlers.go:20: 
 INFO: 2016/02/20 16:32:10 layerHandlers.go:38: [::1]:37794 2e350e7a62ea4d76998395ecc888c5ec read layer
 TRACE: 2016/02/20 16:32:10 db.go:23: Connecting to database: ./bolt.db
 DEBUG: 2016/02/20 16:32:10 db.go:107: Retrieve datasource 2e350e7a62ea4d76998395ecc888c5ec from database

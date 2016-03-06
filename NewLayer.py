@@ -1,12 +1,12 @@
 import json
 import requests
 
-req = requests.post("http://localhost:8082/api/v1/layer")
+req = requests.post("http://localhost:8888/api/v1/layer")
 res = json.loads(req.json())
 ds = res["datasource"]
 print(res)
 
-req = requests.get("http://localhost:8082/api/v1/layer/" + ds)
+req = requests.get("http://localhost:8888/api/v1/layer/" + ds)
 res = req.json()
 print(res)
 

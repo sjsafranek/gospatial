@@ -20,7 +20,7 @@ type Database struct {
 }
 
 func (db *Database) connect() *bolt.DB {
-	Trace.Printf("Database | Connecting to database: '%s'", db.File)
+	Trace.Printf("Connecting to database: '%s'", db.File)
 	conn, err := bolt.Open(db.File, 0644, nil)
 	if err != nil {
 		conn.Close()
@@ -31,12 +31,12 @@ func (db *Database) connect() *bolt.DB {
 }
 
 func (db *Database) Init() error {
-	Trace.Println("Database | Creating database")
+	Trace.Println("Creating database")
 	m := make(map[string]*LayerCache)
 	db.Cache = m
 	go db.CacheManager()
 	conn := db.connect()
-	Debug.Println("Database | Creating 'layers' bucket if not found")
+	Debug.Println("Creating 'layers' bucket if not found")
 	var bucket = []byte("layers")
 	err := conn.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists(bucket)
@@ -54,13 +54,13 @@ func (db *Database) Init() error {
 
 func (db *Database) insertLayer(datasource string, geojs Geojson) error {
 	// Caching layer
-	Trace.Println("Database | Checking cache")
+	Trace.Println("Checking cache")
 	if v, ok := db.Cache[datasource]; ok {
-		Debug.Printf("Database | %s | Update cached datasource", datasource)
+		Debug.Printf("Cache update [%s]", datasource)
 		v.Geojson = geojs
 		v.Time = time.Now()
 	} else {
-		Debug.Printf("Database | %s | Add datasource to cache", datasource)
+		Debug.Printf("Cache insert [%s]", datasource)
 		pgc := &LayerCache{Geojson: geojs, Time: time.Now()}
 		db.Cache[datasource] = pgc
 	}
@@ -69,13 +69,13 @@ func (db *Database) insertLayer(datasource string, geojs Geojson) error {
 	var bucket = []byte("layers")
 	key := []byte(datasource)
 	// convert to bytes
-	Debug.Printf("Database | %s | Encoding datasource to []byte", datasource)
+	Debug.Printf("Encoding [%s]", datasource)
 	value, err := json.Marshal(geojs)
 	if err != nil {
 		Error.Println(err)
 	}
 	// Insert layer into database
-	Debug.Printf("Database | %s | Inserting datasource to database", datasource)
+	Debug.Printf("Database insert [%s]", datasource)
 	err = conn.Update(func(tx *bolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists(bucket)
 		if err != nil {
@@ -98,13 +98,13 @@ func (db *Database) getLayer(datasource string) (Geojson, error) {
 	// Caching layer
 	// Trace.Println("Checking cache")
 	if v, ok := db.Cache[datasource]; ok {
-		Debug.Printf("Database | %s | Retrieve datasource from cache", datasource)
+		Debug.Printf("Cache read [%s]", datasource)
 		v.Time = time.Now()
 		return v.Geojson, nil
 	}
 	// If page not found get from database
 	conn := db.connect()
-	Debug.Printf("Database | %s | Retrieve datasource from database", datasource)
+	Debug.Printf("Database read [%s]", datasource)
 	var bucket = []byte("layers")
 	key := []byte(datasource)
 	val := []byte{}
@@ -125,7 +125,7 @@ func (db *Database) getLayer(datasource string) (Geojson, error) {
 		bucket := tx.Bucket(bucket)
 		if bucket == nil {
 			DebugMode(true) // this shouldnt happen
-			return fmt.Errorf("Database | Bucket %q not found!", bucket)
+			return fmt.Errorf("Bucket %q not found!", bucket)
 		}
 		val = bucket.Get(key)
 		return nil
@@ -137,7 +137,7 @@ func (db *Database) getLayer(datasource string) (Geojson, error) {
 		return Geojson{}, err
 	}
 	// Read to struct
-	Debug.Printf("Database | %s | Unmarshal datasource", datasource)
+	Debug.Printf("Unmarshal [%s]", datasource)
 	geojs := Geojson{}
 	err = json.Unmarshal(val, &geojs)
 	if err != nil {
@@ -146,7 +146,7 @@ func (db *Database) getLayer(datasource string) (Geojson, error) {
 	}
 	conn.Close()
 	// Store page in memory cache
-	Debug.Printf("Database | %s | Add datasource to cache", datasource)
+	Debug.Printf("Cache insert [%s]", datasource)
 	pgc := &LayerCache{Geojson: geojs, Time: time.Now()}
 	db.Cache[datasource] = pgc
 	return geojs, nil
@@ -154,12 +154,12 @@ func (db *Database) getLayer(datasource string) (Geojson, error) {
 
 func (db *Database) deleteLayer(datasource string) error {
 	// Connect to database
-	Debug.Printf("Database | Connecting to database")
+	Debug.Printf("Connecting to database")
 	conn := db.connect()
 	var bucket = []byte("layers")
 	key := []byte(datasource)
 	// Insert layer into database
-	Debug.Printf("Database | %s | Deleting datasource", datasource)
+	Debug.Printf("Database delete [%s]", datasource)
 	err := conn.Update(func(tx *bolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists(bucket)
 		if err != nil {
@@ -183,10 +183,10 @@ func (db *Database) deleteLayer(datasource string) error {
 func (db *Database) CacheManager() {
 	for {
 		if len(db.Cache) != 0 {
-			Trace.Println("Database | Checking cache...")
+			Trace.Println("Checking cache...")
 			for key := range db.Cache {
 				if time.Since(db.Cache[key].Time).Seconds() > 90 {
-					Debug.Printf("Database | %s | Uploading datasource", key)
+					Debug.Printf("Cache unload [%s]", key)
 					delete(db.Cache, key)
 				}
 			}

@@ -25,11 +25,11 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"ok","datasource":"` + ds + `"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		Error.Println(r.RemoteAddr, "| POST | 500 |", "/api/v1/layer")
+		Error.Println(r.RemoteAddr, "POST /api/v1/layer [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	Info.Println(r.RemoteAddr, "| POST | 200 |", "/api/v1/layer")
+	Info.Println(r.RemoteAddr, "POST /api/v1/layer [200]")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
@@ -39,7 +39,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	ds := vars["ds"]
 	lyr, err := DB.getLayer(ds)
 	if err != nil {
-		Info.Println(r.RemoteAddr, "| GET | 500 |", "/api/v1/layer"+ds)
+		Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -47,11 +47,11 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// http.StatusNotFound
 	js, err := json.Marshal(lyr)
 	if err != nil {
-		Info.Println(r.RemoteAddr, "| GET | 500 |", "/api/v1/layer"+ds)
+		Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	Info.Println(r.RemoteAddr, "| GET | 200 |", "/api/v1/layer"+ds)
+	Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [200]")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
@@ -62,11 +62,11 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	data := DB.deleteLayer(ds)
 	js, err := json.Marshal(data)
 	if err != nil {
-		Info.Println(r.RemoteAddr, "| DELETE | 500 |", "/api/v1/layer"+ds)
+		Info.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	Info.Println(r.RemoteAddr, "| DELETE | 200 |", "/api/v1/layer"+ds)
+	Info.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [200]")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }

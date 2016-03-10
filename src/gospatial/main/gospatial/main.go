@@ -12,6 +12,7 @@ import (
 	"gospatial/app"
 	"net/http"
 	"os"
+	"os/signal"
 )
 
 var (
@@ -41,6 +42,24 @@ func init() {
 
 func main() {
 	app.DebugMode(debug)
+
+	// Graceful shut down
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, os.Interrupt)
+	go func() {
+		for sig := range sigs {
+			// sig is a ^C, handle it
+			fmt.Printf("%s \n", sig)
+			app.Info.Println("Gracefulling shutting down")
+			app.Info.Println("Waiting for sockets to close...")
+			for {
+				if len(app.Hub.Sockets) == 0 {
+					app.Info.Println("Shutting down...")
+					os.Exit(0)
+				}
+			}
+		}
+	}()
 
 	// Initiate Database
 	app.DB = app.Database{File: "./" + database + ".db"}

@@ -6,6 +6,7 @@
  - Load datasource route
  - Unload datasource route
  - View loaded datasources roue
+ - Gracefull shutdown. Waits to shut down app until all websockets are disconnected
 
 
 ## 1.4.0 - 2016-03-09

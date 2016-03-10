@@ -56,6 +56,9 @@ func messageListener(conn *connection) {
 	defer func() {
 		conn.ws.Close()
 		delete(Hub.Sockets[conn.ds], conn.c)
+		if len(Hub.Sockets[conn.ds]) == 0 {
+			delete(Hub.Sockets, conn.ds)
+		}
 		Hub.broadcast(false, conn)
 	}()
 	for {

@@ -9,10 +9,10 @@ import (
 
 func main() {
 	// ^C is SIGINT
-    c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
+    sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, os.Interrupt)
 	go func(){
-	    for sig := range c {
+	    for sig := range sigs {
 	        // sig is a ^C, handle it
 	        fmt.Printf("%s \n", sig)
 	        fmt.Println("Waiting for jobs to finish...")

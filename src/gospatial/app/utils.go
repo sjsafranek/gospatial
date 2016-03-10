@@ -19,3 +19,15 @@ func NewUUID() (string, error) {
 	uuid[6] = uuid[6]&^0xf0 | 0x40
 	return fmt.Sprintf("%x%x%x%x%x", uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:]), nil
 }
+
+// func UUID() string {
+// 	b := make([]byte, 16)
+// 	_, err := crand.Read(b)
+// 	if err != nil {
+// 		log.Fatalln("uuid error: ", Error.Error())
+// 		return ""
+// 	}
+// 	b[6] = (b[6] & 0x0f) | 0x40
+// 	b[8] = (b[8] & 0x3f) | 0x80
+// 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:]), nil
+// }

@@ -72,4 +72,24 @@ var routes = Routes{
 		"/ws/{ds}",
 		serveWs,
 	},
+
+	// Experimental
+	Route{
+		"LoadLayer",
+		"GET",
+		"/management/load/{ds}",
+		LoadLayer,
+	},
+	Route{
+		"UnloadLayer",
+		"GET",
+		"/management/unload/{ds}",
+		UnloadLayer,
+	},
+	Route{
+		"LoadedLayers",
+		"GET",
+		"/management/loaded",
+		LoadedLayers,
+	},
 }

@@ -66,7 +66,6 @@ func (db *Database) insertLayer(datasource string, geojs Geojson) error {
 	}
 	// Connect to database
 	conn := db.connect()
-	// defer conn.Close()
 	//
 	var bucket = []byte("layers")
 	key := []byte(datasource)

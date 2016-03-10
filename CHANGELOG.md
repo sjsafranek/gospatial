@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Added
+ - Load datasource route
+ - Unload datasource route
+ - View loaded datasources roue
+
 
 ## 1.4.0 - 2016-03-09
 

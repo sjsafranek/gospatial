@@ -21,7 +21,6 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	ds, _ := NewUUID()
 	lyr := Layer{Datasource: ds, Geojson: geojs}
 	lyr.Save()
-	// Info.Println(r.RemoteAddr, ds, "new layer")
 	data := `{"status":"ok","datasource":"` + ds + `"}`
 	js, err := json.Marshal(data)
 	if err != nil {
@@ -37,20 +36,22 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds := vars["ds"]
+	Info.Println(ds)
 	lyr, err := DB.getLayer(ds)
+	// Datasource not found
 	if err != nil {
-		Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [404]")
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	// Info.Println(data)
-	// http.StatusNotFound
+	// Marshal datasource layer to json
 	js, err := json.Marshal(lyr)
 	if err != nil {
-		Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [500]")
+		Error.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	// Finish
 	Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [200]")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)

@@ -3,6 +3,17 @@
 ## Unreleased
 
 
+## 1.4.0 - 2016-03-09
+
+### Changed
+ - Cleaned up logging syntax
+ - Better logging messages
+ - Fixed database lock bug on no datasource found
+ - Improved error handling and messaging for database
+ - Improved error handling and messaging for GET routes
+ - Fixed http status codes for GET routes
+
+
 ## 1.3.0 - 2016-02-28
 
 ### Added

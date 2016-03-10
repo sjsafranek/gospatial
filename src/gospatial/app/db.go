@@ -66,6 +66,8 @@ func (db *Database) insertLayer(datasource string, geojs Geojson) error {
 	}
 	// Connect to database
 	conn := db.connect()
+	// defer conn.Close()
+	//
 	var bucket = []byte("layers")
 	key := []byte(datasource)
 	// convert to bytes
@@ -103,11 +105,10 @@ func (db *Database) getLayer(datasource string) (Geojson, error) {
 		return v.Geojson, nil
 	}
 	// If page not found get from database
-	conn := db.connect()
 	Debug.Printf("Database read [%s]", datasource)
+	conn := db.connect()
+	// Make sure table exists
 	var bucket = []byte("layers")
-	key := []byte(datasource)
-	val := []byte{}
 	err := conn.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists(bucket)
 		if err != nil {
@@ -117,14 +118,15 @@ func (db *Database) getLayer(datasource string) (Geojson, error) {
 	})
 	if err != nil {
 		conn.Close()
-		DebugMode(true) // this shouldnt happen
 		Error.Println(err)
 		return Geojson{}, err
 	}
+	// Get datasrouce from database
+	key := []byte(datasource)
+	val := []byte{}
 	err = conn.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(bucket)
 		if bucket == nil {
-			DebugMode(true) // this shouldnt happen
 			return fmt.Errorf("Bucket %q not found!", bucket)
 		}
 		val = bucket.Get(key)
@@ -132,18 +134,25 @@ func (db *Database) getLayer(datasource string) (Geojson, error) {
 	})
 	if err != nil {
 		conn.Close()
-		DebugMode(true) // this shouldnt happen
 		Error.Println(err)
 		return Geojson{}, err
+	}
+	// datasource not found
+	if val == nil {
+		conn.Close()
+		Warning.Printf("Not found [%s]", datasource)
+		return Geojson{}, fmt.Errorf("Not found")
 	}
 	// Read to struct
 	Debug.Printf("Unmarshal [%s]", datasource)
 	geojs := Geojson{}
 	err = json.Unmarshal(val, &geojs)
 	if err != nil {
-		// Layer deleted?
+		conn.Close()
 		Error.Println(err)
+		return Geojson{}, err
 	}
+	// Close database connection
 	conn.Close()
 	// Store page in memory cache
 	Debug.Printf("Cache insert [%s]", datasource)

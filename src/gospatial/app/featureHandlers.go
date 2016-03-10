@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
@@ -70,23 +71,32 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	ds := vars["ds"]
 	k, err := strconv.Atoi(vars["k"])
 	if err != nil {
-		Error.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [500]")
+		Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [400]")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
+	// Get layer
 	data, err := DB.getLayer(ds)
 	if err != nil {
-		Error.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
+	// Check for feature
+	if k > len(data.Features) {
+		Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
+		err := fmt.Errorf("Not found")
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	// Marshal feature to json
 	js, err := json.Marshal(data.Features[k])
 	if err != nil {
 		Error.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	// Finish
 	w.Header().Set("Content-Type", "application/json")
 	Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [200]")
 	w.Write(js)

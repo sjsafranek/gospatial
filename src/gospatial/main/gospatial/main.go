@@ -1,12 +1,17 @@
+/*=======================================*/
+//	project: gospatial
+//	author: stefan safranek
+//	email: sjsafranek@gmail.com
+/*=======================================*/
+
 package main
 
 import (
 	"flag"
 	"fmt"
-	"os"
-	// "github.com/gorilla/mux"
 	"gospatial/app"
 	"net/http"
+	"os"
 )
 
 var (
@@ -17,7 +22,9 @@ var (
 	version  bool
 )
 
-const VERSION string = "1.3.0 "
+const (
+	VERSION string = "1.3.0 "
+)
 
 func init() {
 	flag.IntVar(&port, "p", 8080, "server port")

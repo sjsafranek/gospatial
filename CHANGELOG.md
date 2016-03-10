@@ -5,8 +5,11 @@
 ### Added
  - Load datasource route
  - Unload datasource route
- - View loaded datasources roue
+ - View loaded datasources route
  - Gracefull shutdown. Waits to shut down app until all websockets are disconnected
+
+### Changed
+ - get_requirements.sh checks for src packages before downloading
 
 
 ## 1.4.0 - 2016-03-09

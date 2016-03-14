@@ -60,7 +60,13 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds := vars["ds"]
-	data := DB.deleteLayer(ds)
+	err := DB.deleteLayer(ds)
+	if err != nil {
+		Info.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [500]")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	data := `{"status":"ok","datasource":"` + ds + `", "result":"datasource deleted"}`
 	js, err := json.Marshal(data)
 	if err != nil {
 		Info.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [500]")

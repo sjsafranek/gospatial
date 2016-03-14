@@ -22,9 +22,15 @@ L.Find = L.Class.extend({
 		this._map = map;
 		this.addUiControls();
 		this.getLayer($('#layers').val());
-		this._map.fitBounds(
-			find.featureLayers[$('#layers').val()].getBounds()
-		);
+		try {
+			this._map.fitBounds(
+				find.featureLayers[$('#layers').val()].getBounds()
+			);
+		}
+		catch (err) {
+			console.log(err);
+			this._map.fitWorld();
+		}
 		this.ws = this.getWebSocket();
 		return this;
 	},

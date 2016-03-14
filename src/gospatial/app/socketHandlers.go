@@ -20,31 +20,31 @@ type hub struct {
 // Websocket status codes
 // http://tools.ietf.org/html/rfc6455#page-45
 
-func (h hub) broadcast(update bool, conn *connection) {
+func (self hub) broadcast(update bool, conn *connection) {
 	type Message struct {
 		Update  bool `json:"update"`
 		Viewers int  `json:"viewers"`
 	}
 	Trace.Println("Broadcasting message to open connections")
-	msg := Message{Update: update, Viewers: len(h.Sockets[conn.ds])}
-	for i := range h.Sockets[conn.ds] {
-		if h.Sockets[conn.ds][i] != conn.ws {
+	msg := Message{Update: update, Viewers: len(self.Sockets[conn.ds])}
+	for i := range self.Sockets[conn.ds] {
+		if self.Sockets[conn.ds][i] != conn.ws {
 			Trace.Println("Sending message to client")
-			h.Sockets[conn.ds][i].WriteJSON(msg)
+			self.Sockets[conn.ds][i].WriteJSON(msg)
 		}
 	}
 }
 
-func (h hub) broadcastAllDsViewers(update bool, ds string) {
+func (self hub) broadcastAllDsViewers(update bool, ds string) {
 	type Message struct {
 		Update  bool `json:"update"`
 		Viewers int  `json:"viewers"`
 	}
 	Trace.Println("Broadcasting message to open connections")
-	msg := Message{Update: update, Viewers: len(h.Sockets[ds])}
-	for i := range h.Sockets[ds] {
+	msg := Message{Update: update, Viewers: len(self.Sockets[ds])}
+	for i := range self.Sockets[ds] {
 		Trace.Println("Sending message to client")
-		h.Sockets[ds][i].WriteJSON(msg)
+		self.Sockets[ds][i].WriteJSON(msg)
 	}
 }
 

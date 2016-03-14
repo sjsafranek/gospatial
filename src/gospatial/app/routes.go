@@ -92,4 +92,10 @@ var routes = Routes{
 		"/management/loaded",
 		LoadedLayers,
 	},
+	Route{
+		"LoadedLayers",
+		"GET",
+		"/management/profile",
+		server_profile,
+	},
 }

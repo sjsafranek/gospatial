@@ -30,7 +30,8 @@ const (
 func init() {
 	flag.IntVar(&port, "p", 8080, "server port")
 	flag.StringVar(&database, "db", "bolt", "app database")
-	flag.StringVar(&app.SuperuserKey, "s", "su", "superuser key")
+	// flag.StringVar(&app.SuperuserKey, "s", "su", "superuser key")
+	flag.StringVar(&app.SuperuserKey, "s", "7q1qcqmsxnvw", "superuser key")
 	flag.BoolVar(&debug, "d", false, "debug mode")
 	flag.BoolVar(&version, "v", false, "App Version")
 	flag.Parse()

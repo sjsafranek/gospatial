@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
+	"runtime"
+	"time"
 )
 
 func LoadLayer(w http.ResponseWriter, r *http.Request) {
@@ -59,6 +61,31 @@ func LoadedLayers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	Info.Println(r.RemoteAddr, "GET /management/loaded [200]")
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
+var START_TIME = time.Now() //.UTC()
+
+func server_profile(w http.ResponseWriter, r *http.Request) {
+	// data := `{"status":"ok","datasource":"` + ds + `", "result":"datasource unloaded"}`
+	var data map[string]interface{}
+	data = make(map[string]interface{})
+	data["registered"] = START_TIME.UTC()
+	data["uptime"] = time.Since(START_TIME).Seconds()
+	data["status"] = AppMode // debug, static, standard
+	data["num_cores"] = runtime.NumCPU()
+	// data["free_mem"] = runtime.MemStats()
+	// "internal_ip": builtins.INT_IP,
+	// "external_ip": builtins.EXT_IP,
+	// "port": builtins.PORT,
+	js, err := json.Marshal(data)
+	if err != nil {
+		Error.Println(r.RemoteAddr, "GET /management/profile [500]")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	Info.Println(r.RemoteAddr, "GET /management/profile/ [200]")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }

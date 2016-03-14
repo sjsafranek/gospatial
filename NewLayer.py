@@ -19,11 +19,11 @@ payload = {
 		"name": "test point 1"
 	}
 }
-req = requests.post("http://localhost:8080/api/v1/layer/" + ds + "/feature", data=json.dumps(payload))
+req = requests.post("http://localhost:8888/api/v1/layer/" + ds + "/feature", data=json.dumps(payload))
 print(req.json())
 
 
-req = requests.get("http://localhost:8080/api/v1/layer/" + ds + "/feature/0")
+req = requests.get("http://localhost:8888/api/v1/layer/" + ds + "/feature/0")
 print(req.json())
 
 

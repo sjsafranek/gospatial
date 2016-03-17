@@ -3,7 +3,7 @@
 ping route
 
 ## Unreleased
- - 
+ - Sphinx documentation templates
 
 ### Added
  - Load datasource route

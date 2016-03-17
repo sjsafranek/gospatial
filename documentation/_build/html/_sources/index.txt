@@ -1,0 +1,65 @@
+.. FIND GIS API documentation master file, created by
+   sphinx-quickstart on Sun Sep 20 18:27:54 2015.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+
+Welcome to FIND's Geospatial API
+========================================
+
+Welcome to the FIND's Geospatial API documentation. In this documentation we will examine how this API works within the larger FIND application along with showing how this API can be used independently for other webmapping applications.
+
+
+About FIND
+========================================
+
+**F**\ramework for **I**\nternal **N**\avigation and **D**\iscovery.
+
+- `<http://hypercubeplatforms.com/>`_
+- `<http://www.internalpositioning.com/>`_
+
+
+
+
+
+.. *speed racer*
+
+.. `http://thomas-cokelaer.info/tutorials/sphinx/rest_syntax.html`
+
+.. `<http://thomas-cokelaer.info/tutorials/sphinx/rest_syntax.html>`_
+
+.. `Sphinx Cheatsheet <http://thomas-cokelaer.info/tutorials/sphinx/rest_syntax.html>`_
+
+.. *****
+.. Title
+.. *****
+
+.. subtitle
+.. ########
+
+.. subsubtitle
+.. **********************
+.. and so on
+
+.. http://www.internalpositioning.com/user/faq.html
+
+
+
+.. Contents:
+
+.. toctree::
+    :hidden:
+
+    Introduction <introduction>
+    Quick Start <quick_start>
+    Api <api>
+    changelog
+
+
+.. Indices and tables
+.. ==================
+
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`
+

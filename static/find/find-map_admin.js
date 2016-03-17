@@ -1,14 +1,15 @@
 
 	var map,
 		FindGeo,
-		datasources;
+		datasources,
+		apikey;
 
-	function initialize(div, datasources) {
+	function initialize(div, apikey, datasources) {
 
 		// map = L.map('map',{maxZoom: 22});
 		map = L.map('map',{maxZoom: 18});
 
-		FindGeo = L.find.draw(datasources);
+		FindGeo = L.find.draw(apikey, datasources);
 		FindGeo.addTo(map);
 
 		osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{ 

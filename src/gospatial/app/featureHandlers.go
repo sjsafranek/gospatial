@@ -7,11 +7,36 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	// "strings"
 )
 
 func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds := vars["ds"]
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Check apikey permissions
+	if r.FormValue("apikey") == "" {
+		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	customer, err := DB.getCustomer(r.FormValue("apikey"))
+	if err != nil {
+		Warning.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [404]")
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	if !stringInSlice(ds, customer.Datasources) {
+		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	// get layer from database
 	data, err := DB.getLayer(ds)
 	if err != nil {
 		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
@@ -34,15 +59,10 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// read request body
 	feat := NewFeature()
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 	err = json.Unmarshal(body, &feat)
 	if err != nil {
 		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
+		Error.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -69,6 +89,23 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds := vars["ds"]
+	// Check apikey permissions
+	if r.FormValue("apikey") == "" {
+		Error.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [401]")
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	customer, err := DB.getCustomer(r.FormValue("apikey"))
+	if err != nil {
+		Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	if !stringInSlice(ds, customer.Datasources) {
+		Error.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [401]")
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
 	k, err := strconv.Atoi(vars["k"])
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [400]")

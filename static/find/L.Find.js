@@ -8,9 +8,10 @@ L.Find = L.Class.extend({
 
 	options: {},
 
-	initialize: function(datasources, options) {
+	initialize: function(apikey, datasources, options) {
 		L.setOptions(this, options || {});
 		this._map = null;
+		this.apikey = apikey;
 		this.datasources = datasources;
 		this.featureLayers = {};
 		this.ws = null;
@@ -226,7 +227,7 @@ L.Find = L.Class.extend({
 			type: "POST",
 			async: false,
 			data: data,
-			url: route,
+			url: route + "?apikey=" + find.apikey,
 			dataType: 'JSON',
 			success: function (data) {
 				try {
@@ -255,7 +256,7 @@ L.Find = L.Class.extend({
 			type: "GET",
 			async: false,
 			data: data,
-			url: route,
+			url: route + "?apikey=" + find.apikey,
 			dataType: 'JSON',
 			success: function (data) {
 				try {

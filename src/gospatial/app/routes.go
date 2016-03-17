@@ -56,6 +56,19 @@ var routes = Routes{
 		"/management/mode/{md}",
 		DebugModeHandler,
 	},
+	Route{
+		"CreateCustomer",
+		"POST",
+		"/management/customer",
+		CreateCustomer,
+	},
+
+	Route{
+		"GetCustomer",
+		"GET",
+		"/management/customer/{key}",
+		GetCustomer,
+	},
 
 	// Web Client Routes
 	Route{

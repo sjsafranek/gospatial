@@ -3,7 +3,14 @@
 ping route
 
 ## Unreleased
- - Sphinx documentation templates
+
+### Added
+ - Create customer/apikey route
+ - Create apikey to database for datasource permissions
+ - customer apikey required for reading and writing datasources
+
+
+## 1.4.0 - 2016-03-16
 
 ### Added
  - Load datasource route
@@ -11,6 +18,7 @@ ping route
  - View loaded datasources route
  - Gracefull shutdown. Waits to shut down app until all websockets are disconnected
  - server profile route (uptime, runtime, server status)
+ - Sphinx documentation templates
 
 ### Changed
  - get_requirements.sh checks for src packages before downloading

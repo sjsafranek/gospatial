@@ -19,6 +19,7 @@ func DebugModeHandler(w http.ResponseWriter, r *http.Request) {
 	md := vars["md"]
 	// Info.Println(r.FormValue("apikey"))
 	if SuperuserKey != r.FormValue("apikey") {
+		Error.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}

@@ -9,13 +9,14 @@ L.Find.Draw = L.Class.extend({
 	
 	options: {},
 
-	initialize: function(datasources, options) {
+	initialize: function(apikey, datasources, options) {
 		L.setOptions(this, options || {});
-		this.find = L.find(datasources);
+		this.find = L.find(apikey, datasources);
 		// this.find = L.Find.prototype.initialize(datasources);
 		// L.Find.prototype.initialize.call(datasources);
 		this.drawnItems = null;
 		this._map = null;
+		this.apikey = apikey;
 		this.uuid = this._guid();
 	},
 
@@ -175,6 +176,7 @@ L.Find.Draw = L.Class.extend({
 		results = this.postRequest(
 			'/api/v1/layer/' + $('#layers').val() + '/feature',
 			JSON.stringify(payload)
+			// payload
 		);
 		// console.log(this.$super);
 		this.find.getLayer($('#layers').val());
@@ -186,12 +188,13 @@ L.Find.Draw = L.Class.extend({
 	postRequest: function(route, data) {
 		var results;
 		find = this;
+		console.log(data);
 		$.ajax({
 			crossDomain: true,
 			type: "POST",
 			async: false,
 			data: data,
-			url: route,
+			url: route + "?apikey=" + find.apikey,
 			dataType: 'JSON',
 			success: function (data) {
 				try {
@@ -220,7 +223,7 @@ L.Find.Draw = L.Class.extend({
 			type: "GET",
 			async: false,
 			data: data,
-			url: route,
+			url: route + "?apikey=" + find.apikey,
 			dataType: 'JSON',
 			success: function (data) {
 				try {

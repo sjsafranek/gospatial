@@ -4,7 +4,13 @@ import (
 	crand "crypto/rand"
 	"fmt"
 	"io"
+	"math/rand"
+	"time"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 // http://play.golang.org/p/4FkNSiUDMg
 func NewUUID() (string, error) {
@@ -31,3 +37,32 @@ func NewUUID() (string, error) {
 // 	b[8] = (b[8] & 0x3f) | 0x80
 // 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:]), nil
 // }
+
+const letters string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func NewAPIKey(n int) string {
+	s := ""
+	for i := 1; i <= n; i++ {
+		s += string(letters[rand.Intn(len(letters))])
+		// Info.Println(letters[rand.Intn(len(letters))])
+	}
+	return s
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
+func sliceIndex(value string, slice []string) int {
+	for p, v := range slice {
+		if v == value {
+			return p
+		}
+	}
+	return -1
+}

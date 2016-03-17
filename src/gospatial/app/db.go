@@ -32,10 +32,13 @@ func (self *Database) connect() *bolt.DB {
 
 func (self *Database) Init() error {
 	Trace.Println("Creating database")
+	// Start db caching
 	m := make(map[string]*LayerCache)
 	self.Cache = m
 	go self.CacheManager()
+	// connect to db
 	conn := self.connect()
+	// datasources
 	Debug.Println("Creating 'layers' bucket if not found")
 	var bucket = []byte("layers")
 	err := conn.Update(func(tx *bolt.Tx) error {
@@ -48,8 +51,107 @@ func (self *Database) Init() error {
 	if err != nil {
 		Error.Fatal(err)
 	}
+	// permissions
+	Debug.Println("Creating 'apikeys' bucket if not found")
+	bucket = []byte("apikeys")
+	err = conn.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists(bucket)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		Error.Fatal(err)
+	}
+	// close and return err
 	conn.Close()
 	return err
+}
+
+func (self *Database) insertCustomer(customer Customer) (string, error) {
+	// Connect to database
+	conn := self.connect()
+	var bucket = []byte("apikeys")
+	// customer := Customer{Apikey: NewAPIKey(12)}
+	key := []byte(customer.Apikey)
+	// convert to bytes
+	value, err := json.Marshal(customer)
+	if err != nil {
+		Error.Println(err)
+	}
+	// Insert layer into database
+	Debug.Printf("Database insert apikey [%s]", customer.Apikey)
+	err = conn.Update(func(tx *bolt.Tx) error {
+		bucket, err := tx.CreateBucketIfNotExists(bucket)
+		if err != nil {
+			return err
+		}
+		err = bucket.Put(key, value)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		Error.Fatal(err)
+	}
+	conn.Close()
+	return customer.Apikey, err
+}
+
+func (self *Database) getCustomer(apikey string) (Customer, error) {
+	// If page not found get from database
+	Debug.Printf("Database read apikey [%s]", apikey)
+	conn := self.connect()
+	// Make sure table exists
+	var bucket = []byte("apikeys")
+	err := conn.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists(bucket)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		conn.Close()
+		Error.Println(err)
+		return Customer{}, err
+	}
+	// Get datasrouce from database
+	key := []byte(apikey)
+	val := []byte{}
+	err = conn.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(bucket)
+		if bucket == nil {
+			return fmt.Errorf("Bucket %q not found!", bucket)
+		}
+		val = bucket.Get(key)
+		return nil
+	})
+	if err != nil {
+		conn.Close()
+		Error.Println(err)
+		return Customer{}, err
+	}
+	// datasource not found
+	if val == nil {
+		conn.Close()
+		Warning.Printf("Apikey not found [%s]", apikey)
+		return Customer{}, fmt.Errorf("Apikey not found")
+	}
+	// Read to struct
+	Debug.Printf("Unmarshal [%s]", apikey)
+	customer := Customer{}
+	err = json.Unmarshal(val, &customer)
+	if err != nil {
+		conn.Close()
+		Error.Println(err)
+		return Customer{}, err
+	}
+	// Close database connection
+	conn.Close()
+	return customer, nil
 }
 
 func (self *Database) insertLayer(datasource string, geojs Geojson) error {
@@ -97,7 +199,6 @@ func (self *Database) insertLayer(datasource string, geojs Geojson) error {
 
 func (self *Database) getLayer(datasource string) (Geojson, error) {
 	// Caching layer
-	// Trace.Println("Checking cache")
 	if v, ok := self.Cache[datasource]; ok {
 		Debug.Printf("Cache read [%s]", datasource)
 		v.Time = time.Now()

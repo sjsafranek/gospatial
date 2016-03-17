@@ -41,3 +41,19 @@ Execute the binary file produced in the projects `bin` directory
 
 ### Routes
 
+#### Layers:
+	POST /api/v1/layer
+	GET /api/v1/layer/{ds}
+	DELETE /api/v1/layer/{ds}
+
+#### Features:
+	POST /api/v1/layer/{ds}/feature
+	GET /api/v1/layer/{ds}/feature/{k}
+	
+	GET /management/mode/{md}
+	GET /map/{ds}
+	WS GET /ws/{ds}
+	GET /management/load/{ds}"
+	GET /management/unload/{ds}
+	GET /management/loaded
+	GET /management/profile

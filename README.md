@@ -49,10 +49,13 @@ Execute the binary file produced in the projects `bin` directory
 #### Features:
 	POST /api/v1/layer/{ds}/feature
 	GET /api/v1/layer/{ds}/feature/{k}
-	
-	GET /management/mode/{md}
+
+#### Web Client
 	GET /map/{ds}
 	WS GET /ws/{ds}
+	
+#### Management	
+	GET /management/mode/{md}
 	GET /management/load/{ds}"
 	GET /management/unload/{ds}
 	GET /management/loaded

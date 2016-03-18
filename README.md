@@ -1,7 +1,9 @@
 # GoSpatial
 [![Go Report Card](https://goreportcard.com/badge/github.com/sjsafranek/gospatial)](https://goreportcard.com/report/github.com/sjsafranek/gospatial)
 
-Golang RESTful api for writing, storing, and serving GeoJSON data. GoSpatial also includes a mapping front end powered by Leaflet.js. Users are able to see what other 
+Documentation: http://sjsafranek.github.io/gospatial/
+
+Golang RESTful api for writing, storing, and serving GeoJSON data. GoSpatial also includes a mapping front end powered by Leaflet.js. Users are able to see eachothers work before submitting.
 
 ## Requirements
 	github.com/gorilla/websocket

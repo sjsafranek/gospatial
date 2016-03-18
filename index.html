@@ -186,6 +186,7 @@ $ ./bin/gospatial
   <p>Returns GeoJSON for requested datasource layer</p>
   <p><label>Params</label></p>
   <ul>
+    <li>ds (in url) - datsource layer uuid</li>
     <li>apikey</li>
   </ul>
   <p><label>Return</label></p>
@@ -228,6 +229,7 @@ $ ./bin/gospatial
   <p>Deletes a datasource layer and removes it from customer</p>
   <p><label>Params</label></p>
   <ul>
+    <li>ds (in url) - datsource layer uuid</li>
     <li>apikey</li>
   </ul>
   <p><label>Return</label></p>
@@ -246,6 +248,7 @@ $ ./bin/gospatial
   <p>Adds GeoJSON feature to datasource layer</p>
   <p><label>Params</label></p>
   <ul>
+    <li>ds (in url) - datsource layer uuid</li>
     <li>apikey</li>
   </ul>
   <p><label>Body</label></p>
@@ -276,6 +279,8 @@ $ ./bin/gospatial
   <p>Adds GeoJSON feature to datasource layer</p>
   <p><label>Params</label></p>
   <ul>
+    <li>ds (in url) - datsource layer uuid</li>
+    <li>k (in url) - index of feature</li>
     <li>apikey</li>
   </ul>
   <p><label>Return</label></p>
@@ -350,6 +355,7 @@ $ ./bin/gospatial
   <p>Mobile friendy map client using the <a href="http://leafletjs.com/">Leaflet</a> mapping library. Easy to use interface for viewing and submitting geospatial features. This view is touch screen supported.</p>
   <p><label>Params</label></p>
   <ul>
+    <li>ds (in url) - datsource layer uuid</li>
     <li>apikey</li>
   </ul>
   <div>

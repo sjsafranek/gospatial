@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+var START_TIME = time.Now()
+
 func LoadLayer(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds := vars["ds"]
@@ -64,8 +66,6 @@ func LoadedLayers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
-
-var START_TIME = time.Now() //.UTC()
 
 func server_profile(w http.ResponseWriter, r *http.Request) {
 	// data := `{"status":"ok","datasource":"` + ds + `", "result":"datasource unloaded"}`

@@ -9,22 +9,16 @@ import (
 var SuperuserKey string = "su"
 var AppMode string = "standard"
 
-type Message struct {
-	Status  string `json:"status"`
-	Message string `json:"Message"`
-}
-
 func DebugModeHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	md := vars["md"]
-	// Info.Println(r.FormValue("apikey"))
 	if SuperuserKey != r.FormValue("apikey") {
 		Error.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 	if md == "debug" {
-		js, err := json.Marshal(Message{Status: "ok", Message: "debug mode on"})
+		js, err := json.Marshal(`{"status": "ok", "message": "debug mode on"}`)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -33,8 +27,37 @@ func DebugModeHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
 	} else if md == "standard" {
-		js, err := json.Marshal(Message{Status: "ok", Message: "debug mode off"})
+		js, err := json.Marshal(`{"status": "ok", "message": "debug mode off"}`)
 		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		DebugMode(false)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	}
+}
+
+// SUPERUSER
+func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
+	if SuperuserKey != r.FormValue("apikey") {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	} else {
+		// new customer
+		apikey := NewAPIKey(12)
+		customer := Customer{Apikey: apikey}
+		err := DB.insertCustomer(customer)
+		if err != nil {
+			Error.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		// return results
+		data := `{"status":"ok","apikey":"` + apikey + `", "result":"customer created"}`
+		js, err := json.Marshal(data)
+		if err != nil {
+			Error.Println(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

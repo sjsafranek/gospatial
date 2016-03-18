@@ -8,11 +8,19 @@ import (
 	"time"
 )
 
+const _letters string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-// http://play.golang.org/p/4FkNSiUDMg
+/*=======================================*/
+// Method: NewUUID
+// Source: http://play.golang.org/p/4FkNSiUDMg
+// Description:
+//		Generates and returns a uuid
+// @returns string
+/*=======================================*/
 func NewUUID() (string, error) {
 	uuid := make([]byte, 16)
 	n, err := io.ReadFull(crand.Reader, uuid)
@@ -23,32 +31,35 @@ func NewUUID() (string, error) {
 	uuid[8] = uuid[8]&^0xc0 | 0x80
 	// version 4 (pseudo-random); see section 4.1.3
 	uuid[6] = uuid[6]&^0xf0 | 0x40
+	// return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:]), nil
 	return fmt.Sprintf("%x%x%x%x%x", uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:]), nil
 }
 
-// func UUID() string {
-// 	b := make([]byte, 16)
-// 	_, err := crand.Read(b)
-// 	if err != nil {
-// 		log.Fatalln("uuid error: ", Error.Error())
-// 		return ""
-// 	}
-// 	b[6] = (b[6] & 0x0f) | 0x40
-// 	b[8] = (b[8] & 0x3f) | 0x80
-// 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:]), nil
-// }
-
-const letters string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
+/*=======================================*/
+// Method: NewAPIKey
+// Description:
+//		Generates apikey of desired length
+// @param int length of apikey
+// @returns string
+/*=======================================*/
 func NewAPIKey(n int) string {
 	s := ""
 	for i := 1; i <= n; i++ {
-		s += string(letters[rand.Intn(len(letters))])
-		// Info.Println(letters[rand.Intn(len(letters))])
+		s += string(_letters[rand.Intn(len(_letters))])
 	}
 	return s
 }
 
+/*=======================================*/
+// Method: stringInSlice
+// Description:
+//		Loops through array of strings
+//		Checks each string in array for match
+//		If string match occurs returns true
+// @param a {string} string to find
+// @param list {[]string} array of strings to search
+// @returns bool
+/*=======================================*/
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {
@@ -58,6 +69,15 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
+/*=======================================*/
+// Method: sliceIndex
+// Description:
+//		Loops through array of strings
+//		Checks each string in array for match
+//		If string match occurs returns index
+// @param value {string} string to find
+// @param slice {[]string} array of strings to search
+// @returns int
 func sliceIndex(value string, slice []string) int {
 	for p, v := range slice {
 		if v == value {

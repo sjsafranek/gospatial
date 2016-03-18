@@ -103,7 +103,6 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 	} else {
 		Hub.Sockets[ds] = make(map[int]*websocket.Conn)
 		Hub.Sockets[ds][conn.c] = ws
-		// Info.Println(r.RemoteAddr, "WS Open [200]")
 		Info.Println(r.RemoteAddr, "WS /ws/"+conn.ds+" [200]")
 	}
 	Hub.broadcastAllDsViewers(false, conn.ds)

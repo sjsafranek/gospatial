@@ -6,37 +6,86 @@ import (
 	"net/http"
 )
 
-type Layer struct {
-	Datasource string  `json:"datasource"`
-	Geojson    Geojson `json:"geojson"`
+/*=======================================*/
+// Method: ViewLayersHandler
+// Description:
+//		Returns customer layers
+// @param apikey customer id
+// @return json
+/*=======================================*/
+func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Get params
+	apikey := r.FormValue("apikey")
+
+	/*=======================================*/
+	// Check for apikey in request
+	if apikey == "" {
+		Error.Println(r.RemoteAddr, "POST /api/v1/layer/feature [401]")
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Get customer from database
+	customer, err := DB.getCustomer(apikey)
+	if err != nil {
+		Warning.Println(r.RemoteAddr, "POST /api/v1/layer/feature [404]")
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	/*=======================================*/
+
+	// return results
+	js, err := json.Marshal(customer)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+
 }
 
-func (lyr *Layer) Save() error {
-	DB.insertLayer(lyr.Datasource, lyr.Geojson)
-	return nil
-}
-
+/*=======================================*/
+// Method: NewLayerHandler
+// Description:
+//		Creates a new layer
+// 		Layer is saved to database
+//		Layer uuid is added to customer list
+// @param apikey
+// @return json
+/*=======================================*/
 func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
-	if r.FormValue("apikey") == "" {
+
+	// Get params
+	apikey := r.FormValue("apikey")
+
+	// Check for apikey in request
+	if apikey == "" {
 		Error.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-	customer, err := DB.getCustomer(r.FormValue("apikey"))
+
+	// Get customer from database
+	customer, err := DB.getCustomer(apikey)
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "POST /api/v1/layer/ [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
+
 	// Create datasource
 	geojs := NewGeojson()
 	ds, _ := NewUUID()
 	lyr := Layer{Datasource: ds, Geojson: geojs}
 	lyr.Save()
-	// add datasource to customer
+
+	// Add datasource uuid to customer
 	customer.Datasources = append(customer.Datasources, ds)
 	DB.insertCustomer(customer)
-	// return results
+
+	// Generate message
 	data := `{"status":"ok","datasource":"` + ds + `"}`
 	js, err := json.Marshal(data)
 	if err != nil {
@@ -44,31 +93,57 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Return results
 	Info.Println(r.RemoteAddr, "POST /api/v1/layer [200]")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
+
 }
 
+/*=======================================*/
+// Method: ViewLayerHandler
+// Description:
+//		Gets requested layer from database
+//		Checks apikey/customer permissions
+//		Returns layer geojson
+// @param ds
+// @param apikey
+// @return geojson
+/*=======================================*/
 func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Get params
+	apikey := r.FormValue("apikey")
+
+	// Get ds from url path
 	vars := mux.Vars(r)
 	ds := vars["ds"]
-	// Check apikey permissions
-	if r.FormValue("apikey") == "" {
+
+	/*=======================================*/
+	// Check for apikey in request
+	if apikey == "" {
 		Error.Println(r.RemoteAddr, "GET /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-	customer, err := DB.getCustomer(r.FormValue("apikey"))
+
+	// Get customer from database
+	customer, err := DB.getCustomer(apikey)
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "GET /api/v1/layer/ [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
+
+	// Check customer datasource list
 	if !stringInSlice(ds, customer.Datasources) {
 		Error.Println(r.RemoteAddr, "GET /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
+	/*=======================================*/
+
 	// Get layer from database
 	lyr, err := DB.getLayer(ds)
 	if err != nil {
@@ -76,6 +151,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
+
 	// Marshal datasource layer to json
 	js, err := json.Marshal(lyr)
 	if err != nil {
@@ -83,44 +159,71 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// Finish
+
+	// Return layer json
 	Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [200]")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
+
 }
 
+/*=======================================*/
+// Method: DeleteLayerHandler
+// Description:
+//		Checks apikey/customer permissions
+//		Deletes layer from database
+//		Deletes layer from customer list
+// @param ds
+// @param apikey
+// @return json
+/*=======================================*/
 func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Get params
+	apikey := r.FormValue("apikey")
+
+	// Get ds from url path
 	vars := mux.Vars(r)
 	ds := vars["ds"]
-	// Check apikey permissions
-	if r.FormValue("apikey") == "" {
+
+	/*=======================================*/
+	// Check for apikey in request
+	if apikey == "" {
 		Error.Println(r.RemoteAddr, "DELETE /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-	customer, err := DB.getCustomer(r.FormValue("apikey"))
+
+	// Get customer from database
+	customer, err := DB.getCustomer(apikey)
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "DELETE /api/v1/layer/ [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
+
+	// Check customer datasource list
 	if !stringInSlice(ds, customer.Datasources) {
 		Error.Println(r.RemoteAddr, "DELETE /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-	// Delete layer
+	/*=======================================*/
+
+	// Delete layer from database
 	err = DB.deleteLayer(ds)
 	if err != nil {
 		Info.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	// Delete layer from customer
 	i := sliceIndex(ds, customer.Datasources)
 	customer.Datasources = append(customer.Datasources[:i], customer.Datasources[i+1:]...)
 	DB.insertCustomer(customer)
-	// Return results
+
+	// Generate message
 	data := `{"status":"ok","datasource":"` + ds + `", "result":"datasource deleted"}`
 	js, err := json.Marshal(data)
 	if err != nil {
@@ -128,7 +231,10 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Returns results
 	Info.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [200]")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
+
 }

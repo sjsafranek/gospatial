@@ -1,5 +1,16 @@
 package app
 
+/*=======================================*/
+// Customer
+/*=======================================*/
+type Customer struct {
+	Apikey      string   `json:"apikey"`
+	Datasources []string `json:"datasources"`
+}
+
+/*=======================================*/
+// GeoJSON
+/*=======================================*/
 type PolyGeom struct {
 	Type        string      `json:"type"`
 	Coordinates [][]float64 `json:"coordinates"`
@@ -34,4 +45,25 @@ func NewFeature() Feature {
 func NewGeojson() Geojson {
 	geojs := Geojson{Type: "FeatureCollection"}
 	return geojs
+}
+
+/*=======================================*/
+// Layer
+/*=======================================*/
+type Layer struct {
+	Datasource string  `json:"datasource"`
+	Geojson    Geojson `json:"geojson"`
+}
+
+func (lyr *Layer) Save() error {
+	DB.insertLayer(lyr.Datasource, lyr.Geojson)
+	return nil
+}
+
+/*=======================================*/
+// MapData for template
+/*=======================================*/
+type MapData struct {
+	Datasource string
+	Apikey     string
 }

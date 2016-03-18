@@ -188,7 +188,7 @@ L.Find.Draw = L.Class.extend({
 	postRequest: function(route, data) {
 		var results;
 		find = this;
-		// console.log(data);
+		console.log(data);
 		$.ajax({
 			crossDomain: true,
 			type: "POST",

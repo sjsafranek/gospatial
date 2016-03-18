@@ -19,6 +19,14 @@ import (
 // @return json
 /*=======================================*/
 func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
+	// Get request body
+	// If this id done later in this function an EOF error occurs
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		// Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// Get params
 	apikey := r.FormValue("apikey")
@@ -26,15 +34,16 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Get ds from url path
 	vars := mux.Vars(r)
 	ds := vars["ds"]
-
-	// Get request body
-	// If this id done later in this function an EOF error occurs
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	
+	/*
+		t := NewFeature()
+		decoder := json.NewDecoder(bd)
+		err := decoder.Decode(&t)
+		if err != nil {
+			Error.Println(err)
+		}
+		Info.Println(t)
+	*/
 
 	/*=======================================*/
 	// Check for apikey in request

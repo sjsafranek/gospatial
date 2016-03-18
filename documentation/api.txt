@@ -11,22 +11,39 @@ Routes
 
 
 
+``GET /api/v1/layers``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Returns json containing customers datasources.
+
+Params:
+    - apikey = <apikey>
+
+Request:
+    GET ``<server>:<port>/api/v1/layers?apikey=<apikey>``
+
+Returns::
+
+    {
+        "apikey": "TIJ3ZzsIWG8k",
+        "datasources": [
+            "b3db766e432842398ea1e9364acb5ad6"
+        ]
+    }
+
+
+
+
 ``POST /api/v1/layer``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Creates a new datasource layer and returns datasource uuid.
 
-``POST`` request, requires ``apikey`` parameter. Creates a layer datasource and returns uuid.
-
-Params::
-
-    apikey = <apikey>
+Params:
+    - apikey = <apikey>
 
 Request:
     POST ``<server>:<port>/api/v1/layer?apikey=<apikey>``
 
-Example:
-    curl -X POST ``http://localhost:8888/api/v1/layer?apikey=apikey``
-
-Returns a JSON containing layer uuid::
+Returns::
 
     {
         'datasource': 'b2e10ca0d3bf466d90a427671ad00f37', 
@@ -38,19 +55,15 @@ Returns a JSON containing layer uuid::
 ``GET /api/v1/layer/{ds}``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``GET`` request, requires ``apikey`` parameter. Returns
+Returns GeoJSON for requested datasource layer.
 
-Params::
-
-    apikey = <apikey>
+Params:
+    - apikey = <apikey>
 
 Request:
-    GET ``<server>:<port>/api/v1/layer/{ds}?apikey=<masterkey>``
+    GET ``<server>:<port>/api/v1/layer/{ds}?apikey=<apikey>``
 
-Example:
-    GET ``http://localhost:8888/api/v1/layer/3d5e751d85324cec84919e1e9a4c4f25?apikey=<apikey>``
-
-Returns a JSON containing GeoJSON of requested layer::
+Returns::
 
     {
         "type": "FeatureCollection",
@@ -87,19 +100,15 @@ Returns a JSON containing GeoJSON of requested layer::
 ``DELETE /api/v1/layer/{ds}``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``DELETE`` request, requires ``apikey`` parameter. Deletes a layer and its associated features.
+Deletes a datasource layer and removes it from customer.
 
-Params::
-
-    apikey = <apikey>
+Params:
+    - apikey = <apikey>
 
 Request:
     DELETE ``<server>:<port>/api/v1/layer/{ds}?apikey=<apikey>``
 
-Example:
-    curl -X DELETE ``http://localhost:8888/api/v1/layer/3d5e751d85324cec84919e1e9a4c4f25?apikey=apikey``
-
-Returns a JSON containing layer uuid::
+Returns::
 
     {
         "status":"ok",
@@ -111,11 +120,10 @@ Returns a JSON containing layer uuid::
 
 ``POST /api/v1/layer/{ds}/feature``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-``POST`` request, requires ``apikey`` parameter and GeoJSON request body.
+Adds GeoJSON feature to datasource layer.
 
-Params::
-
-    apikey = <apikey>,
+Params:
+    - apikey = <apikey>
 
 Body::
 
@@ -129,10 +137,10 @@ Body::
         }
     }
 
-Request::
+Request:
     POST ``<server>:<port>/api/v1/layer/3d5e751d85324cec84919e1e9a4c4f25/feature?apikey=<apikey>``
 
-Returns a JSON containing layer uuid::
+Returns::
 
     {
         'geometry': {
@@ -150,19 +158,15 @@ Returns a JSON containing layer uuid::
 ``GET /api/v1/layer/{ds}/feature/{k}``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``GET`` request, requires ``apikey``. Returns JSON containing the GeoJSON of requested feature.
+Returns GeoJSON of requested feature.
 
-Params::
-
-    apikey = <apikey>
+Params:
+    - apikey = <apikey>
 
 Request:
     GET ``<server>:<port>/api/v1/layer/{ds}/feature/{k}?apikey=<apikey>``
 
-Example:
-    curl -X GET ``http://localhost:8888/api/v1/layer/3d5e751d85324cec84919e1e9a4c4f25/feature/1?apikey=apikey``
-
-Returns a JSON containing feature GeoJSON::
+Returns::
 
     {
         'geometry': {

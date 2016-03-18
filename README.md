@@ -42,19 +42,21 @@ Execute the binary file produced in the projects `bin` directory
 ### Routes
 
 #### Layers:
-	POST /api/v1/layer
-	GET /api/v1/layer/{ds}
-	DELETE /api/v1/layer/{ds}
+	GET /api/v1/layers?apikey=<apikey>
+	POST /api/v1/layer?apikey=<apikey>
+	GET /api/v1/layer/{ds}?apikey=<apikey>
+	DELETE /api/v1/layer/{ds}?apikey=<apikey>
 
 #### Features:
-	POST /api/v1/layer/{ds}/feature
-	GET /api/v1/layer/{ds}/feature/{k}
+	POST /api/v1/layer/{ds}/feature?apikey=<apikey>
+	GET /api/v1/layer/{ds}/feature/{k}?apikey=<apikey>
 
 #### Web Client
-	GET /map/{ds}
+	GET /map/{ds}?apikey=<apikey>
 	WS GET /ws/{ds}
 	
 #### Management	
+	POST /management/customer?apikey=<superuserkey>
 	GET /management/mode/{md}
 	GET /management/load/{ds}"
 	GET /management/unload/{ds}

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>GoSpatial Api Docs</title>
+
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/assets/css/docs.min.css" rel="stylesheet">
+  <link href="/assets/css/style.css" rel="stylesheet">
+
+  <style>
+    #content {
+      background:#080331;
+      background:linear-gradient(135deg, #080331, #673051);
+    }
+  </style>
+
+  <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+  <script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.3.0/bootbox.min.js"></script>
+  <script src="/assets/js/docs.min.js"></script>
+</head>
+
+<body>
+  <!-- Main navigation
+  =========================================== -->
+  <header class="navbar navbar-static-top bs-docs-nav" id="top">
+    <div class="container">
+      <div class="navbar-header" role="banner">
+        <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/index.html">GoSpatial Api Docs</a>
+      </div>
+      <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+        
+        
+          
+        
+          
+        
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+        
+          <li>
+            <a href="https://github.com/sjsafranek/gospatial">GitHub</a>
+          </li>
+        
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+
+  <!-- Header
+  =========================================== -->
+  
+  <div class="bs-docs-masthead" id="content">
+    <div class="container">
+      <h1 class="home-title">GoSpatial Api Docs</h1>
+      <p class="lead">Geospatial data made easy</p>
+      <p class="lead">
+        <a href="https://github.com/sjsafranek/gospatial" class="btn btn-outline-inverse btn-lg">Download</a>
+      </p>
+      <p class="version">Currently v1.4.0</p>
+    </div>
+  </div>
+
+  
+
+  <div class="container bs-docs-container">
+    <div class="row">
+      <!-- Content
+      =========================================== -->
+      <div class="col-md-9" role="main">
+        <section class="bs-docs-section">
+  <h1 id="overview" class="page-header">Overview</h1>
+  
+  <blockquote>
+    This is a light weight api server aimed at making it easy to create, store and serve geospatial data to other webmapping applications. The core api server is written in <a href="https://golang.org/">GoLang</a> and uses three Go packages: <a href="https://github.com/gorilla/mux">Gorilla Mux</a> , <a href="https://github.com/gorilla/websocket">Gorilla WebSocket</a> and <a href="https://github.com/boltdb/bolt">Bolt</a>.
+  </blockquote>
+
+  <h3 id="features">Features</h3>
+
+  <ul>
+    <li>Lightweight & portable database engine</li>
+    <li>Customer permissions for layer read & write access</li>
+    <li>Mobile friendy map client using the <a href="http://leafletjs.com/">Leaflet</a> mapping library</li>
+    <li>Geospatial data is served using the <a href="http://geojson.org/">GeoJSON</a> format</li>
+  </ul>
+  
+</section>
+
+
+<section class="bs-docs-section">
+  <h1 id="installation" class="page-header">Installation</h1>
+
+  <h2 id="install-golang">Install GoLang</h2>
+  <p>Follow the <a href="https://golang.org/doc/install/source">guide</a> to install GoLang on your computer. The big steps are:</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">$ git clone https://go.googlesource.com/go
+$ cd go
+$ git checkout go1.5
+$ cd src
+$ ./all.bash </code></pre></figure>
+
+<!-- <figure class="highlight"><pre><code class="language-text" data-lang="text">gem install jekyll
+apt-get install ruby ruby-dev
+gem install bundler
+git clone git://github.com/mistic100/jekyll-bootstrap-doc
+bundle install
+bundle exec jekyll serve</code></pre></figure> -->
+
+
+  <h2 id="get-the-code">Get the Code</h2>
+  <p>With GoLang installed, we will have to get the latest GoSpatial source code. We can do this simply cloning the repository:</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">$ git clone https://github.com/sjsafranek/gospatial.git</code></pre></figure>
+
+
+  <h2 id="install-dependencies">Installing Dependencies</h2>
+  <p>We will now need to aquire the three Go packages (<a href="https://github.com/gorilla/mux">Gorilla Mux</a> , <a href="https://github.com/gorilla/websocket">Gorilla WebSocket</a> and <a href="https://github.com/boltdb/bolt">Bolt</a>). There is a simple shell script provided in the repositories main directory that will <code>go get</code> these packages:</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">$ cd gospatial
+$ ./get_requirements.sh</code></pre></figure>
+
+  <h2 id="build-from-source">Building from source</h2>
+  <p>Finally we can compile from our source:</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">$ make install</code></pre></figure>
+
+  <p>We are now ready to run the server!</p>
+
+</section>
+
+
+
+<section class="bs-docs-section">
+<h1 id="quickstart" class="page-header">Quickstart</h1>
+  
+  <h2 id="options">Options</h2>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th style="width: 130px;">Option</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>-d</td>
+          <td>false</td>
+          <td>Places the server into "debug mode". While the server app is in this mode, logs will be written to a log file</td>
+        </tr>
+        <tr>
+          <td>-db</td>
+          <td>bolt.db</td>
+          <td>Specifies what database file to use</td>
+        </tr>
+        <tr>
+          <td>-p</td>
+          <td>8080</td>
+          <td>Specifies the server port</td>
+        </tr>
+        <tr>
+          <td>-s</td>
+          <td>su</td>
+          <td>Specifies the superuser key for management routes</td>
+        </tr>
+        <tr>
+          <td>-v</td>
+          <td></td>
+          <td>Prints the app version</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="start-the-server">Start the server</h2>
+  <p>Start server with the following command:</p>
+<figure class="highlight"><pre><code class="language-text" data-lang="text">$ ./bin/gospatial
+[FIND] TRACE | 2016/03/18 19:43:15.269541 db.go:54: Creating database
+[FIND] TRACE | 2016/03/18 19:43:15.269616 db.go:36: Connecting to database: './bolt.db'
+[FIND] DEBUG | 2016/03/18 19:43:15.321743 db.go:62: Creating 'layers' bucket if not found
+[FIND] DEBUG | 2016/03/18 19:43:15.393999 db.go:72: Creating 'apikeys' bucket if not found
+[FIND] INFO  | 2016/03/18 19:43:15.412214 main.go:75: Magic happens on port 8080...</code></pre></figure>
+
+  <!-- <h2 id="sub-section">Second level</h2> -->
+  <!-- <h3 id="another-sub-section">Still second level</h3> -->
+
+  <h2 id="troubleshooting">Troubleshooting</h2>
+  <p>You are bound to run into problems. Please review the following hints for troubleshooting. Of course, you're welcome to contact us if you're unable to resolve.</p>
+
+</section> 
+
+
+<!-- Javascript Start -->
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<!-- Bootstrap Core JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<!-- Plugin JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+<!-- Custom Theme JavaScript -->
+<script src="http://internalpositioning.com/js/grayscale.js"></script>
+
+
+      </div>
+
+      <!-- Page navigation
+      =========================================== -->
+      <div class="col-md-3" role="complementary">
+        <div class="bs-docs-sidebar hidden-print">
+          <ul class="nav bs-docs-sidenav">
+          </ul>
+          <a class="back-to-top" href="#top">
+            <i class="glyphicon glyphicon-chevron-up"></i> Back to top
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Footer
+  =========================================== -->
+  <footer class="bs-docs-footer" role="contentinfo">
+    <div class="container">
+      <div class="bs-docs-social">
+        <ul class="bs-docs-social-buttons">
+        
+          <li>
+            <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=sjsafranek&amp;repo=gospatial&amp;type=watch&amp;count=true" width="90" height="20" title="Star on GitHub"></iframe>
+          </li>
+          <li>
+            <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=sjsafranek&amp;repo=gospatial&amp;type=fork&amp;count=true" width="90" height="20" title="Fork on GitHub"></iframe>
+          </li>
+        
+        
+          <li>
+            <a href="https://twitter.com/share" class="twitter-share-button" data-url="" data-count="horizontal" data-via="" data-text="GoSpatial Api Docs" data-hashtags="">Tweet</a>
+          </li>
+        
+        
+        
+          <li>
+            <div class="fb-like" data-href="" data-layout="button_count" data-action="like" data-show-faces="false" data-share="true"></div>
+          </li>
+        
+        
+        </ul>
+      </div>
+
+      <p>
+        Licensed under <a href="http://opensource.org/licenses/MIT" target="_blank">MIT License</a>,
+        documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+      </p>
+      <p>
+        Documentation template by <a href="http://getbootstrap.com">Bootstrap team</a>,
+        generated with <a href="https://github.com/mistic100/jekyll-bootstrap-doc">Jekyll Bootstrap Doc</a>
+      </p>
+
+      <ul class="bs-docs-footer-links muted">
+        <li>Currently v1.4.0</li>
+      
+        <li>&middot;</li>
+        <li><a href="https://github.com/sjsafranek/gospatial">GitHub</a></li>
+      
+        <li>&middot;</li>
+        <li><a href="https://github.com/sjsafranek/gospatial/issues?state=open">Issues</a></li>
+      
+      </ul>
+    </div>
+  </footer>
+
+
+  <!-- Async scripts
+  =========================================== -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/0.1.2/trianglify.min.js"></script>
+  <script>trianglify('#080331', '#673051');</script>
+  
+
+  
+  <script>
+    window.twttr = (function (d,s,id) {
+      var t, js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return; js=d.createElement(s); js.id=id; js.async=1;
+      js.src="https://platform.twitter.com/widgets.js"; fjs.parentNode.insertBefore(js, fjs);
+      return window.twttr || (t = { _e: [], ready: function(f){ t._e.push(f) } });
+    }(document, "script", "twitter-wjs"));
+  </script>
+  
+
+  
+  <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.0";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+  </script>
+  
+
+  
+
+</body>
+</html>

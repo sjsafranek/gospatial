@@ -1,0 +1,152 @@
+---
+layout: default
+title: Home
+description: Geospatial data made easy
+isHome: true
+---
+
+<section class="bs-docs-section">
+  <h1 id="overview" class="page-header">Overview</h1>
+  
+  <blockquote>
+    This is a light weight api server aimed at making it easy to create, store and serve geospatial data to other webmapping applications. The core api server is written in <a href="https://golang.org/">GoLang</a> and uses three Go packages: <a href="https://github.com/gorilla/mux">Gorilla Mux</a> , <a href="https://github.com/gorilla/websocket">Gorilla WebSocket</a> and <a href="https://github.com/boltdb/bolt">Bolt</a>.
+  </blockquote>
+
+  <h3 id="features">Features</h3>
+
+  <ul>
+    <li>Lightweight & portable database engine</li>
+    <li>Customer permissions for layer read & write access</li>
+    <li>Mobile friendy map client using the <a href="http://leafletjs.com/">Leaflet</a> mapping library</li>
+    <li>Geospatial data is served using the <a href="http://geojson.org/">GeoJSON</a> format</li>
+  </ul>
+  
+</section>
+
+
+<section class="bs-docs-section">
+  <h1 id="installation" class="page-header">Installation</h1>
+
+  <h2 id="install-golang">Install GoLang</h2>
+  <p>Follow the <a href="https://golang.org/doc/install/source">guide</a> to install GoLang on your computer. The big steps are:</p>
+
+{% highlight text %}
+$ git clone https://go.googlesource.com/go
+$ cd go
+$ git checkout go1.5
+$ cd src
+$ ./all.bash 
+{% endhighlight %}
+
+<!-- {% highlight text %}
+gem install jekyll
+apt-get install ruby ruby-dev
+gem install bundler
+git clone git://github.com/mistic100/jekyll-bootstrap-doc
+bundle install
+bundle exec jekyll serve
+{% endhighlight %} -->
+
+
+  <h2 id="get-the-code">Get the Code</h2>
+  <p>With GoLang installed, we will have to get the latest GoSpatial source code. We can do this simply cloning the repository:</p>
+
+{% highlight text %}
+$ git clone https://github.com/sjsafranek/gospatial.git
+{% endhighlight %}
+
+
+  <h2 id="install-dependencies">Installing Dependencies</h2>
+  <p>We will now need to aquire the three Go packages (<a href="https://github.com/gorilla/mux">Gorilla Mux</a> , <a href="https://github.com/gorilla/websocket">Gorilla WebSocket</a> and <a href="https://github.com/boltdb/bolt">Bolt</a>). There is a simple shell script provided in the repositories main directory that will <code>go get</code> these packages:</p>
+
+{% highlight text %}
+$ cd gospatial
+$ ./get_requirements.sh
+{% endhighlight %}
+
+  <h2 id="build-from-source">Building from source</h2>
+  <p>Finally we can compile from our source:</p>
+
+{% highlight text %}
+$ make install
+{% endhighlight %}
+
+  <p>We are now ready to run the server!</p>
+
+</section>
+
+
+
+<section class="bs-docs-section">
+<h1 id="quickstart" class="page-header">Quickstart</h1>
+  
+  <h2 id="options">Options</h2>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th style="width: 130px;">Option</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>-d</td>
+          <td>false</td>
+          <td>Places the server into "debug mode". While the server app is in this mode, logs will be written to a log file</td>
+        </tr>
+        <tr>
+          <td>-db</td>
+          <td>bolt.db</td>
+          <td>Specifies what database file to use</td>
+        </tr>
+        <tr>
+          <td>-p</td>
+          <td>8080</td>
+          <td>Specifies the server port</td>
+        </tr>
+        <tr>
+          <td>-s</td>
+          <td>su</td>
+          <td>Specifies the superuser key for management routes</td>
+        </tr>
+        <tr>
+          <td>-v</td>
+          <td></td>
+          <td>Prints the app version</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="start-the-server">Start the server</h2>
+  <p>Start server with the following command:</p>
+{% highlight text %}
+$ ./bin/gospatial
+[FIND] TRACE | 2016/03/18 19:43:15.269541 db.go:54: Creating database
+[FIND] TRACE | 2016/03/18 19:43:15.269616 db.go:36: Connecting to database: './bolt.db'
+[FIND] DEBUG | 2016/03/18 19:43:15.321743 db.go:62: Creating 'layers' bucket if not found
+[FIND] DEBUG | 2016/03/18 19:43:15.393999 db.go:72: Creating 'apikeys' bucket if not found
+[FIND] INFO  | 2016/03/18 19:43:15.412214 main.go:75: Magic happens on port 8080...
+{% endhighlight %}
+
+  <!-- <h2 id="sub-section">Second level</h2> -->
+  <!-- <h3 id="another-sub-section">Still second level</h3> -->
+
+  <h2 id="troubleshooting">Troubleshooting</h2>
+  <p>You are bound to run into problems. Please review the following hints for troubleshooting. Of course, you're welcome to contact us if you're unable to resolve.</p>
+
+</section> 
+
+
+<!-- Javascript Start -->
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<!-- Bootstrap Core JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<!-- Plugin JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+<!-- Custom Theme JavaScript -->
+<script src="http://internalpositioning.com/js/grayscale.js"></script>
+

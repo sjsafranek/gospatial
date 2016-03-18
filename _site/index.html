@@ -207,6 +207,161 @@ $ ./get_requirements.sh</code></pre></figure>
 </section> 
 
 
+
+
+
+
+
+<section class="bs-docs-section">
+<h1 id="quickstart" class="page-header">Routes</h1>
+
+<!-- LAYERS -->
+  <h3 id="layers">Layers</h3>
+
+  <p><span class="label label-success">GET</span> <code>/api/v1/layers?apikey=&#60;apikey&#62;</code></p>
+  <p>Returns json containing customers datasources</p>
+  <p><label>Params</label></p>
+  <ul>
+    <li>apikey</li>
+  </ul>
+  <p><label>Return</label></p>
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="w">    </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"apikey"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TIJ3ZzsIWG8k"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"datasources"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"b3db766e432842398ea1e9364acb5ad6"</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span></code></pre></figure>
+
+
+<!-- LAYER -->
+  <h3 id="layer">Layer</h3>
+
+  <p><span class="label label-primary">POST</span> <code>/api/v1/layer?apikey=&#60;apikey&#62;</code></p>
+  <p>Creates a new datasource layer and returns datasource uuid</p>
+  <p><label>Params</label></p>
+  <ul>
+    <li>apikey</li>
+  </ul>
+  <p><label>Return</label></p>
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="w">    </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"datasource"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b2e10ca0d3bf466d90a427671ad00f37"</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+    </span><span class="p">}</span></code></pre></figure>
+
+  <p><span class="label label-success">GET</span> <code>/api/v1/layer/{ds}?apikey=&#60;apikey&#62;</code></p>
+  <p>Returns GeoJSON for requested datasource layer</p>
+  <p><label>Params</label></p>
+  <ul>
+    <li>apikey</li>
+  </ul>
+  <p><label>Return</label></p>
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="w">    </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FeatureCollection"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"geometry"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"coordinates"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">-10</span><span class="p">],</span><span class="w">
+                    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Point"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nt">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Our House"</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"geometry"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"coordinates"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                        </span><span class="p">[</span><span class="mf">-101.01</span><span class="p">,</span><span class="mf">-100.01</span><span class="p">],</span><span class="w">
+                        </span><span class="p">[</span><span class="mf">100.01</span><span class="p">,</span><span class="mf">101.01</span><span class="p">],</span><span class="w">
+                        </span><span class="p">[</span><span class="mf">-110.1</span><span class="p">,</span><span class="mf">-10.1</span><span class="p">],</span><span class="w">
+                    </span><span class="p">],</span><span class="w">
+                    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"LineString"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nt">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Middle of the Street"</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span></code></pre></figure>
+
+  <p><span class="label label-danger">DELETE</span> <code>/api/v1/layer{ds}?apikey=&#60;apikey&#62;</code></p>
+  <p>Deletes a datasource layer and removes it from customer</p>
+  <p><label>Params</label></p>
+  <ul>
+    <li>apikey</li>
+  </ul>
+  <p><label>Return</label></p>
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="w">    </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"ok"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"datasource"</span><span class="p">:</span><span class="s2">"8665c8ee0cc44b56848acfb55302e3a9"</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"result"</span><span class="p">:</span><span class="s2">"datasource deleted"</span><span class="w">
+    </span><span class="p">}</span></code></pre></figure>
+
+
+
+<!-- FEATURE -->
+  <h3 id="feature">Features</h3>
+
+  <p><span class="label label-primary">POST</span> <code>/api/v1/layer/{ds}/feature?apikey=&#60;apikey&#62;</code></p>
+  <p>Adds GeoJSON feature to datasource layer</p>
+  <p><label>Params</label></p>
+  <ul>
+    <li>apikey</li>
+  </ul>
+  <p><label>Body</label></p>
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="w">    </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"geometry"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Point"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"coordinates"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Center"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span></code></pre></figure>
+  <p><label>Return</label></p>
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="w">    </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"datasource"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b2e10ca0d3bf466d90a427671ad00f37"</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"result"</span><span class="p">:</span><span class="s2">"feature added"</span><span class="w">
+    </span><span class="p">}</span></code></pre></figure>
+
+  <p><span class="label label-success">GET</span> <code>/api/v1/layer/{ds}/feature{k}?apikey=&#60;apikey&#62;</code></p>
+  <p>Adds GeoJSON feature to datasource layer</p>
+  <p><label>Params</label></p>
+  <ul>
+    <li>apikey</li>
+  </ul>
+  <p><label>Return</label></p>
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="w">    </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"geometry"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"coordinates"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w">
+            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Point"</span><span class="w">
+        </span><span class="p">},</span><span class="w"> 
+        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Feature"</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Center"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span></code></pre></figure>
+
+
+
+
+
+</section> 
+
+
+<!-- 
+<span class="label label-primary">POST</span>
+<span class="label label-success">GET</span>
+<span class="label label-danger">DELETE</span>
+<span class="label label-warning">PUT</span>
+
+ -->
+
+
+
+
 <!-- Javascript Start -->
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
@@ -218,6 +373,50 @@ $ ./get_requirements.sh</code></pre></figure>
 <script src="http://internalpositioning.com/js/grayscale.js"></script>
 
 
+
+
+<!-- 
+``PUT /api/v1/layer/feature``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``PUT`` request, requires ``apikey``, ``uuid``, ``geom``, and ``k`` parameters. This route allows a user to change ``geom`` to an existing feature.
+
+Params::
+
+    geom = [[lng,lat],...,[lng,lat]],
+    apikey = <apikey>,
+    uuid = <layer_uuid>,
+    k = <feature_k>
+
+Returns a JSON containing layer uuid::
+
+    {
+        "status": 200, 
+        "layer": "kr7lwogusfhh", 
+        "k": "kr7lwogusfhh:87", 
+        "message": "feature editted", 
+        "success": true
+    }
+
+
+
+``DELETE /api/v1/layer/feature``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``DELETE`` request, requires ``apikey``, ``uuid``, and ``k`` parameters.
+
+Params::
+
+    apikey = <apikey>,
+    uuid = <layer_uuid>,
+    k = <feature_uuid>
+
+Returns a JSON containing layer uuid::
+
+    {
+        "status": 200, 
+        "k": "kr7lwogusfhh:87", 
+        "message": "feature deleted", 
+        "success": true
+    } -->
       </div>
 
       <!-- Page navigation

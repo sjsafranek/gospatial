@@ -4,6 +4,8 @@ ping route
 
 ## Unreleased
 
+### Added
+ - Unittests (tests.py)
 
 
 ## 1.4.0 - 2016-03-18

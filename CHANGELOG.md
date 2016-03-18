@@ -4,10 +4,15 @@ ping route
 
 ## Unreleased
 
+
+
+## 1.4.0 - 2016-03-18
+
 ### Added
  - Create customer/apikey route
  - Create apikey to database for datasource permissions
  - customer apikey required for reading and writing datasources
+ - NewFeatureHandler EOF error
 
 
 ## 1.4.0 - 2016-03-16

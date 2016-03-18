@@ -27,6 +27,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	r.Body.Close()
 
 	// Get params
 	apikey := r.FormValue("apikey")
@@ -34,7 +35,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Get ds from url path
 	vars := mux.Vars(r)
 	ds := vars["ds"]
-	
+
 	/*
 		t := NewFeature()
 		decoder := json.NewDecoder(bd)

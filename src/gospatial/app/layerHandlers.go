@@ -42,6 +42,8 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
+	// allow cross domain AJAX requests
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Write(js)
 
 }
@@ -97,6 +99,8 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Return results
 	Info.Println(r.RemoteAddr, "POST /api/v1/layer [200]")
 	w.Header().Set("Content-Type", "application/json")
+	// allow cross domain AJAX requests
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Write(js)
 
 }
@@ -163,6 +167,8 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Return layer json
 	Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [200]")
 	w.Header().Set("Content-Type", "application/json")
+	// allow cross domain AJAX requests
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Write(js)
 
 }
@@ -235,6 +241,8 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Returns results
 	Info.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [200]")
 	w.Header().Set("Content-Type", "application/json")
+	// allow cross domain AJAX requests
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Write(js)
 
 }

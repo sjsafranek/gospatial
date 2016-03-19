@@ -63,6 +63,8 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		DebugMode(false)
 		w.Header().Set("Content-Type", "application/json")
+		// allow cross domain AJAX requests
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Write(js)
 	}
 }

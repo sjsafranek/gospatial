@@ -307,11 +307,31 @@ $ ./bin/gospatial
 <h1 id="superuser-routes" class="page-header">Superuser Routes</h1>
 
   <h3 id="add-customer">Add Customer</h3>
-  <p><span class="label label-primary">POST</span> <code>/management/customer?apikey=&#60;superuserkey&#62;</code></p>
+  <p><span class="label label-warning">PUT</span> <code>/management/customer?authkey=&#60;superuserkey&#62;</code></p>
   <p>Creates a new customer and returns customer apikey</p>
   <p><label>Params</label></p>
   <ul>
-    <li>apikey - superuser apikey</li>
+    <li>authkey - superuser apikey</li>
+  </ul>
+  <p><label>Return</label></p>
+{% highlight json %}
+    {
+        "status": "ok",
+        "datasource": "b2e10ca0d3bf466d90a427671ad00f37", 
+        "result":"layer shared"
+    }
+{% endhighlight %}
+  <hr>
+
+
+  <h3 id="share-layer">Share Layer</h3>
+  <p><span class="label label-primary">POST</span> <code>/api/v1/layer/{ds}?apikey=&#60;apikey&#62;&authkey=&#60;superuserkey&#62;</code></p>
+  <p>Creates a new customer and returns customer apikey</p>
+  <p><label>Params</label></p>
+  <ul>
+    <li>ds (in url) - datsource layer uuid</li>
+    <li>apikey - customer apikey</li>
+    <li>authkey - superuser apikey</li>
   </ul>
   <p><label>Return</label></p>
 {% highlight json %}
@@ -324,13 +344,12 @@ $ ./bin/gospatial
   <hr>
 
 
-
   <h3 id="server-profile">Server profile</h3>
-  <p><span class="label label-success">GET</span> <code>/management/profile?apikey=&#60;superuserkey&#62;</code></p>
+  <p><span class="label label-success">GET</span> <code>/management/profile?authkey=&#60;superuserkey&#62;</code></p>
   <p>Returns basic server info such as uptime</p>
   <p><label>Params</label></p>
   <ul>
-    <li>apikey - superuser apikey</li>
+    <li>authkey - superuser apikey</li>
   </ul>
   <p><label>Return</label></p>
 {% highlight json %}

@@ -18,7 +18,7 @@ class GoSpatialTester(unittest.TestCase):
 	def test_api(self):
 
 		print("[POST] NEW CUSTOMER")
-		req = requests.post("http://localhost:8888/management/customer", params={"auth":"7q1qcqmsxnvw"})
+		req = requests.post("http://localhost:8888/management/customer", params={"authkey":"7q1qcqmsxnvw"})
 		self.assertEqual(200, req.status_code)
 		res = json.loads(req.json())
 		apikey = res['apikey']

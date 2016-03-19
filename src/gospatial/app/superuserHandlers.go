@@ -68,3 +68,67 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(js)
 	}
 }
+
+
+
+/*=======================================*/
+// Method: ShareLayerHandler
+// Description:
+//		Gives customer access to datasource
+// @param apikey - customer to give access
+// @param authkey
+// @return json
+/*=======================================*/
+func ShareLayerHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Get params
+	apikey := r.FormValue("apikey")
+	authkey := r.FormValue("authkey")
+
+	// Get ds from url path
+	vars := mux.Vars(r)
+	ds := vars["ds"]
+
+
+	if SuperuserKey != r.FormValue("authkey") {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	} else {
+
+		if apikey == "" {
+			Error.Println(r.RemoteAddr, "PUT /api/v1/layer/{ds} [401]")
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+
+		// Get customer from database
+		customer, err := DB.getCustomer(apikey)
+		if err != nil {
+			Warning.Println(r.RemoteAddr, "PUT /api/v1/layer/{ds} [404]")
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		// Add datasource uuid to customer
+		customer.Datasources = append(customer.Datasources, ds)
+		DB.insertCustomer(customer)
+
+		// Generate message
+		data := `{"status":"ok","datasource":"` + ds + `"}`
+		js, err := json.Marshal(data)
+		if err != nil {
+			Error.Println(r.RemoteAddr, "PUT /api/v1/layer [500]")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Return results
+		Info.Println(r.RemoteAddr, "PUT /api/v1/layer [200]")
+		w.Header().Set("Content-Type", "application/json")
+		// allow cross domain AJAX requests
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Write(js)
+	
+	}
+
+}

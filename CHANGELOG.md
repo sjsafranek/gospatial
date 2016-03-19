@@ -10,6 +10,7 @@ ping route
 ### Added
  - Unittests (tests.py)
  - Added "Access-Control-Allow-Origin" header to api routes
+ - shared datasource layers
 
 
 ## 1.4.0 - 2016-03-18

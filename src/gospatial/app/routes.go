@@ -30,6 +30,7 @@ var routes = Routes{
 
 	// Web Client Routes
 	Route{"Map", "GET", "/map/{ds}", MapHandler},
+	Route{"Index", "GET", "/", IndexHandler},
 
 	// Web Socket Route
 	Route{"Socket", "GET", "/ws/{ds}", serveWs},

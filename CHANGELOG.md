@@ -4,8 +4,6 @@ ping route
 
 ## Unreleased
 
-    // allow cross domain AJAX requests
-    w.Header().Set("Access-Control-Allow-Origin", "*")
 
 
 ### Added

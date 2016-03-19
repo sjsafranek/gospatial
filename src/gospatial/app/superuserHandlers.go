@@ -89,7 +89,7 @@ func ShareLayerHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds := vars["ds"]
 
-
+	// superuser access
 	if SuperuserKey != r.FormValue("authkey") {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return

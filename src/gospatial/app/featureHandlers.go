@@ -187,8 +187,9 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Return results
 	w.Header().Set("Content-Type", "application/json")
-    // allow cross domain AJAX requests
-    w.Header().Set("Access-Control-Allow-Origin", "*")
+	// allow cross domain AJAX requests
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	//
 	Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [200]")
 	w.Write(js)
 

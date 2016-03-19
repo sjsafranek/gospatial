@@ -5,6 +5,7 @@ ping route
 ## Unreleased
 
 
+## 1.4.1 - 2016-03-19
 
 ### Added
  - Unittests (tests.py)

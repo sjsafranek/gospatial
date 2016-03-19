@@ -12,7 +12,7 @@ var AppMode string = "standard"
 func DebugModeHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	md := vars["md"]
-	if SuperuserKey != r.FormValue("apikey") {
+	if SuperuserKey != r.FormValue("authkey") {
 		Error.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
@@ -40,7 +40,7 @@ func DebugModeHandler(w http.ResponseWriter, r *http.Request) {
 
 // SUPERUSER
 func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
-	if SuperuserKey != r.FormValue("apikey") {
+	if SuperuserKey != r.FormValue("authkey") {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	} else {

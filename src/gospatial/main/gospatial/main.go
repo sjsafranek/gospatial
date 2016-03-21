@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"gospatial/app"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 )
@@ -76,6 +77,11 @@ func main() {
 	if app.AppMode == "debug" {
 		fmt.Printf("Magic happens on port %v...\n", port)
 	}
+
+	// https://golang.org/pkg/net/http/pprof/
+	go func() {
+		app.Info.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
 
 	bind := fmt.Sprintf(":%v", port)
 	err := http.ListenAndServe(bind, router)

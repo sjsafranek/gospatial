@@ -64,12 +64,12 @@ class GoSpatialTester(unittest.TestCase):
 		self.assertEqual(200, req.status_code)
 		print("[ok]", ds, 0)
 
-		print("[DELETE] Layer")
-		req = requests.delete("http://localhost:8888/api/v1/layer/" + ds, params={"apikey": apikey})
-		self.assertEqual(200, req.status_code)
-		res = json.loads(req.json())
-		self.assertEqual(ds, res["datasource"])
-		print("[ok]", res["datasource"])
+		# print("[DELETE] Layer")
+		# req = requests.delete("http://localhost:8888/api/v1/layer/" + ds, params={"apikey": apikey})
+		# self.assertEqual(200, req.status_code)
+		# res = json.loads(req.json())
+		# self.assertEqual(ds, res["datasource"])
+		# print("[ok]", res["datasource"])
 
 
 if __name__ == "__main__":

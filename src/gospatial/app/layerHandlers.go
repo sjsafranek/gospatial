@@ -246,5 +246,3 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 
 }
-
-

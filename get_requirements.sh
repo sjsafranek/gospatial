@@ -18,3 +18,10 @@ fi
 if [ ! -d "`pwd`/src/github.com/gorilla/websocket" ]; then
 	go get github.com/gorilla/websocket
 fi
+
+
+
+if [ ! -d "`pwd`/src/github.com/paulmach/go.geojson" ]; then
+	go get github.com/paulmach/go.geojson
+fi
+

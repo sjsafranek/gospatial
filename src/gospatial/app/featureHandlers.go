@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	// "github.com/paulmach/go.geojson"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -36,16 +37,6 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds := vars["ds"]
 
-	/*
-		t := NewFeature()
-		decoder := json.NewDecoder(bd)
-		err := decoder.Decode(&t)
-		if err != nil {
-			Error.Println(err)
-		}
-		Info.Println(t)
-	*/
-
 	/*=======================================*/
 	// Check for apikey in request
 	if apikey == "" {
@@ -77,6 +68,17 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// geojs, err := geojson.UnmarshalFeatureCollection(geo)
+
+	// // TEST
+	// g, err := geojson.UnmarshalFeature(body)
+	// // // TEST
+	// fc := geojson.NewFeatureCollection()
+	// fc.AddFeature(g)
+	// rawJSON, err := fc.MarshalJSON()
+	// //
+	// Info.Println(string(rawJSON))
 
 	// Read request body and marshal to geojson feature
 	feat := NewFeature()

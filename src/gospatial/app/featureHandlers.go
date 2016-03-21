@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	// "github.com/paulmach/go.geojson"
+	"github.com/paulmach/go.geojson"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -62,38 +62,24 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	/*=======================================*/
 
 	// Get layer from database
-	geojs, err := DB.getLayer(ds)
+	featCollection, err := DB.getLayer(ds)
 	if err != nil {
 		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// geojs, err := geojson.UnmarshalFeatureCollection(geo)
-
-	// // TEST
-	// g, err := geojson.UnmarshalFeature(body)
-	// // // TEST
-	// fc := geojson.NewFeatureCollection()
-	// fc.AddFeature(g)
-	// rawJSON, err := fc.MarshalJSON()
-	// //
-	// Info.Println(string(rawJSON))
-
-	// Read request body and marshal to geojson feature
-	feat := NewFeature()
-	err = json.Unmarshal(body, &feat)
+	// Unmarshal feature
+	feat, err := geojson.UnmarshalFeature(body)
 	if err != nil {
 		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
 		Error.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	// Add new feature to layer
-	geojs.Features = append(geojs.Features, feat)
-	lyr := Layer{Datasource: ds, Geojson: geojs}
-	lyr.Save()
+	featCollection.AddFeature(feat)
+	DB.insertLayer(ds, featCollection)
 
 	// Generate message
 	data := `{"status":"ok","datasource":"` + ds + `", "message":"feature added"}`
@@ -182,7 +168,8 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Marshal feature to json
-	js, err := json.Marshal(data.Features[k])
+	// js, err := json.Marshal(data.Features[k])
+	js, err := data.Features[k].MarshalJSON()
 	if err != nil {
 		Error.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)

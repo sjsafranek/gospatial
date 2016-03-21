@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/boltdb/bolt"
+	"github.com/paulmach/go.geojson"
 	"time"
 )
 
@@ -16,7 +17,7 @@ var DB Database
 // Models
 /*=======================================*/
 type LayerCache struct {
-	Geojson Geojson
+	Geojson *geojson.FeatureCollection
 	Time    time.Time
 }
 
@@ -186,7 +187,7 @@ func (self *Database) getCustomer(apikey string) (Customer, error) {
 // @param geojs {Geojson}
 // @returns Error
 /*=======================================*/
-func (self *Database) insertLayer(datasource string, geojs Geojson) error {
+func (self *Database) insertLayer(datasource string, geojs *geojson.FeatureCollection) error {
 	// Caching layer
 	Trace.Println("Checking cache")
 	if v, ok := self.Cache[datasource]; ok {
@@ -233,7 +234,8 @@ func (self *Database) insertLayer(datasource string, geojs Geojson) error {
 // @returns Geojson
 // @returns Error
 /*=======================================*/
-func (self *Database) getLayer(datasource string) (Geojson, error) {
+// func (self *Database) getLayer(datasource string) (Geojson, error) {
+func (self *Database) getLayer(datasource string) (*geojson.FeatureCollection, error) {
 	// Caching layer
 	if v, ok := self.Cache[datasource]; ok {
 		Debug.Printf("Cache read [%s]", datasource)
@@ -252,7 +254,7 @@ func (self *Database) getLayer(datasource string) (Geojson, error) {
 	if err != nil {
 		conn.Close()
 		Error.Println(err)
-		return Geojson{}, err
+		return nil, err
 	}
 	// Get datasrouce from database
 	key := []byte(datasource)
@@ -269,22 +271,21 @@ func (self *Database) getLayer(datasource string) (Geojson, error) {
 	if err != nil {
 		conn.Close()
 		Error.Println(err)
-		return Geojson{}, err
+		return nil, err
 	}
 	// datasource not found
 	if val == nil {
 		conn.Close()
 		Warning.Printf("Datasource not found [%s]", datasource)
-		return Geojson{}, fmt.Errorf("Not found")
+		return nil, fmt.Errorf("Not found")
 	}
 	// Read to struct
 	Debug.Printf("Unmarshal datasource [%s]", datasource)
-	geojs := Geojson{}
-	err = json.Unmarshal(val, &geojs)
+	geojs, err := geojson.UnmarshalFeatureCollection(val)
 	if err != nil {
 		conn.Close()
 		Error.Println(err)
-		return Geojson{}, err
+		return geojs, err
 	}
 	// Close database connection
 	conn.Close()

@@ -5,7 +5,7 @@ ping route
 ## Unreleased
 
 ### Added
-
+ - github.com/paulmach/go.geojson for marshal and unmarshal geojson
 
 
 ## 1.5.2 - 2016-03-20

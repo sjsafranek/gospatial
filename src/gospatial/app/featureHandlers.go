@@ -77,6 +77,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	// Add new feature to layer
 	featCollection.AddFeature(feat)
 	DB.insertLayer(ds, featCollection)
@@ -168,7 +169,6 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Marshal feature to json
-	// js, err := json.Marshal(data.Features[k])
 	js, err := data.Features[k].MarshalJSON()
 	if err != nil {
 		Error.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [500]")

@@ -204,7 +204,7 @@ func (self *Database) insertLayer(datasource string, geojs *geojson.FeatureColle
 	key := []byte(datasource)
 	// convert to bytes
 	Debug.Printf("Encoding datasource [%s]", datasource)
-	value, err := json.Marshal(geojs)
+	value, err := geojs.MarshalJSON()
 	if err != nil {
 		Error.Println(err)
 	}

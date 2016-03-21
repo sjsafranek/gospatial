@@ -79,10 +79,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create datasource
-	// geojs := NewGeojson()
 	ds, _ := NewUUID()
-	// lyr := Layer{Datasource: ds, Geojson: geojs}
-	// lyr.Save()
 	featCollection := geojson.NewFeatureCollection()
 	DB.insertLayer(ds, featCollection)
 
@@ -160,7 +157,6 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Marshal datasource layer to json
-	// js, err := json.Marshal(lyr)
 	rawJSON, err := lyr.MarshalJSON()
 	if err != nil {
 		Error.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [500]")

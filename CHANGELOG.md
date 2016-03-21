@@ -5,16 +5,27 @@ ping route
 ## Unreleased
 
 ### Added
- - shared datasource layers
 
 
-## 1.4.1 - 2016-03-19
+
+## 1.5.2 - 2016-03-20
+
+### Added
+ - shared datasource layers route (enabled by separate apikeys)
+ - documentation on gh-pages
+
+### Removed
+ - Sphinx documentation templates
+
+
+## 1.5.1 - 2016-03-19
 
 ### Added
  - Unittests (tests.py)
  - Added "Access-Control-Allow-Origin" header to api routes
 
-## 1.4.0 - 2016-03-18
+
+## 1.5.0 - 2016-03-18
 
 ### Added
  - Create customer/apikey route
@@ -38,7 +49,7 @@ ping route
  - json response from delete layer fix
 
 
-## 1.4.0 - 2016-03-09
+## 1.3.1 - 2016-03-09
 
 ### Changed
  - Cleaned up logging syntax

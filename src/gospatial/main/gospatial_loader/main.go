@@ -84,8 +84,10 @@ func main() {
 	// Add datasource uuid to customer
 	customer.Datasources = append(customer.Datasources, ds)
 	app.DB.InsertCustomer(customer)
-
 	app.Info.Println(ds, "added to", apikey)
+
+	// Cleanup
+	os.Remove(geojson_file)
 
 	os.Exit(0)
 

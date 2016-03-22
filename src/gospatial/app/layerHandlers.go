@@ -28,7 +28,7 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get customer from database
-	customer, err := DB.getCustomer(apikey)
+	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "POST /api/v1/layer/feature [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -71,7 +71,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get customer from database
-	customer, err := DB.getCustomer(apikey)
+	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "POST /api/v1/layer/ [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -81,11 +81,11 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Create datasource
 	ds, _ := NewUUID()
 	featCollection := geojson.NewFeatureCollection()
-	DB.insertLayer(ds, featCollection)
+	DB.InsertLayer(ds, featCollection)
 
 	// Add datasource uuid to customer
 	customer.Datasources = append(customer.Datasources, ds)
-	DB.insertCustomer(customer)
+	DB.InsertCustomer(customer)
 
 	// Generate message
 	data := `{"status":"ok","datasource":"` + ds + `"}`
@@ -133,7 +133,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get customer from database
-	customer, err := DB.getCustomer(apikey)
+	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "GET /api/v1/layer/ [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -149,7 +149,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	/*=======================================*/
 
 	// Get layer from database
-	lyr, err := DB.getLayer(ds)
+	lyr, err := DB.GetLayer(ds)
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -201,7 +201,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get customer from database
-	customer, err := DB.getCustomer(apikey)
+	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "DELETE /api/v1/layer/ [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -217,7 +217,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	/*=======================================*/
 
 	// Delete layer from database
-	err = DB.deleteLayer(ds)
+	err = DB.DeleteLayer(ds)
 	if err != nil {
 		Info.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -227,7 +227,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Delete layer from customer
 	i := sliceIndex(ds, customer.Datasources)
 	customer.Datasources = append(customer.Datasources[:i], customer.Datasources[i+1:]...)
-	DB.insertCustomer(customer)
+	DB.InsertCustomer(customer)
 
 	// Generate message
 	data := `{"status":"ok","datasource":"` + ds + `", "result":"datasource deleted"}`

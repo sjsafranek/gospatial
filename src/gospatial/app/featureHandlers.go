@@ -46,7 +46,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get customer from database
-	customer, err := DB.getCustomer(apikey)
+	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -62,7 +62,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	/*=======================================*/
 
 	// Get layer from database
-	featCollection, err := DB.getLayer(ds)
+	featCollection, err := DB.GetLayer(ds)
 	if err != nil {
 		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -80,7 +80,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Add new feature to layer
 	featCollection.AddFeature(feat)
-	DB.insertLayer(ds, featCollection)
+	DB.InsertLayer(ds, featCollection)
 
 	// Generate message
 	data := `{"status":"ok","datasource":"` + ds + `", "message":"feature added"}`
@@ -137,7 +137,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get customer from database
-	customer, err := DB.getCustomer(apikey)
+	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -153,7 +153,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	/*=======================================*/
 
 	// Get layer from database
-	data, err := DB.getLayer(ds)
+	data, err := DB.GetLayer(ds)
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)

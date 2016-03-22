@@ -8,37 +8,27 @@
 package main
 
 import (
-	// "bytes"
 	"flag"
 	"fmt"
+	"github.com/paulmach/go.geojson"
 	"gospatial/app"
-	// "io/ioutil"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
-	"github.com/paulmach/go.geojson"
 )
 
 var (
 	shapefile string
 	database  string
-	version   bool
-)
-
-const (
-	VERSION string = "1.6.0"
+	apikey    string
 )
 
 func init() {
 	flag.StringVar(&database, "db", "bolt", "app database")
-	flag.StringVar(&app.SuperuserKey, "s", "7q1qcqmsxnvw", "superuser key")
+	flag.StringVar(&apikey, "s", "7q1qcqmsxnvw", "apikey key")
 	flag.StringVar(&shapefile, "shp", "none", "shapefile to upload")
-	flag.BoolVar(&version, "v", false, "App Version")
 	flag.Parse()
-	if version {
-		fmt.Println("Version:", VERSION)
-		os.Exit(0)
-	}
 	if shapefile == "none" {
 		fmt.Println("Incorrect usage")
 		os.Exit(1)
@@ -51,10 +41,17 @@ func main() {
 	app.DB = app.Database{File: "./" + database + ".db"}
 	app.DB.Init()
 
+	// Get customer from database
+	customer, err := app.DB.GetCustomer(apikey)
+	if err != nil {
+		app.Error.Println(err)
+		os.Exit(1)
+	}
+
 	// Convert .shp to .geojson
 	// ogr2ogr -f GeoJSON -t_srs crs:84 [name].geojson [name].shp
 	geojson_file := strings.Replace(shapefile, ".shp", ".geojson", -1)
-	fmt.Println("ogr2ogr", "-f", "GeoJSON", "-t_srs", "crs:84", geojson_file, shapefile)
+	// fmt.Println("ogr2ogr", "-f", "GeoJSON", "-t_srs", "crs:84", geojson_file, shapefile)
 	out, err := exec.Command("ogr2ogr", "-f", "GeoJSON", "-t_srs", "crs:84", geojson_file, shapefile).Output()
 	if err != nil {
 		app.Error.Println(err)
@@ -66,6 +63,30 @@ func main() {
 	}
 
 	// Read .geojson file
+	file, err := ioutil.ReadFile(geojson_file)
+	if err != nil {
+		app.Error.Printf("File error: %v\n", err)
+		os.Exit(1)
+	}
 
+	// Unmarshal to geojson struct
+	geojs, err := geojson.UnmarshalFeatureCollection(file)
+	if err != nil {
+		app.Error.Printf("Unmarshal GeoJSON error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Create datasource
+	ds, _ := app.NewUUID()
+	app.DB.InsertLayer(ds, geojs)
+	app.Info.Println(ds, "created")
+
+	// Add datasource uuid to customer
+	customer.Datasources = append(customer.Datasources, ds)
+	app.DB.InsertCustomer(customer)
+
+	app.Info.Println(ds, "added to", apikey)
+
+	os.Exit(0)
 
 }

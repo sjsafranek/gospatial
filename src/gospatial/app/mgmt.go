@@ -14,7 +14,7 @@ func LoadLayer(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds := vars["ds"]
 	Debug.Printf("Loading [%s]", ds)
-	_, err := DB.getLayer(ds)
+	_, err := DB.GetLayer(ds)
 	// Datasource not found
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "GET /management/load/"+ds+" [404]")

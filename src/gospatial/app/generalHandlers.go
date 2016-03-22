@@ -45,7 +45,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get customer from database
-	customer, err := DB.getCustomer(apikey)
+	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
 		Warning.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)

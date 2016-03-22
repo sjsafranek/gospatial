@@ -13,6 +13,7 @@
 ## Unreleased 1.6.0
 ### Added
  - gospatial_loader for shapefiles
+ - gospatial_loader uses ogr2ogr to convert .shp to .geojson
 
 
 

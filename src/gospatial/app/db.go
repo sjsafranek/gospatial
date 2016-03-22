@@ -92,7 +92,7 @@ func (self *Database) Init() error {
 // @returns string apikey
 // @returns Error
 /*=======================================*/
-func (self *Database) insertCustomer(customer Customer) error {
+func (self *Database) InsertCustomer(customer Customer) error {
 	// Connect to database
 	conn := self.connect()
 	// convert to bytes
@@ -127,7 +127,7 @@ func (self *Database) insertCustomer(customer Customer) error {
 // @returns Customer
 // @returns Error
 /*=======================================*/
-func (self *Database) getCustomer(apikey string) (Customer, error) {
+func (self *Database) GetCustomer(apikey string) (Customer, error) {
 	// If page not found get from database
 	Debug.Printf("Database read apikey [%s]", apikey)
 	conn := self.connect()
@@ -187,7 +187,7 @@ func (self *Database) getCustomer(apikey string) (Customer, error) {
 // @param geojs {Geojson}
 // @returns Error
 /*=======================================*/
-func (self *Database) insertLayer(datasource string, geojs *geojson.FeatureCollection) error {
+func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureCollection) error {
 	// Caching layer
 	Trace.Println("Checking cache")
 	if v, ok := self.Cache[datasource]; ok {
@@ -235,7 +235,7 @@ func (self *Database) insertLayer(datasource string, geojs *geojson.FeatureColle
 // @returns Error
 /*=======================================*/
 // func (self *Database) getLayer(datasource string) (Geojson, error) {
-func (self *Database) getLayer(datasource string) (*geojson.FeatureCollection, error) {
+func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, error) {
 	// Caching layer
 	if v, ok := self.Cache[datasource]; ok {
 		Debug.Printf("Cache read [%s]", datasource)
@@ -303,7 +303,7 @@ func (self *Database) getLayer(datasource string) (*geojson.FeatureCollection, e
 // @param datasource {string}
 // @returns Error
 /*=======================================*/
-func (self *Database) deleteLayer(datasource string) error {
+func (self *Database) DeleteLayer(datasource string) error {
 	// Connect to database
 	conn := self.connect()
 	key := []byte(datasource)

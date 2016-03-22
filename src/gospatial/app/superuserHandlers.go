@@ -47,7 +47,7 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 		// new customer
 		apikey := NewAPIKey(12)
 		customer := Customer{Apikey: apikey}
-		err := DB.insertCustomer(customer)
+		err := DB.InsertCustomer(customer)
 		if err != nil {
 			Error.Println(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -100,7 +100,7 @@ func ShareLayerHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Get customer from database
-		customer, err := DB.getCustomer(apikey)
+		customer, err := DB.GetCustomer(apikey)
 		if err != nil {
 			Warning.Println(r.RemoteAddr, "PUT /api/v1/layer/{ds} [404]")
 			http.Error(w, err.Error(), http.StatusNotFound)
@@ -109,7 +109,7 @@ func ShareLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Add datasource uuid to customer
 		customer.Datasources = append(customer.Datasources, ds)
-		DB.insertCustomer(customer)
+		DB.InsertCustomer(customer)
 
 		// Generate message
 		data := `{"status":"ok","datasource":"` + ds + `"}`

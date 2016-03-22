@@ -19,17 +19,17 @@ import (
 )
 
 var (
-	shapefile string
-	database  string
-	apikey    string
+	upload_file string
+	database    string
+	apikey      string
 )
 
 func init() {
 	flag.StringVar(&database, "db", "bolt", "app database")
 	flag.StringVar(&apikey, "s", "7q1qcqmsxnvw", "apikey key")
-	flag.StringVar(&shapefile, "shp", "none", "shapefile to upload")
+	flag.StringVar(&upload_file, "f", "none", "shapefile or geojson to upload")
 	flag.Parse()
-	if shapefile == "none" {
+	if upload_file == "none" {
 		fmt.Println("Incorrect usage")
 		os.Exit(1)
 	}
@@ -48,18 +48,27 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Convert .shp to .geojson
-	// ogr2ogr -f GeoJSON -t_srs crs:84 [name].geojson [name].shp
-	geojson_file := strings.Replace(shapefile, ".shp", ".geojson", -1)
-	// fmt.Println("ogr2ogr", "-f", "GeoJSON", "-t_srs", "crs:84", geojson_file, shapefile)
-	out, err := exec.Command("ogr2ogr", "-f", "GeoJSON", "-t_srs", "crs:84", geojson_file, shapefile).Output()
-	if err != nil {
-		app.Error.Println(err)
-		app.Error.Println(string(out))
-		os.Exit(1)
+	var geojson_file string
+	ext := strings.Split(upload_file, ".")[1]
+	if ext == "shp" {
+		// Convert .shp to .geojson
+		// ogr2ogr -f GeoJSON -t_srs crs:84 [name].geojson [name].shp
+		geojson_file := strings.Replace(upload_file, ".shp", ".geojson", -1)
+		// fmt.Println("ogr2ogr", "-f", "GeoJSON", "-t_srs", "crs:84", geojson_file, shapefile)
+		out, err := exec.Command("ogr2ogr", "-f", "GeoJSON", "-t_srs", "crs:84", geojson_file, upload_file).Output()
+		if err != nil {
+			app.Error.Println(err)
+			app.Error.Println(string(out))
+			os.Exit(1)
+		} else {
+			app.Info.Println(geojson_file, "created")
+			app.Info.Println(string(out))
+		}
+	} else if ext == "geojson" {
+		geojson_file = upload_file
 	} else {
-		app.Info.Println(geojson_file, "created")
-		app.Info.Println(string(out))
+		app.Error.Println("Unsupported file type", ext)
+		os.Exit(1)
 	}
 
 	// Read .geojson file
@@ -87,7 +96,9 @@ func main() {
 	app.Info.Println(ds, "added to", apikey)
 
 	// Cleanup
-	os.Remove(geojson_file)
+	if geojson_file != upload_file {
+		os.Remove(geojson_file)
+	}
 
 	os.Exit(0)
 

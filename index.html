@@ -19,6 +19,8 @@ isHome: true
     <li>Customer permissions for layer read & write access</li>
     <li>Mobile friendy map client using the <a href="http://leafletjs.com/">Leaflet</a> mapping library</li>
     <li>Geospatial data is served using the <a href="http://geojson.org/">GeoJSON</a> format</li>
+    <li>Command line tool for creating apikeys</li>
+    <li>Command line tool for uploading geojson and shapefiles</li>
   </ul>
   
 </section>
@@ -382,6 +384,72 @@ $ ./bin/gospatial
   </div>
 
 </section> 
+
+
+
+<section class="bs-docs-section">
+<h1 id="command-line-tools" class="page-header">Command line tools</h1>
+
+<h2 id="gospatial_apikeys">gospatial_apikeys</h2>
+<h3 id="gospatial_apikeys-options">Options</h3>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th style="width: 130px;">Option</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>-db</td>
+          <td>bolt.db</td>
+          <td>Specifies what database file to use</td>
+        </tr>
+        <tr>
+          <td>-a</td>
+          <td><i>randomly generated</i></td>
+          <td>(Optional) Specifies the new customer apikey</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+<h2 id="gospatial_loader">gospatial_loader</h2>
+<h3 id="gospatial_loader-options">Options</h3>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th style="width: 130px;">Option</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>-db</td>
+          <td>bolt.db</td>
+          <td>Specifies what database file to use</td>
+        </tr>
+        <tr>
+          <td>-a</td>
+          <td>none</td>
+          <td>(Required) Specifies the customer apikey to assign datasource layer</td>
+        </tr>
+        <tr>
+          <td>-f</td>
+          <td>none</td>
+          <td>(Required) GeoJSON or Shapefile to upload</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</section> 
+
+
 
 
 <!-- 

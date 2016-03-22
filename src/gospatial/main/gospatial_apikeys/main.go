@@ -20,7 +20,7 @@ var (
 
 func init() {
 	flag.StringVar(&database, "db", "bolt", "app database")
-	flag.StringVar(&apikey, "s", "none", "apikey key")
+	flag.StringVar(&apikey, "a", "none", "apikey key")
 	flag.Parse()
 }
 

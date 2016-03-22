@@ -26,7 +26,7 @@ var (
 
 func init() {
 	flag.StringVar(&database, "db", "bolt", "app database")
-	flag.StringVar(&apikey, "s", "7q1qcqmsxnvw", "apikey key")
+	flag.StringVar(&apikey, "a", "7q1qcqmsxnvw", "apikey key")
 	flag.StringVar(&upload_file, "f", "none", "shapefile or geojson to upload")
 	flag.Parse()
 	if upload_file == "none" {

@@ -1,7 +1,11 @@
 # TODO
  - ping route
  - TLS
+ - wss:// && https:// 
  - pprof
+ - compression of geojsons in db --> 
+ - https://github.com/schollz/gofind/blob/master/utils.go#L146-L169
+ - https://github.com/schollz/gofind/blob/master/fingerprint.go#L43-L54
 
 
 # Change Log

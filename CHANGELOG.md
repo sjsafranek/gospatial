@@ -14,7 +14,7 @@
 ### Added
  - gospatial_loader for shapefiles
  - gospatial_loader uses ogr2ogr to convert .shp to .geojson
-
+ - gospatial_apikeys for creating apikeys via command line
 
 
 

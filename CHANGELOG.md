@@ -8,6 +8,9 @@
 
 ## Unreleased
 
+
+## 1.5.3 - 2016-03-21
+
 ### Added
  - github.com/paulmach/go.geojson for marshal and unmarshal geojson
  - "net/http/pprof" added on port 6060

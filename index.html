@@ -82,7 +82,18 @@ $ make install
 <section class="bs-docs-section">
 <h1 id="quickstart" class="page-header">Quickstart</h1>
   
-  <h2 id="options">Options</h2>
+  <h2 id="start-the-server">Start the server</h2>
+  <p>Start server with the following command:</p>
+{% highlight text %}
+$ ./bin/gospatial
+[FIND] TRACE | 2016/03/18 19:43:15.269541 db.go:54: Creating database
+[FIND] TRACE | 2016/03/18 19:43:15.269616 db.go:36: Connecting to database: './bolt.db'
+[FIND] DEBUG | 2016/03/18 19:43:15.321743 db.go:62: Creating 'layers' bucket if not found
+[FIND] DEBUG | 2016/03/18 19:43:15.393999 db.go:72: Creating 'apikeys' bucket if not found
+[FIND] INFO  | 2016/03/18 19:43:15.412214 main.go:75: Magic happens on port 8080...
+{% endhighlight %}
+
+  <h3>Options</h3>
   <div class="table-responsive">
     <table class="table table-bordered table-striped">
       <thead>
@@ -121,20 +132,6 @@ $ make install
       </tbody>
     </table>
   </div>
-
-  <h2 id="start-the-server">Start the server</h2>
-  <p>Start server with the following command:</p>
-{% highlight text %}
-$ ./bin/gospatial
-[FIND] TRACE | 2016/03/18 19:43:15.269541 db.go:54: Creating database
-[FIND] TRACE | 2016/03/18 19:43:15.269616 db.go:36: Connecting to database: './bolt.db'
-[FIND] DEBUG | 2016/03/18 19:43:15.321743 db.go:62: Creating 'layers' bucket if not found
-[FIND] DEBUG | 2016/03/18 19:43:15.393999 db.go:72: Creating 'apikeys' bucket if not found
-[FIND] INFO  | 2016/03/18 19:43:15.412214 main.go:75: Magic happens on port 8080...
-{% endhighlight %}
-
-  <!-- <h2 id="sub-section">Second level</h2> -->
-  <!-- <h3 id="another-sub-section">Still second level</h3> -->
 
   <h2 id="troubleshooting">Troubleshooting</h2>
   <p>You are bound to run into problems. Please review the following hints for troubleshooting. Of course, you're welcome to contact us if you're unable to resolve.</p>
@@ -391,6 +388,7 @@ $ ./bin/gospatial
 <h1 id="command-line-tools" class="page-header">Command line tools</h1>
 
 <h2 id="gospatial_apikeys">gospatial_apikeys</h2>
+<p>Creates new customer apikey</p>
 <h3>Options</h3>
   <div class="table-responsive">
     <table class="table table-bordered table-striped">
@@ -417,6 +415,7 @@ $ ./bin/gospatial
   </div>
 
 <h2 id="gospatial_loader">gospatial_loader</h2>
+<p>Loads GeoJSON and Shapefiles into the api server database. The new datasource layer is assigned to the provided apikey</p>
 <h3>Options</h3>
   <div class="table-responsive">
     <table class="table table-bordered table-striped">

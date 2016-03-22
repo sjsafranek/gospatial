@@ -84,6 +84,10 @@ func main() {
 	}()
 
 	bind := fmt.Sprintf(":%v", port)
+	// ListenAndServeTLS(bind, certFile, keyFile, router)
+	// flag for certFile
+	// flag for keyFile
+	// if both there run TLS
 	err := http.ListenAndServe(bind, router)
 	if err != nil {
 		panic(err)

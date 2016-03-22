@@ -6,7 +6,11 @@
 
 # Change Log
 
-## Unreleased
+## Unreleased 1.6.0
+### Added
+ - gospatial_loader for shapefiles
+
+
 
 
 ## 1.5.3 - 2016-03-21

@@ -379,7 +379,7 @@ func (self *Database) Dump() map[string]map[string]interface{} {
 	return data
 }
 
-func (self *Database) Backup() {
+func (self *Database) Backup(filename ...string) {
 	Info.Println("Backing up database...")
 	// Create struct to store db data
 	data := self.Dump()
@@ -390,6 +390,9 @@ func (self *Database) Backup() {
 	}
 	// Write to file
 	savename := "backup_" + time.Now().String() + ".json"
+	if len(filename) > 0 {
+		savename = filename[0] + ".json"
+	}
 	ioutil.WriteFile(savename, b, 0644)
 }
 

@@ -330,6 +330,53 @@ func (self *Database) DeleteLayer(datasource string) error {
 }
 
 /*=======================================*/
+// Method: Dumps database
+/*=======================================*/
+func (self *Database) Dump() map[string]map[string]interface{} {
+	Info.Println("Extract all data from database...")
+	conn := self.connect()
+	// Create struct to store db data
+	data := make(map[string]map[string]interface{})
+	data["apikeys"] = make(map[string]interface{})
+	data["layers"] = make(map[string]interface{})
+	// Get all layers
+	conn.View(func(tx *bolt.Tx) error {
+		// Assume bucket exists and has keys
+		b := tx.Bucket([]byte("layers"))
+		b.ForEach(func(k, v []byte) error {
+			geojs := make(map[string]interface{})
+			err := json.Unmarshal(v, &geojs)
+			if err != nil {
+				conn.Close()
+				Error.Fatal(err)
+			}
+			data["layers"][string(k)] = geojs
+			return nil
+		})
+		return nil
+	})
+	// apikey
+	conn.View(func(tx *bolt.Tx) error {
+		// Assume bucket exists and has keys
+		b := tx.Bucket([]byte("apikeys"))
+		b.ForEach(func(k, v []byte) error {
+			val := make(map[string]interface{})
+			err := json.Unmarshal(v, &val)
+			if err != nil {
+				conn.Close()
+				Error.Fatal(err)
+			}
+			data["apikeys"][string(k)] = val
+			return nil
+		})
+		return nil
+	})
+	//
+	conn.Close()
+	return data
+}
+
+/*=======================================*/
 // Method: Database.CacheManager
 // Description:
 //		Database caching layer

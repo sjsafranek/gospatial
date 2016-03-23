@@ -10,11 +10,14 @@
 
 # Change Log
 
-## Unreleased 1.6.1
+## Unreleased 1.6.2
+ - compress and decompress datasources step added to database
+
+
+## 1.6.1 - 2016-03-23
 
 ### Added
  - gospatial_migrate for dumping and loading database
-
 
 
 ## 1.6.0 - 2016-03-22

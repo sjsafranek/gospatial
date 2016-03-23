@@ -7,10 +7,12 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
-	"fmt"
 	"github.com/boltdb/bolt"
+	// "github.com/paulmach/go.geojson"
 	"gospatial/app"
+	"io/ioutil"
 	"os"
 )
 
@@ -45,10 +47,12 @@ func main() {
 		db.View(func(tx *bolt.Tx) error {
 			// Assume bucket exists and has keys
 			b := tx.Bucket([]byte("layers"))
-
 			b.ForEach(func(k, v []byte) error {
 				// fmt.Printf("key=%s, value=%s\n", k, v)
-				data["layers"][string(k)] = v
+				// data["layers"][string(k)] = string(v)
+				geojs := make(map[string]interface{})
+				_ = json.Unmarshal(v, &geojs)
+				data["apikeys"][string(k)] = geojs
 				return nil
 			})
 			return nil
@@ -58,17 +62,23 @@ func main() {
 		db.View(func(tx *bolt.Tx) error {
 			// Assume bucket exists and has keys
 			b := tx.Bucket([]byte("apikeys"))
-
 			b.ForEach(func(k, v []byte) error {
 				// fmt.Printf("key=%s, value=%s\n", k, v)
-				data["apikeys"][string(k)] = v
+				// data["apikeys"][string(k)] = string(v)
+				val := make(map[string]interface{})
+				_ = json.Unmarshal(v, &val)
+				data["apikeys"][string(k)] = val
 				return nil
 			})
 			return nil
 		})
 
-		//
-		fmt.Printf("%s\n", data)
+		b, err := json.Marshal(data)
+		if err != nil {
+			app.Error.Fatal(err)
+		}
+		// Write to file
+		ioutil.WriteFile("dump.json", b, 0644)
 
 	} else if option == "load" {
 		app.Info.Println("Loading database...")

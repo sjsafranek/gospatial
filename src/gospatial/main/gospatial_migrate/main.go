@@ -37,6 +37,10 @@ func main() {
 	if option == "dump" {
 		app.Info.Println("Dumping database...")
 
+		data := make(map[string]map[string]interface{})
+		data["apikeys"] = make(map[string]interface{})
+		data["layers"] = make(map[string]interface{})
+
 		// Get all layers
 		db.View(func(tx *bolt.Tx) error {
 			// Assume bucket exists and has keys
@@ -44,6 +48,7 @@ func main() {
 
 			b.ForEach(func(k, v []byte) error {
 				fmt.Printf("key=%s, value=%s\n", k, v)
+				data["layers"][string(k)] = v
 				return nil
 			})
 			return nil
@@ -56,10 +61,14 @@ func main() {
 
 			b.ForEach(func(k, v []byte) error {
 				fmt.Printf("key=%s, value=%s\n", k, v)
+				data["apikeys"][string(k)] = v
 				return nil
 			})
 			return nil
 		})
+
+		//
+		fmt.Printf("%s\n", data)
 
 	} else if option == "load" {
 		app.Info.Println("Loading database...")

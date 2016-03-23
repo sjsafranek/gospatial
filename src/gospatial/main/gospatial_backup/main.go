@@ -16,13 +16,13 @@ import (
 )
 
 var (
-	option   string
+	filename string
 	database string
 )
 
 func init() {
 	flag.StringVar(&database, "db", "bolt", "app database")
-	flag.StringVar(&option, "o", "dump", "dump or load database")
+	flag.StringVar(&filename, "f", "none", "dump or load database")
 	flag.Parse()
 }
 
@@ -37,22 +37,13 @@ func main() {
 	app.DB = app.Database{File: "./" + database + ".db"}
 	app.DB.Init()
 
-	if option == "dump" {
-		app.Info.Println("Dumping database...")
-		// Create struct to store db data
-		data := app.DB.Dump()
-		// marshal to json
-		b, err := json.Marshal(data)
-		if err != nil {
-			app.Error.Fatal(err)
-		}
-		// Write to file
-		ioutil.WriteFile("dump.json", b, 0644)
-
-	} else if option == "load" {
+	if filename == "none" {
+		// Backup database
+		app.DB.Backup()
+	} else {
 		app.Info.Println("Loading database...")
 		// open json file
-		file, err := ioutil.ReadFile("dump.json")
+		file, err := ioutil.ReadFile(filename)
 		if err != nil {
 			app.Error.Fatal(err)
 		}
@@ -73,8 +64,6 @@ func main() {
 			app.DB.InsertLayer(k, data.Layers[k])
 		}
 
-	} else {
-		app.Error.Fatal("Unknown option:", option)
 	}
 
 	os.Exit(0)

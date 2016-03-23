@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/paulmach/go.geojson"
+	"io/ioutil"
 	"time"
 )
 
@@ -216,7 +217,8 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 		if err != nil {
 			return err
 		}
-		err = bucket.Put(key, value)
+		// err = bucket.Put(key, value)
+		err = bucket.Put(key, compressByte(value))
 		return err
 	})
 	if err != nil {
@@ -265,7 +267,7 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 		if bucket == nil {
 			return fmt.Errorf("Bucket %q not found!", bucket)
 		}
-		val = bucket.Get(key)
+		val = decompressByte(bucket.Get(key))
 		return nil
 	})
 	if err != nil {
@@ -281,6 +283,7 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 	}
 	// Read to struct
 	Debug.Printf("Unmarshal datasource [%s]", datasource)
+
 	geojs, err := geojson.UnmarshalFeatureCollection(val)
 	if err != nil {
 		conn.Close()
@@ -345,7 +348,7 @@ func (self *Database) Dump() map[string]map[string]interface{} {
 		b := tx.Bucket([]byte("layers"))
 		b.ForEach(func(k, v []byte) error {
 			geojs := make(map[string]interface{})
-			err := json.Unmarshal(v, &geojs)
+			err := json.Unmarshal(decompressByte(v), &geojs)
 			if err != nil {
 				conn.Close()
 				Error.Fatal(err)
@@ -374,6 +377,20 @@ func (self *Database) Dump() map[string]map[string]interface{} {
 	//
 	conn.Close()
 	return data
+}
+
+func (self *Database) Backup() {
+	Info.Println("Backing up database...")
+	// Create struct to store db data
+	data := self.Dump()
+	// marshal to json
+	b, err := json.Marshal(data)
+	if err != nil {
+		Error.Fatal(err)
+	}
+	// Write to file
+	savename := "backup_" + time.Now().String() + ".json"
+	ioutil.WriteFile(savename, b, 0644)
 }
 
 /*=======================================*/

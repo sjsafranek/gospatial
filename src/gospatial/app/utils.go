@@ -1,6 +1,8 @@
 package app
 
 import (
+	"bytes"
+	"compress/flate"
 	crand "crypto/rand"
 	"fmt"
 	"io"
@@ -78,6 +80,7 @@ func stringInSlice(a string, list []string) bool {
 // @param value {string} string to find
 // @param slice {[]string} array of strings to search
 // @returns int
+/*=======================================*/
 func sliceIndex(value string, slice []string) int {
 	for p, v := range slice {
 		if v == value {
@@ -85,4 +88,38 @@ func sliceIndex(value string, slice []string) int {
 		}
 	}
 	return -1
+}
+
+/*=======================================*/
+// Methods: Compression
+// Source: https://github.com/schollz/gofind/blob/master/utils.go#L146-L169
+//         https://github.com/schollz/gofind/blob/master/fingerprint.go#L43-L54
+// Description:
+//		Compress and Decompress bytes
+/*=======================================*/
+func compressByte(src []byte) []byte {
+	compressedData := new(bytes.Buffer)
+	compress(src, compressedData, 9)
+	return compressedData.Bytes()
+}
+
+func decompressByte(src []byte) []byte {
+	compressedData := bytes.NewBuffer(src)
+	deCompressedData := new(bytes.Buffer)
+	decompress(compressedData, deCompressedData)
+	return deCompressedData.Bytes()
+}
+
+func compress(src []byte, dest io.Writer, level int) {
+	Info.Println("Compressing data")
+	compressor, _ := flate.NewWriter(dest, level)
+	compressor.Write(src)
+	compressor.Close()
+}
+
+func decompress(src io.Reader, dest io.Writer) {
+	Info.Println("Decompressing data")
+	decompressor := flate.NewReader(src)
+	io.Copy(dest, decompressor)
+	decompressor.Close()
 }

@@ -2,32 +2,70 @@
 //	project: gospatial
 //	author: stefan safranek
 //	email: sjsafranek@gmail.com
-//  requires: ogr2ogr
 /*=======================================*/
 
 package main
 
 import (
 	"flag"
+	"fmt"
+	"github.com/boltdb/bolt"
 	"gospatial/app"
 	"os"
 )
 
 var (
-	apikey   string
+	option   string
 	database string
 )
 
 func init() {
 	flag.StringVar(&database, "db", "bolt", "app database")
+	flag.StringVar(&option, "o", "dump", "dump or load database")
 	flag.Parse()
 }
 
 func main() {
 
-	// Initiate Database
-	app.DB = app.Database{File: "./" + database + ".db"}
-	app.DB.Init()
+	// Open db
+	db, err := bolt.Open("./"+database+".db", 0600, nil)
+	if err != nil {
+		app.Error.Fatal(err)
+	}
+	defer db.Close()
+
+	if option == "dump" {
+		app.Info.Println("Dumping database...")
+
+		// Get all layers
+		db.View(func(tx *bolt.Tx) error {
+			// Assume bucket exists and has keys
+			b := tx.Bucket([]byte("layers"))
+
+			b.ForEach(func(k, v []byte) error {
+				fmt.Printf("key=%s, value=%s\n", k, v)
+				return nil
+			})
+			return nil
+		})
+
+		// apikey
+		db.View(func(tx *bolt.Tx) error {
+			// Assume bucket exists and has keys
+			b := tx.Bucket([]byte("apikeys"))
+
+			b.ForEach(func(k, v []byte) error {
+				fmt.Printf("key=%s, value=%s\n", k, v)
+				return nil
+			})
+			return nil
+		})
+
+	} else if option == "load" {
+		app.Info.Println("Loading database...")
+	} else {
+		app.Error.Fatal("Unknown option:", option)
+	}
 
 	os.Exit(0)
 

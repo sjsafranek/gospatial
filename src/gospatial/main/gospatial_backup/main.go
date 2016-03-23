@@ -13,6 +13,7 @@ import (
 	"gospatial/app"
 	"io/ioutil"
 	"os"
+	"time"
 )
 
 var (
@@ -39,14 +40,20 @@ func main() {
 
 	if filename == "none" {
 		// Backup database
-		app.DB.Backup()
+		savefile := "backup_" + time.Now().String()
+		app.DB.Backup(savefile)
 	} else {
-		app.Info.Println("Loading database...")
+		app.Info.Printf("Loading database [%s]\n", filename)
+		// check for file
+		if _, err := os.Stat(filename); os.IsNotExist(err) {
+			app.Error.Fatal("File not found [" + filename + "]")
+		}
 		// open json file
 		file, err := ioutil.ReadFile(filename)
 		if err != nil {
 			app.Error.Fatal(err)
 		}
+		app.Info.Println(string(file))
 		// unmarshal data
 		var data DumpedDatabase
 		data.Apikeys = make(map[string]app.Customer)
@@ -63,7 +70,6 @@ func main() {
 		for k := range data.Layers {
 			app.DB.InsertLayer(k, data.Layers[k])
 		}
-
 	}
 
 	os.Exit(0)

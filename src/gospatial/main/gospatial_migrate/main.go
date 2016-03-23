@@ -47,7 +47,7 @@ func main() {
 			b := tx.Bucket([]byte("layers"))
 
 			b.ForEach(func(k, v []byte) error {
-				fmt.Printf("key=%s, value=%s\n", k, v)
+				// fmt.Printf("key=%s, value=%s\n", k, v)
 				data["layers"][string(k)] = v
 				return nil
 			})
@@ -60,7 +60,7 @@ func main() {
 			b := tx.Bucket([]byte("apikeys"))
 
 			b.ForEach(func(k, v []byte) error {
-				fmt.Printf("key=%s, value=%s\n", k, v)
+				// fmt.Printf("key=%s, value=%s\n", k, v)
 				data["apikeys"][string(k)] = v
 				return nil
 			})

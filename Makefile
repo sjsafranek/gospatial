@@ -15,7 +15,7 @@ install: fmt
 	@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/${PROJECT_NAME}
 	@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/gospatial_loader
 	@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/gospatial_apikeys
-	@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/gospatial_migrate
+	@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/gospatial_backup
 fmt:
 	@GOPATH=${GPATH} gofmt -s -w src/${PROJECT_NAME}
 get:

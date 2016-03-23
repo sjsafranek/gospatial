@@ -387,7 +387,7 @@ $ ./bin/gospatial
 <section class="bs-docs-section">
 <h1 id="command-line-tools" class="page-header">Command line tools</h1>
 
-<h2 id="gospatial_apikeys">gospatial_apikeys</h2>
+<h2 id="gospatial_apikey">gospatial_apikey</h2>
 <p>Creates new customer apikey</p>
 <h3>Options</h3>
   <div class="table-responsive">
@@ -409,6 +409,33 @@ $ ./bin/gospatial
           <td>-a</td>
           <td><i>randomly generated</i></td>
           <td>(Optional) Specifies the new customer apikey</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+<h2 id="gospatial_backup">gospatial_backup</h2>
+<p>Creates a backup JSON file of database or loads backup JSON file into database</p>
+<h3>Options</h3>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th style="width: 130px;">Option</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>-db</td>
+          <td>bolt.db</td>
+          <td>Specifies what database file to use</td>
+        </tr>
+        <tr>
+          <td>-f</td>
+          <td>none</td>
+          <td>(Optional) Specifies JSON backup to load. If not provided will produce a timestamped JSON backup file</td>
         </tr>
       </tbody>
     </table>

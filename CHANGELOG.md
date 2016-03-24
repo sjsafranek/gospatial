@@ -17,6 +17,7 @@
 
 ## Changed
  - Removed arguments from DebugMode (logging)
+ - Refactor of Database functions for increased preformance & speed
 
 
 

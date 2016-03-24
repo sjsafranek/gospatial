@@ -7,12 +7,27 @@ import (
 )
 
 // go test -bench=.
+// go test -bench=. -test.benchmem
 
 const (
 	test_db_file         string = "./test.db"
 	test_customer_apikey string = "testKey"
 	test_datasource      string = "testLayer"
 )
+
+/*=======================================*/
+// Benchmark Database.InsertCustomer
+/*=======================================*/
+func BenchmarkDbInsertCustomer(b *testing.B) {
+	TestMode()
+	test_db := Database{File: test_db_file}
+	test_db.Init()
+	test_customer := Customer{Apikey: test_customer_apikey}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		test_db.InsertCustomer(test_customer)
+	}
+}
 
 /*=======================================*/
 // Benchmark Database.getCustomer
@@ -70,9 +85,9 @@ func BenchmarkDbInsertLayer(b *testing.B) {
 }
 
 /*=======================================*/
-// Unittest Database.GetLayer
+// Benchmark Database.GetLayer
 /*=======================================*/
-func BenchmarkDbGetLayer(b *testing.B) {
+func BenchmarkDbGetLayerWithCache(b *testing.B) {
 	TestMode()
 	// StandardMode()
 	test_db := Database{File: test_db_file}
@@ -85,6 +100,27 @@ func BenchmarkDbGetLayer(b *testing.B) {
 	b.ResetTimer()
 	test_db.InsertLayer(test_datasource, geojs)
 	for i := 0; i < b.N; i++ {
+		test_db.GetLayer(test_datasource)
+	}
+}
+
+/*=======================================*/
+// Benchmark Database.GetLayer
+/*=======================================*/
+func BenchmarkDbGetLayerWithoutCache(b *testing.B) {
+	TestMode()
+	// StandardMode()
+	test_db := Database{File: test_db_file}
+	test_db.Init()
+	data := []byte(`{"crs":{"properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"},"type":"name"},"features":[{"geometry":{"coordinates":[[[-76.64062,50.73645513701065],[-76.64062,65.65827451982659],[-38.67187,65.65827451982659],[-38.67187,50.73645513701065],[-76.64062,50.73645513701065]]],"type":"Polygon"},"properties":{"FID":0},"type":"Feature"},{"geometry":{"coordinates":[[[-87.97851562499999,58.995311187950925],[-87.97851562499999,60.500525410511294],[-84.63867187499997,60.500525410511294],[-84.63867187499997,58.995311187950925],[-87.97851562499999,58.995311187950925]]],"type":"Polygon"},"properties":{"FID":1},"type":"Feature"}],"type":"FeatureCollection"}`)
+	geojs, err := geojson.UnmarshalFeatureCollection(data)
+	if err != nil {
+		b.Error(err)
+	}
+	b.ResetTimer()
+	test_db.InsertLayer(test_datasource, geojs)
+	for i := 0; i < b.N; i++ {
+		delete(test_db.Cache, test_datasource)
 		test_db.GetLayer(test_datasource)
 	}
 }

@@ -2,6 +2,7 @@
  - ping route
  - TLS (wss:// && https://) 
  - pprof
+ - On db_init put customers into memory
  
 
 # Change Log

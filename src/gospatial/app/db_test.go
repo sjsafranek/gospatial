@@ -23,6 +23,7 @@ func BenchmarkDbGetCustomer(b *testing.B) {
 	test_db.Init()
 	test_customer := Customer{Apikey: test_customer_apikey}
 	test_db.InsertCustomer(test_customer)
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		test_db.GetCustomer(test_customer_apikey)
 	}
@@ -62,6 +63,7 @@ func BenchmarkDbInsertLayer(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		test_db.InsertLayer(test_datasource, geojs)
 	}
@@ -80,6 +82,7 @@ func BenchmarkDbGetLayer(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
+	b.ResetTimer()
 	test_db.InsertLayer(test_datasource, geojs)
 	for i := 0; i < b.N; i++ {
 		test_db.GetLayer(test_datasource)

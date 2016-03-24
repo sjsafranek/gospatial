@@ -27,7 +27,7 @@ func init() {
 
 func DebugMode() {
 	AppMode = "debug"
-	DebugModeLogFile, err := os.OpenFile("debug_mode.log", os.O_WRONLY|os.O_CREATE, 0666)
+	DebugModeLogFile, err := os.OpenFile("debug.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		Error.Fatal("Error opening file: %v", err)
 	}
@@ -39,13 +39,28 @@ func DebugMode() {
 	Error = log.New(DebugModeLogFile, "[FIND] ERROR | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
-func TestMode() {
+func TestMode_old() {
 	AppMode = "testing"
 	Trace = log.New(ioutil.Discard, "[FIND] TRACE | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 	Info = log.New(ioutil.Discard, "[FIND] INFO  | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 	Debug = log.New(ioutil.Discard, "[FIND] DEBUG | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 	Warning = log.New(ioutil.Discard, "[FIND] WARN  | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 	Error = log.New(ioutil.Discard, "[FIND] ERROR | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+}
+
+
+func TestMode() {
+	AppMode = "testing"
+	DebugModeLogFile, err := os.OpenFile("test.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		Error.Fatal("Error opening file: %v", err)
+	}
+	// defer DebugModeLogFile.Close()
+	Trace = log.New(DebugModeLogFile, "[FIND] TRACE | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	Info = log.New(DebugModeLogFile, "[FIND] INFO  | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	Debug = log.New(DebugModeLogFile, "[FIND] DEBUG | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	Warning = log.New(DebugModeLogFile, "[FIND] WARN  | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	Error = log.New(DebugModeLogFile, "[FIND] ERROR | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
 func StandardMode() {

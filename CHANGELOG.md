@@ -12,7 +12,7 @@
 
 ## Unreleased 1.6.2
  - compress and decompress datasources step added to database
- - db.Back() on startup and shutdown
+ - db.Backup() to dump database in a JSON file
 
 
 ## 1.6.1 - 2016-03-23

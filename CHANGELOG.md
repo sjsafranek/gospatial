@@ -1,16 +1,20 @@
 # TODO
  - ping route
- - TLS
- - wss:// && https:// 
+ - TLS (wss:// && https://) 
  - pprof
+ - testing
 
 
 # Change Log
 
 ## Unreleased 1.6.2
+### Added
  - compress datasource before database insertion
  - decompress datasource on database select 
  - db.Backup() to dump database in a JSON file
+### Changed
+ - gospatial_migrate --> gospatial_backup
+ - gospatial_apikeys --> gospatial_apikey
 
 
 ## 1.6.1 - 2016-03-23

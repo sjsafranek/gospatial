@@ -3,6 +3,7 @@
  - TLS (wss:// && https://) 
  - pprof
  - On db_init put customers into memory
+ - Testing with Caddy --> https://github.com/mholt/caddy
  
 
 # Change Log

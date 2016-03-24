@@ -23,7 +23,7 @@ func DebugModeHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		DebugMode(true)
+		DebugMode()
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
 	} else if md == "standard" {
@@ -32,7 +32,7 @@ func DebugModeHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		DebugMode(false)
+		DebugMode()
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
 	}
@@ -61,7 +61,7 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		DebugMode(false)
+		DebugMode()
 		w.Header().Set("Content-Type", "application/json")
 		// allow cross domain AJAX requests
 		w.Header().Set("Access-Control-Allow-Origin", "*")

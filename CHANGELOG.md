@@ -7,8 +7,16 @@
 # Change Log
 
 ## Unreleased 1.6.3
+
+### Added
  - benchmark db testing
  - unit db testing
+ - StandardMode (logging)
+ - TestMode (logging)
+
+## Changed
+ - Removed arguments from DebugMode (logging)
+
 
 
 ## 1.6.2 - 2016-03-24

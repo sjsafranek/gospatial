@@ -2,18 +2,22 @@
  - ping route
  - TLS (wss:// && https://) 
  - pprof
- - testing
-
+ 
 
 # Change Log
 
-## Unreleased 1.6.2
+## Unreleased 1.6.3
+ - benchmark db testing
+ - unit db testing
+
+
+## 1.6.2 - 2016-03-24
+
 ### Added
- - benchmark testing
- - unit testing
  - compress datasource before database insertion
  - decompress datasource on database select 
  - db.Backup() to dump database in a JSON file
+
 ### Changed
  - gospatial_migrate --> gospatial_backup
  - gospatial_apikeys --> gospatial_apikey

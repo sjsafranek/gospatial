@@ -39,10 +39,12 @@ func init() {
 		fmt.Println("Version:", VERSION)
 		os.Exit(0)
 	}
+	if debug {
+		app.DebugMode()
+	}
 }
 
 func main() {
-	app.DebugMode(debug)
 
 	// Graceful shut down
 	sigs := make(chan os.Signal, 1)

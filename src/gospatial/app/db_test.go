@@ -2,12 +2,11 @@ package app
 
 import (
 	// "fmt"
-	"testing"
 	"github.com/paulmach/go.geojson"
+	"testing"
 )
 
 // go test -bench=.
-
 
 /*=======================================*/
 // Benchmark Database.getCustomer
@@ -105,5 +104,3 @@ func TestDbLayers(t *testing.T) {
 	}
 	// fmt.Printf("%v\n", geojs)
 }
-
-

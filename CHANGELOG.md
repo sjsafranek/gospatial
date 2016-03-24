@@ -9,6 +9,8 @@
 
 ## Unreleased 1.6.2
 ### Added
+ - benchmark testing
+ - unit testing
  - compress datasource before database insertion
  - decompress datasource on database select 
  - db.Backup() to dump database in a JSON file

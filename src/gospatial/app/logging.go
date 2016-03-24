@@ -48,7 +48,6 @@ func TestMode_old() {
 	Error = log.New(ioutil.Discard, "[FIND] ERROR | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
-
 func TestMode() {
 	AppMode = "testing"
 	DebugModeLogFile, err := os.OpenFile("test.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)

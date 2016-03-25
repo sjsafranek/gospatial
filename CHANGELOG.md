@@ -2,13 +2,30 @@
  - ping route
  - TLS (wss:// && https://) 
  - pprof
+ - On db_init put customers into memory
+ - Testing with Caddy --> https://github.com/mholt/caddy
  
 
 # Change Log
 
-## Unreleased 1.6.3
+## Unreleased 1.6.4
+
+
+
+
+## 1.6.3 - 2016-03-25
+
+### Added
  - benchmark db testing
  - unit db testing
+ - StandardMode (logging)
+ - TestMode (logging)
+ - add date_created & date_modified to feature properties in L.Find.Draw.js
+
+## Changed
+ - Removed arguments from DebugMode (logging)
+ - Refactor of Database functions for increased preformance & speed
+ - LoadedLayers returns only keys
 
 
 ## 1.6.2 - 2016-03-24

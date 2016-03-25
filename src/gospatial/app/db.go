@@ -133,21 +133,11 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 	Debug.Printf("Database read apikey [%s]", apikey)
 	conn := self.connect()
 	// Make sure table exists
-	err := conn.Update(func(tx *bolt.Tx) error {
-		table := []byte("apikeys")
-		_, err := tx.CreateBucketIfNotExists(table)
-		return err
-	})
-	if err != nil {
-		conn.Close()
-		Error.Println(err)
-		return Customer{}, err
-	}
+	table := []byte("apikeys")
 	// Get datasrouce from database
 	key := []byte(apikey)
 	val := []byte{}
-	err = conn.View(func(tx *bolt.Tx) error {
-		table := []byte("apikeys")
+	err := conn.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(table)
 		if bucket == nil {
 			return fmt.Errorf("Bucket %q not found!", bucket)
@@ -156,6 +146,11 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 		return nil
 	})
 	if err != nil {
+		// bucket doesnt exist
+		conn.Update(func(tx *bolt.Tx) error {
+			_, err := tx.CreateBucketIfNotExists(table)
+			return err
+		})
 		conn.Close()
 		Error.Println(err)
 		return Customer{}, err
@@ -172,6 +167,7 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 	err = json.Unmarshal(val, &customer)
 	if err != nil {
 		conn.Close()
+		// Error.Printf("Cannot unmarshal customer [%s]", err)
 		Error.Println(err)
 		return Customer{}, err
 	}
@@ -247,22 +243,11 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 	// If page not found get from database
 	Debug.Printf("Database read [%s]", datasource)
 	conn := self.connect()
-	// Make sure table exists
-	err := conn.Update(func(tx *bolt.Tx) error {
-		table := []byte("layers")
-		_, err := tx.CreateBucketIfNotExists(table)
-		return err
-	})
-	if err != nil {
-		conn.Close()
-		Error.Println(err)
-		return nil, err
-	}
+	table := []byte("layers")
 	// Get datasrouce from database
 	key := []byte(datasource)
 	val := []byte{}
-	err = conn.View(func(tx *bolt.Tx) error {
-		table := []byte("layers")
+	err := conn.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(table)
 		if bucket == nil {
 			return fmt.Errorf("Bucket %q not found!", bucket)
@@ -271,6 +256,11 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 		return nil
 	})
 	if err != nil {
+		// bucket doesnt exist
+		conn.Update(func(tx *bolt.Tx) error {
+			_, err := tx.CreateBucketIfNotExists(table)
+			return err
+		})
 		conn.Close()
 		Error.Println(err)
 		return nil, err

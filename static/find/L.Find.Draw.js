@@ -174,7 +174,7 @@ L.Find.Draw = L.Class.extend({
 		var payload = feature.toGeoJSON();
 		payload.properties = this.getProperties();
 		// add date_created & date_modified to feature properties
-		var now = Date();
+		var now = new Date();
 		if (!payload.properties.hasOwnProperty("date_created")) {
 			payload.properties.date_created = now.toISOString();
 		}

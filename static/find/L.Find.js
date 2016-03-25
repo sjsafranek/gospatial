@@ -293,6 +293,9 @@ L.Find = L.Class.extend({
 			var url = "wss://" + window.location.host + "/ws/" + find.datasources[0];
 			ws = new WebSocket(url);
 		}
+		ws.onopen = function(e) { 
+			console.log("Websocket is open");
+		};
 		ws.onmessage = function(e) {
 			console.log(e.data);
 			var data = JSON.parse(e.data);

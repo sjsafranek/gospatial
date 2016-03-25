@@ -284,8 +284,16 @@ L.Find = L.Class.extend({
 	getWebSocket: function() {
 		find = this;
 		console.log("Opening websocket");
-		var url = "ws://" + window.location.host + "/ws/" + find.datasources[0];
-		ws = new WebSocket(url);
+		// var url = "ws://" + window.location.host + "/ws/" + find.datasources[0];
+		try { 
+			var url = "ws://" + window.location.host + "/ws/" + find.datasources[0];
+			ws = new WebSocket(url);
+		}
+		catch(err) {
+			var url = "wss://" + window.location.host + "/ws/" + find.datasources[0];
+			console.log(err);
+
+		}
 		ws.onopen = function(e) { 
 			console.log("Websocket is open");
 		};

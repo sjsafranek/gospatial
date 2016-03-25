@@ -64,3 +64,4 @@ Execute the binary file produced in the projects `bin` directory
 	[GET]    /management/unload/{ds}
 	[GET]    /management/loaded
 	[GET]    /management/profile
+

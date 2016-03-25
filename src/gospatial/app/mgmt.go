@@ -55,8 +55,17 @@ func UnloadLayer(w http.ResponseWriter, r *http.Request) {
 
 func LoadedLayers(w http.ResponseWriter, r *http.Request) {
 	Debug.Println("Checking loaded datasources...")
-	// Response
-	js, err := json.Marshal(DB.Cache)
+	// collect datasource ids
+	i := 0
+	keys := make([]string, len(DB.Cache))
+	for k := range DB.Cache {
+		keys[i] = k
+		i++
+	}
+	data := make(map[string]interface{})
+	data["datasources"] = keys
+	// marshal and send response
+	js, err := json.Marshal(data)
 	if err != nil {
 		Error.Println(r.RemoteAddr, "GET /management/loaded [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)

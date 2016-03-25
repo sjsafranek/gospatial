@@ -25,6 +25,7 @@
 ## Changed
  - Removed arguments from DebugMode (logging)
  - Refactor of Database functions for increased preformance & speed
+ - LoadedLayers returns only keys
 
 
 ## 1.6.2 - 2016-03-24

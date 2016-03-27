@@ -6,6 +6,8 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/paulmach/go.geojson"
 	"io/ioutil"
+	// "unsafe"
+	// "reflect"
 	"time"
 )
 
@@ -23,8 +25,9 @@ type LayerCache struct {
 }
 
 type Database struct {
-	File  string
-	Cache map[string]*LayerCache
+	File    string
+	Cache   map[string]*LayerCache
+	Apikeys map[string]Customer
 }
 
 /*=======================================*/
@@ -80,6 +83,23 @@ func (self *Database) Init() error {
 	if err != nil {
 		Error.Fatal(err)
 	}
+	// put apikey into memory
+	self.Apikeys = make(map[string]Customer)
+	conn.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("apikeys"))
+		b.ForEach(func(k, v []byte) error {
+			// val := make(map[string]interface{})
+			customer := Customer{}
+			err := json.Unmarshal(v, &customer)
+			if err != nil {
+				conn.Close()
+				Error.Fatal(err)
+			}
+			self.Apikeys[string(k)] = customer
+			return nil
+		})
+		return nil
+	})
 	// close and return err
 	conn.Close()
 	return err
@@ -94,6 +114,8 @@ func (self *Database) Init() error {
 // @returns Error
 /*=======================================*/
 func (self *Database) InsertCustomer(customer Customer) error {
+	//
+	self.Apikeys[customer.Apikey] = customer
 	// Connect to database
 	conn := self.connect()
 	// convert to bytes
@@ -129,6 +151,11 @@ func (self *Database) InsertCustomer(customer Customer) error {
 // @returns Error
 /*=======================================*/
 func (self *Database) GetCustomer(apikey string) (Customer, error) {
+	// Check apikey cache
+	if _, ok := self.Apikeys[apikey]; ok {
+		Debug.Printf("Cache read [%s]", apikey)
+		return self.Apikeys[apikey], nil
+	}
 	// If page not found get from database
 	Debug.Printf("Database read apikey [%s]", apikey)
 	conn := self.connect()
@@ -396,17 +423,33 @@ func (self *Database) Backup(filename ...string) {
 /*=======================================*/
 func (self *Database) CacheManager() {
 	for {
-		if len(self.Cache) != 0 {
-			Trace.Println("Checking cache...")
+		n := len(self.Cache)
+		// timout := 90000
+		if n != 0 {
+			// Trace.Println("Checking cache...")
+			limit := 90.0
+			switch {
+			case n > 5:
+				limit = 60.0
+			case n > 10:
+				limit = 45.0
+			case n > 15:
+				limit = 30.0
+			case n > 20:
+				limit = 15.0
+			}
 			for key := range self.Cache {
-				if time.Since(self.Cache[key].Time).Seconds() > 90 {
+				// s := unsafe.Sizeof(self.Cache[key])
+				// s := reflect.TypeOf(self.Cache[key]).Size()
+				// Info.Println(s)
+				if time.Since(self.Cache[key].Time).Seconds() > limit {
 					Debug.Printf("Cache unload [%s]", key)
 					delete(self.Cache, key)
 				}
 			}
-			time.Sleep(15000 * time.Millisecond)
+			time.Sleep(time.Duration(15000) * time.Millisecond)
 		} else {
-			time.Sleep(60000 * time.Millisecond)
+			time.Sleep(time.Duration(15000) * time.Millisecond)
 		}
 	}
 }

@@ -6,8 +6,6 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/paulmach/go.geojson"
 	"io/ioutil"
-	// "unsafe"
-	// "reflect"
 	"time"
 )
 
@@ -423,33 +421,21 @@ func (self *Database) Backup(filename ...string) {
 /*=======================================*/
 func (self *Database) CacheManager() {
 	for {
-		n := len(self.Cache)
-		// timout := 90000
+		n := float64(len(self.Cache))
 		if n != 0 {
-			// Trace.Println("Checking cache...")
-			limit := 90.0
-			switch {
-			case n > 5:
-				limit = 60.0
-			case n > 10:
-				limit = 45.0
-			case n > 15:
-				limit = 30.0
-			case n > 20:
-				limit = 15.0
-			}
 			for key := range self.Cache {
-				// s := unsafe.Sizeof(self.Cache[key])
-				// s := reflect.TypeOf(self.Cache[key]).Size()
-				// Info.Println(s)
+				f := float64(len(self.Cache[key].Geojson.Features))
+				limit := (300.0 - (f * (f * 0.25))) - (n * 2.0)
+				if limit < 0.0 {
+					limit = 10.0
+				}
+				// Info.Println(limit, key)
 				if time.Since(self.Cache[key].Time).Seconds() > limit {
 					Debug.Printf("Cache unload [%s]", key)
 					delete(self.Cache, key)
 				}
 			}
-			time.Sleep(time.Duration(15000) * time.Millisecond)
-		} else {
-			time.Sleep(time.Duration(15000) * time.Millisecond)
 		}
+		time.Sleep(10000 * time.Millisecond)
 	}
 }

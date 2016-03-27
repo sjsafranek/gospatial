@@ -5,12 +5,18 @@
  - Testing with Caddy --> https://github.com/mholt/caddy
  
 
+
 # Change Log
 
 ## Unreleased 1.6.4
 
 ### Added
  - On db_init put customers into memory
+
+### Changed
+ - Unloading of layers dependent on number of features and number of loaded layers
+ - socket logging messages cleaned up
+
 
 
 

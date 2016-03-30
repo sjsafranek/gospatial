@@ -108,7 +108,6 @@ func (self *Database) Init() error {
 // Description:
 //		Inserts customer into apikeys table
 // @param customer {Customer}
-// @returns string apikey
 // @returns Error
 /*=======================================*/
 func (self *Database) InsertCustomer(customer Customer) error {
@@ -138,6 +137,44 @@ func (self *Database) InsertCustomer(customer Customer) error {
 	}
 	conn.Close()
 	return err
+}
+
+/*=======================================*/
+// Method: Database.insertCustomers
+// Description:
+//		Inserts list of customer into apikeys table
+// @param customer {Customer}
+// @returns Error
+/*=======================================*/
+func (self *Database) InsertCustomers(customers map[string]Customer) error {
+	Trace.Println("Batch inserting customers...")
+	// Connect to database
+	conn := self.connect()
+	for i := range customers {
+		customer := customers[i]
+		// convert to bytes
+		table := []byte("apikeys")
+		key := []byte(customer.Apikey)
+		value, err := json.Marshal(customer)
+		if err != nil {
+			Error.Println(err)
+		}
+		// Insert layer into database
+		Debug.Printf("Database insert apikey [%s]", customer.Apikey)
+		err = conn.Update(func(tx *bolt.Tx) error {
+			bucket, err := tx.CreateBucketIfNotExists(table)
+			if err != nil {
+				return err
+			}
+			err = bucket.Put(key, value)
+			return err
+		})
+		if err != nil {
+			Error.Fatal(err)
+		}
+	}
+	conn.Close()
+	return nil
 }
 
 /*=======================================*/
@@ -247,6 +284,46 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 	}
 	conn.Close()
 	return err
+}
+
+/*=======================================*/
+// Method: Database.InsertLayers
+// Description:
+//		Inserts a map of dayasource layers
+// 		into database
+// @param datasources map[string]*geojson.FeatureCollection
+// @returns Error
+/*=======================================*/
+func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollection) error {
+	// Connect to database
+	Trace.Println("Batch inserting datasources...")
+	conn := self.connect()
+	for datasource, geojs := range datsources {
+		key := []byte(datasource)
+		// convert to bytes\
+		Debug.Printf("Encoding datasource [%s]", datasource)
+		value, err := geojs.MarshalJSON()
+		if err != nil {
+			Error.Println(err)
+		}
+		// Insert layer into database
+		Debug.Printf("Database insert datasource [%s]", datasource)
+		err = conn.Update(func(tx *bolt.Tx) error {
+			table := []byte("layers")
+			bucket, err := tx.CreateBucketIfNotExists(table)
+			if err != nil {
+				return err
+			}
+			// err = bucket.Put(key, value)
+			err = bucket.Put(key, compressByte(value))
+			return err
+		})
+		if err != nil {
+			Error.Fatal(err)
+		}
+	}
+	conn.Close()
+	return nil
 }
 
 /*=======================================*/

@@ -12,11 +12,12 @@
 
 ### Added
  - On db_init put customers into memory
+ - Database.InsertCustomers and Database.InsertLayers for loading from backup file
 
 ### Changed
  - Unloading of layers dependent on number of features and number of loaded layers
  - socket logging messages cleaned up
-
+ - gospatial_backup uses Database.InsertCustomers and Database.InsertLayers for insertion
 
 
 

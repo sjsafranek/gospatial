@@ -2,14 +2,22 @@
  - ping route
  - TLS (wss:// && https://) 
  - pprof
- - On db_init put customers into memory
  - Testing with Caddy --> https://github.com/mholt/caddy
  
+
 
 # Change Log
 
 ## Unreleased 1.6.4
 
+### Added
+ - On db_init put customers into memory
+ - Database.InsertCustomers and Database.InsertLayers for loading from backup file
+
+### Changed
+ - Unloading of layers dependent on number of features and number of loaded layers
+ - socket logging messages cleaned up
+ - gospatial_backup uses Database.InsertCustomers and Database.InsertLayers for insertion
 
 
 

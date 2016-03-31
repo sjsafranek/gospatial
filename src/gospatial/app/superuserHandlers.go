@@ -61,7 +61,6 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		DebugMode()
 		w.Header().Set("Content-Type", "application/json")
 		// allow cross domain AJAX requests
 		w.Header().Set("Access-Control-Allow-Origin", "*")

@@ -25,12 +25,14 @@ func (self hub) broadcast(update bool, conn *connection) {
 		Update  bool `json:"update"`
 		Viewers int  `json:"viewers"`
 	}
-	Trace.Println("Broadcasting message to open connections")
-	msg := Message{Update: update, Viewers: len(self.Sockets[conn.ds])}
-	for i := range self.Sockets[conn.ds] {
-		if self.Sockets[conn.ds][i] != conn.ws {
-			Trace.Println("Sending message to client")
-			self.Sockets[conn.ds][i].WriteJSON(msg)
+	if len(self.Sockets[conn.ds]) != 0 {
+		Trace.Println("Broadcasting message to open connections")
+		msg := Message{Update: update, Viewers: len(self.Sockets[conn.ds])}
+		for i := range self.Sockets[conn.ds] {
+			if self.Sockets[conn.ds][i] != conn.ws {
+				Trace.Println("Sending message to client")
+				self.Sockets[conn.ds][i].WriteJSON(msg)
+			}
 		}
 	}
 }
@@ -40,12 +42,14 @@ func (self hub) broadcastAllDsViewers(update bool, ds string) {
 		Update  bool `json:"update"`
 		Viewers int  `json:"viewers"`
 	}
+	// if len(self.Sockets[ds]) != 0 {
 	Trace.Println("Broadcasting message to open connections")
 	msg := Message{Update: update, Viewers: len(self.Sockets[ds])}
 	for i := range self.Sockets[ds] {
 		Trace.Println("Sending message to client")
 		self.Sockets[ds][i].WriteJSON(msg)
 	}
+	// }
 }
 
 var Hub = hub{
@@ -69,7 +73,7 @@ func messageListener(conn *connection) {
 			Error.Printf("%s %s", conn.ip, err)
 			return
 		}
-		Debug.Printf("Message: %v %s", m, conn.ds)
+		// Debug.Printf("Message: %v %s", m, conn.ds)
 		for i := range Hub.Sockets[conn.ds] {
 			if Hub.Sockets[conn.ds][i] != conn.ws {
 				Trace.Println("Sending message to client")

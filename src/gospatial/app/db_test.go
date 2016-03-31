@@ -1,7 +1,6 @@
 package app
 
 import (
-	// "fmt"
 	"github.com/paulmach/go.geojson"
 	"testing"
 )
@@ -32,13 +31,26 @@ func BenchmarkDbInsertCustomer(b *testing.B) {
 /*=======================================*/
 // Benchmark Database.getCustomer
 /*=======================================*/
-func BenchmarkDbGetCustomer(b *testing.B) {
+func BenchmarkDbGetCustomerWithCache(b *testing.B) {
 	TestMode()
 	test_db := Database{File: test_db_file}
 	test_db.Init()
 	test_customer := Customer{Apikey: test_customer_apikey}
 	test_db.InsertCustomer(test_customer)
 	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		test_db.GetCustomer(test_customer_apikey)
+	}
+}
+
+func BenchmarkDbGetCustomerWithOutCache(b *testing.B) {
+	TestMode()
+	test_db := Database{File: test_db_file}
+	test_db.Init()
+	test_customer := Customer{Apikey: test_customer_apikey}
+	test_db.InsertCustomer(test_customer)
+	b.ResetTimer()
+	test_db.Apikeys = make(map[string]Customer)
 	for i := 0; i < b.N; i++ {
 		test_db.GetCustomer(test_customer_apikey)
 	}

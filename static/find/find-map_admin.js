@@ -6,8 +6,8 @@
 
 	function initialize(div, apikey, datasources) {
 
-		// map = L.map('map',{maxZoom: 22});
-		map = L.map('map',{maxZoom: 18});
+		map = L.map('map',{maxZoom: 23});
+		// map = L.map('map',{maxZoom: 18});
 
 		FindGeo = L.find.draw(apikey, datasources);
 		FindGeo.addTo(map);

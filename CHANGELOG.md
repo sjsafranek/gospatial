@@ -8,7 +8,11 @@
 
 # Change Log
 
-## Unreleased 1.6.4
+## Unrelease
+
+
+
+## 1.6.4 - 2016-04-01
 
 ### Added
  - On db_init put customers into memory
@@ -18,7 +22,7 @@
  - Unloading of layers dependent on number of features and number of loaded layers
  - socket logging messages cleaned up
  - gospatial_backup uses Database.InsertCustomers and Database.InsertLayers for insertion
-
+ - max zoom and map changed to 23
 
 
 ## 1.6.3 - 2016-03-25

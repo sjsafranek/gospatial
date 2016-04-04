@@ -74,8 +74,8 @@ L.Find = L.Class.extend({
 		geojsonLayerControl = L.control({position: 'topright'});
 		geojsonLayerControl.onAdd = function () {
 			var div = L.DomUtil.create('div', 'info legend');
-			div.innerHTML = '';
-			div.innerHTML = '<button id="newTileLayer">Add TileLayer</button> <input type=text></input><br>';
+			// div.innerHTML = '';
+			div.innerHTML = '<div><button id="newTileLayer">Add TileLayer</button> <input type=text></input></div>';
 			div.innerHTML += '<i class="fa fa-search-plus" id="zoom" style="padding-left:5px; margin-right:0px;"></i><select name="geojson" id="layers"></select>';
 			div.innerHTML += '<br>Viewers: <span id="viewers">1</span>';
 			return div;

@@ -75,12 +75,19 @@ L.Find = L.Class.extend({
 		geojsonLayerControl.onAdd = function () {
 			var div = L.DomUtil.create('div', 'info legend');
 			// div.innerHTML = '';
-			div.innerHTML = '<div><button id="newTileLayer">Add TileLayer</button> <input type=text></input></div>';
+			div.innerHTML = '<div><button id="submitTileLayer">Add TileLayer</button> <input type=text id="newTileLayer"></input></div>';
 			div.innerHTML += '<i class="fa fa-search-plus" id="zoom" style="padding-left:5px; margin-right:0px;"></i><select name="geojson" id="layers"></select>';
 			div.innerHTML += '<br>Viewers: <span id="viewers">1</span>';
 			return div;
 		};
 		geojsonLayerControl.addTo(this._map);
+		//
+		$("#submitTileLayer").on("click", function() {
+			var newTiles = L.TileLayer(
+				$("#newTileLayer").text,
+				{maxZoom:25});
+			newTiles.addTo(this._map);
+		});
 		this.preventPropogation(geojsonLayerControl);
 		// Fill drop down options
 		for (var _i=0; _i < this.datasources.length; _i++) {

@@ -86,7 +86,7 @@ L.Find = L.Class.extend({
 			var newTiles = L.TileLayer(
 				$("#newTileLayer").val(),
 				{maxZoom:25});
-			newTiles.addTo(this._map);
+			newTiles.addTo(find._map);
 		});
 		this.preventPropogation(geojsonLayerControl);
 		// Fill drop down options

@@ -83,7 +83,7 @@ L.Find = L.Class.extend({
 		geojsonLayerControl.addTo(this._map);
 		//
 		$("#submitTileLayer").on("click", function() {
-			var newTiles = L.TileLayer(
+			var newTiles = L.tileLayer(
 				$("#newTileLayer").val(),
 				{maxZoom:25});
 			newTiles.addTo(find._map);

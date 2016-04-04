@@ -84,7 +84,7 @@ L.Find = L.Class.extend({
 		//
 		$("#submitTileLayer").on("click", function() {
 			var newTiles = L.TileLayer(
-				$("#newTileLayer").text,
+				$("#newTileLayer").val(),
 				{maxZoom:25});
 			newTiles.addTo(this._map);
 		});

@@ -69,8 +69,8 @@ func messageListener(conn *connection) {
 		var m interface{}
 		err := conn.ws.ReadJSON(&m)
 		if err != nil {
-			Error.Println(conn.ip, "WS /ws/"+conn.ds+" [1001]")
-			Error.Printf("%s %s", conn.ip, err)
+			Warning.Println(conn.ip, "WS /ws/"+conn.ds+" [1001]")
+			Warning.Printf("%s %s", conn.ip, err)
 			return
 		}
 		// Debug.Printf("Message: %v %s", m, conn.ds)

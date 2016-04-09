@@ -14,6 +14,8 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strings"
 )
 
 var (
@@ -25,12 +27,20 @@ var (
 )
 
 const (
-	VERSION string = "1.6.2"
+	VERSION string = "1.6.4"
 )
 
 func init() {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		app.Error.Fatal(err)
+	}
+	// app.Info.Println(dir)
+	db := strings.Replace(dir, "bin", "bolt", -1)
+	app.Info.Println(db)
 	flag.IntVar(&port, "p", 8080, "server port")
-	flag.StringVar(&database, "db", "bolt", "app database")
+	// flag.StringVar(&database, "db", "bolt", "app database")
+	flag.StringVar(&database, "db", db, "app database")
 	flag.StringVar(&app.SuperuserKey, "s", "7q1qcqmsxnvw", "superuser key")
 	flag.BoolVar(&debug, "d", false, "debug mode")
 	flag.BoolVar(&version, "v", false, "App Version")
@@ -67,7 +77,8 @@ func main() {
 	}()
 
 	// Initiate Database
-	app.DB = app.Database{File: "./" + database + ".db"}
+	// app.DB = app.Database{File: "./" + database + ".db"}
+	app.DB = app.Database{File: database + ".db"}
 	app.DB.Init()
 	// auto backup
 	app.DB.Backup("backup")

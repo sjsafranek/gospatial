@@ -5,6 +5,8 @@ import (
 	// "io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 var (
@@ -26,8 +28,13 @@ func init() {
 }
 
 func DebugMode() {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		Error.Fatal(err)
+	}
+	log_file := strings.Replace(dir, "bin", "app.log", -1)
 	AppMode = "debug"
-	DebugModeLogFile, err := os.OpenFile("debug.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	DebugModeLogFile, err := os.OpenFile(log_file, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		Error.Fatal("Error opening file: %v", err)
 	}

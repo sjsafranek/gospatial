@@ -100,7 +100,7 @@ func main() {
 		app.Info.Println(http.ListenAndServe("localhost:6060", nil))
 	}()
 
-	bind := fmt.Sprintf(":%v", port)
+	bind := fmt.Sprintf("0.0.0.0:%v", port)
 	// ListenAndServeTLS(bind, certFile, keyFile, router)
 	// flag for certFile
 	// flag for keyFile

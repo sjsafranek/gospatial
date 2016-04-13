@@ -5,7 +5,12 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/paulmach/go.geojson"
+	"io"
 	"io/ioutil"
+	"log"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -13,6 +18,7 @@ import (
 // Gobals
 /*=======================================*/
 var DB Database
+var db_log io.Writer
 
 /*=======================================*/
 // Models
@@ -26,6 +32,7 @@ type Database struct {
 	File    string
 	Cache   map[string]*LayerCache
 	Apikeys map[string]Customer
+	Logger  *log.Logger
 }
 
 /*=======================================*/
@@ -59,6 +66,7 @@ func (self *Database) Init() error {
 	m := make(map[string]*LayerCache)
 	self.Cache = m
 	go self.CacheManager()
+	self.startLogger()
 	// connect to db
 	conn := self.connect()
 	// datasources
@@ -104,6 +112,25 @@ func (self *Database) Init() error {
 }
 
 /*=======================================*/
+// Method: Database.startLogger
+// Description:
+//		Starts database logger
+/*=======================================*/
+func (self *Database) startLogger() {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		Error.Fatal(err)
+	}
+	log_file := strings.Replace(dir, "bin", "db.log", -1)
+	db_log, err := os.OpenFile(log_file, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		Error.Fatal("Error opening file: %v", err)
+	}
+	// defer DebugModeLogFile.Close()
+	self.Logger = log.New(db_log, "[FIND] DB | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+}
+
+/*=======================================*/
 // Method: Database.insertCustomer
 // Description:
 //		Inserts customer into apikeys table
@@ -111,7 +138,7 @@ func (self *Database) Init() error {
 // @returns Error
 /*=======================================*/
 func (self *Database) InsertCustomer(customer Customer) error {
-	//
+	// self.Logger.Println(customer)
 	self.Apikeys[customer.Apikey] = customer
 	// Connect to database
 	conn := self.connect()
@@ -122,6 +149,7 @@ func (self *Database) InsertCustomer(customer Customer) error {
 	if err != nil {
 		Error.Println(err)
 	}
+	self.Logger.Println(`{"method": "insert_apikey", "data":` + string(value) + `}`)
 	// Insert layer into database
 	Debug.Printf("Database insert apikey [%s]", customer.Apikey)
 	err = conn.Update(func(tx *bolt.Tx) error {
@@ -159,6 +187,7 @@ func (self *Database) InsertCustomers(customers map[string]Customer) error {
 		if err != nil {
 			Error.Println(err)
 		}
+		self.Logger.Println(`{"method": "insert_apikey", "data": ` + string(value) + `}`)
 		// Insert layer into database
 		Debug.Printf("Database insert apikey [%s]", customer.Apikey)
 		err = conn.Update(func(tx *bolt.Tx) error {
@@ -267,6 +296,8 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 	if err != nil {
 		Error.Println(err)
 	}
+	//
+	self.Logger.Println(`{"method": "insert_layer", "data":` + string(value) + `}`)
 	// Insert layer into database
 	Debug.Printf("Database insert datasource [%s]", datasource)
 	err = conn.Update(func(tx *bolt.Tx) error {
@@ -306,6 +337,7 @@ func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollect
 		if err != nil {
 			Error.Println(err)
 		}
+		self.Logger.Println(`{"method": "insert_layer", "data":` + string(value) + `}`)
 		// Insert layer into database
 		Debug.Printf("Database insert datasource [%s]", datasource)
 		err = conn.Update(func(tx *bolt.Tx) error {
@@ -402,6 +434,8 @@ func (self *Database) DeleteLayer(datasource string) error {
 	// Connect to database
 	conn := self.connect()
 	key := []byte(datasource)
+	//
+	self.Logger.Println(string(`{"method: "delete_layer", "data": ` + datasource + `}`))
 	// Insert layer into database
 	Debug.Printf("Database delete [%s]", datasource)
 	err := conn.Update(func(tx *bolt.Tx) error {

@@ -154,10 +154,8 @@ func TestDbLayers(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	// geojs, err = test_db.GetLayer(test_datasource)
 	_, err = test_db.GetLayer(test_datasource)
 	if err != nil {
 		t.Error(err)
 	}
-	// fmt.Printf("%v\n", geojs)
 }

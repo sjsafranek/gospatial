@@ -53,7 +53,6 @@ func main() {
 		if err != nil {
 			app.Error.Fatal(err)
 		}
-		// app.Info.Println(string(file))
 		// unmarshal data
 		var data DumpedDatabase
 		data.Apikeys = make(map[string]app.Customer)
@@ -62,15 +61,7 @@ func main() {
 		if err != nil {
 			app.Error.Fatal(err)
 		}
-		// load api keus
-		// for k := range data.Apikeys {
-		// 	app.DB.InsertCustomer(data.Apikeys[k])
-		// }
 		app.DB.InsertCustomers(data.Apikeys)
-		// load lauers
-		// for k := range data.Layers {
-		// 	app.DB.InsertLayer(k, data.Layers[k])
-		// }
 		app.DB.InsertLayers(data.Layers)
 	}
 

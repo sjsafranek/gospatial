@@ -5,11 +5,14 @@
  - Testing with Caddy --> https://github.com/mholt/caddy
  
 
-
 # Change Log
 
 ## Unrelease
 
+
+
+## 1.7.0 - 2016-04-12
+ - Database logging for updates and inserts
 
 
 ## 1.6.4 - 2016-04-01

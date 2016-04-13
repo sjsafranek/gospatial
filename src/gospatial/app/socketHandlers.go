@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"net/http"
+	"sync"
 )
 
 type connection struct {
@@ -14,6 +15,7 @@ type connection struct {
 }
 
 type hub struct {
+	guard   sync.RWMutex
 	Sockets map[string]map[int]*websocket.Conn
 }
 
@@ -27,7 +29,10 @@ func (self hub) broadcast(update bool, conn *connection) {
 	}
 	if len(self.Sockets[conn.ds]) != 0 {
 		Trace.Println("Broadcasting message to open connections")
-		msg := Message{Update: update, Viewers: len(self.Sockets[conn.ds])}
+		self.guard.Lock()
+		num_viewers := len(self.Sockets[conn.ds])
+		self.guard.Unlock()
+		msg := Message{Update: update, Viewers: num_viewers}
 		for i := range self.Sockets[conn.ds] {
 			if self.Sockets[conn.ds][i] != conn.ws {
 				Trace.Println("Sending message to client")
@@ -42,14 +47,15 @@ func (self hub) broadcastAllDsViewers(update bool, ds string) {
 		Update  bool `json:"update"`
 		Viewers int  `json:"viewers"`
 	}
-	// if len(self.Sockets[ds]) != 0 {
 	Trace.Println("Broadcasting message to open connections")
-	msg := Message{Update: update, Viewers: len(self.Sockets[ds])}
+	self.guard.Lock()
+	num_viewers := len(self.Sockets[ds])
+	self.guard.Unlock()
+	msg := Message{Update: update, Viewers: num_viewers}
 	for i := range self.Sockets[ds] {
 		Trace.Println("Sending message to client")
 		self.Sockets[ds][i].WriteJSON(msg)
 	}
-	// }
 }
 
 var Hub = hub{

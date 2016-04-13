@@ -124,10 +124,13 @@ func (self *Database) startLogger() {
 	log_file := strings.Replace(dir, "bin", "db.log", -1)
 	db_log, err := os.OpenFile(log_file, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		Error.Fatal("Error opening file: %v", err)
+		Error.Println("Error opening file: %v", err)
+		db_log, err = os.OpenFile("test_db.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			Error.Fatal("Error opening file: %v", err)
+		}
 	}
-	// defer DebugModeLogFile.Close()
-	self.Logger = log.New(db_log, "[FIND] DB | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	self.Logger = log.New(db_log, "[GOSPATIAL] DB | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
 /*=======================================*/

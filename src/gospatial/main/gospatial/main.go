@@ -27,7 +27,7 @@ var (
 )
 
 const (
-	VERSION string = "1.6.4"
+	VERSION string = "1.7.0"
 )
 
 func init() {
@@ -35,11 +35,8 @@ func init() {
 	if err != nil {
 		app.Error.Fatal(err)
 	}
-	// app.Info.Println(dir)
 	db := strings.Replace(dir, "bin", "bolt", -1)
-	app.Info.Println(db)
 	flag.IntVar(&port, "p", 8080, "server port")
-	// flag.StringVar(&database, "db", "bolt", "app database")
 	flag.StringVar(&database, "db", db, "app database")
 	flag.StringVar(&app.SuperuserKey, "s", "7q1qcqmsxnvw", "superuser key")
 	flag.BoolVar(&debug, "d", false, "debug mode")
@@ -48,9 +45,6 @@ func init() {
 	if version {
 		fmt.Println("Version:", VERSION)
 		os.Exit(0)
-	}
-	if debug {
-		app.DebugMode()
 	}
 }
 
@@ -67,8 +61,7 @@ func main() {
 			app.Info.Println("Waiting for sockets to close...")
 			for {
 				if len(app.Hub.Sockets) == 0 {
-					// auto backup
-					app.DB.Backup("backup")
+					// app.DB.Backup("backup")
 					app.Info.Println("Shutting down...")
 					os.Exit(0)
 				}
@@ -76,29 +69,27 @@ func main() {
 		}
 	}()
 
+	if debug {
+		app.DebugMode()
+		fmt.Printf("Magic happens on port %v...\n", port)
+		// https://golang.org/pkg/net/http/pprof/
+		go func() {
+			app.Info.Println(http.ListenAndServe(":6060", nil))
+		}()
+	}
+
 	// Initiate Database
-	// app.DB = app.Database{File: "./" + database + ".db"}
 	app.DB = app.Database{File: database + ".db"}
 	app.DB.Init()
-	// auto backup
-	app.DB.Backup("backup")
+	// app.DB.Backup("backup")
 
+	// Attach Http Hanlders
+	app.AttachHttpHandlers()
 	router := app.NewRouter()
-
-	// Server static folder
-	// router.PathPrefix("/static/").Handler(http.FileServer(http.Dir("./static/")))
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
 
 	// Start server
 	app.Info.Printf("Magic happens on port %v...\n", port)
-	if app.AppMode == "debug" {
-		fmt.Printf("Magic happens on port %v...\n", port)
-	}
-
-	// https://golang.org/pkg/net/http/pprof/
-	go func() {
-		app.Info.Println(http.ListenAndServe("localhost:6060", nil))
-	}()
 
 	bind := fmt.Sprintf(":%v", port)
 	// bind := fmt.Sprintf("0.0.0.0:%v", port)

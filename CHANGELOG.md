@@ -13,6 +13,7 @@
 
 ## 1.7.0 - 2016-04-12
  - Database logging for updates and inserts
+ - Socket Hub thread protection
 
 
 ## 1.6.4 - 2016-04-01

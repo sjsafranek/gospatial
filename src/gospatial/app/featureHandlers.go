@@ -21,7 +21,6 @@ import (
 /*=======================================*/
 func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Get request body
-	// If this id done later in this function an EOF error occurs
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		// Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
@@ -40,7 +39,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	/*=======================================*/
 	// Check for apikey in request
 	if apikey == "" {
-		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
+		Warning.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}

@@ -69,14 +69,13 @@ func main() {
 		}
 	}()
 
-	// if debug {
 	app.DebugMode()
+	fmt.Printf("Profiling happens on port %v...\n", 6060)
 	fmt.Printf("Magic happens on port %v...\n", port)
 	// https://golang.org/pkg/net/http/pprof/
 	go func() {
 		app.Info.Println(http.ListenAndServe(":6060", nil))
 	}()
-	// }
 
 	// Initiate Database
 	app.DB = app.Database{File: database + ".db"}
@@ -90,13 +89,8 @@ func main() {
 
 	// Start server
 	app.Info.Printf("Magic happens on port %v...\n", port)
-
 	bind := fmt.Sprintf(":%v", port)
 	// bind := fmt.Sprintf("0.0.0.0:%v", port)
-	// ListenAndServeTLS(bind, certFile, keyFile, router)
-	// flag for certFile
-	// flag for keyFile
-	// if both there run TLS
 	err := http.ListenAndServe(bind, router)
 	if err != nil {
 		panic(err)

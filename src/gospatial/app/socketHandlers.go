@@ -29,9 +29,9 @@ func (self hub) broadcast(update bool, conn *connection) {
 	}
 	if len(self.Sockets[conn.ds]) != 0 {
 		Trace.Println("Broadcasting message to open connections")
-		self.guard.Lock()
+		self.guard.RLock()
 		num_viewers := len(self.Sockets[conn.ds])
-		self.guard.Unlock()
+		self.guard.RUnlock()
 		msg := Message{Update: update, Viewers: num_viewers}
 		for i := range self.Sockets[conn.ds] {
 			if self.Sockets[conn.ds][i] != conn.ws {
@@ -48,9 +48,9 @@ func (self hub) broadcastAllDsViewers(update bool, ds string) {
 		Viewers int  `json:"viewers"`
 	}
 	Trace.Println("Broadcasting message to open connections")
-	self.guard.Lock()
+	self.guard.RLock()
 	num_viewers := len(self.Sockets[ds])
-	self.guard.Unlock()
+	self.guard.RUnlock()
 	msg := Message{Update: update, Viewers: num_viewers}
 	for i := range self.Sockets[ds] {
 		Trace.Println("Sending message to client")
@@ -64,11 +64,13 @@ var Hub = hub{
 
 func messageListener(conn *connection) {
 	defer func() {
+		Hub.guard.Lock()
 		conn.ws.Close()
 		delete(Hub.Sockets[conn.ds], conn.c)
 		if len(Hub.Sockets[conn.ds]) == 0 {
 			delete(Hub.Sockets, conn.ds)
 		}
+		Hub.guard.Unlock()
 		Hub.broadcast(false, conn)
 	}()
 	for {
@@ -110,11 +112,13 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 	conn := connection{ws: ws, ds: ds, ip: ip, c: len(Hub.Sockets[ds])}
 	if _, ok := Hub.Sockets[ds]; ok {
 		Hub.Sockets[ds][len(Hub.Sockets[ds])] = ws
+		// Info.Println(r.RemoteAddr, "WS /ws/"+conn.ds+" [200]")
 	} else {
 		Hub.Sockets[ds] = make(map[int]*websocket.Conn)
 		Hub.Sockets[ds][conn.c] = ws
-		Info.Println(r.RemoteAddr, "WS /ws/"+conn.ds+" [200]")
+		// Info.Println(r.RemoteAddr, "WS /ws/"+conn.ds+" [200]")
 	}
+	Info.Println(r.RemoteAddr, "WS /ws/"+conn.ds+" [200]")
 	Hub.broadcastAllDsViewers(false, conn.ds)
 	go messageListener(&conn)
 }

@@ -7,6 +7,7 @@
 ## Unrelease
  - Remove LoadLayer route because it was unnecessary/redundant.
  - Ping route added /ping
+ - Unittesting for websocket handler
 
 
 ## 1.7.0 - 2016-04-12

@@ -39,7 +39,7 @@ func init() {
 	flag.IntVar(&port, "p", 8080, "server port")
 	flag.StringVar(&database, "db", db, "app database")
 	flag.StringVar(&app.SuperuserKey, "s", "7q1qcqmsxnvw", "superuser key")
-	flag.BoolVar(&debug, "d", false, "debug mode")
+	// flag.BoolVar(&debug, "d", false, "debug mode")
 	flag.BoolVar(&version, "v", false, "App Version")
 	flag.Parse()
 	if version {
@@ -69,14 +69,14 @@ func main() {
 		}
 	}()
 
-	if debug {
-		app.DebugMode()
-		fmt.Printf("Magic happens on port %v...\n", port)
-		// https://golang.org/pkg/net/http/pprof/
-		go func() {
-			app.Info.Println(http.ListenAndServe(":6060", nil))
-		}()
-	}
+	// if debug {
+	app.DebugMode()
+	fmt.Printf("Magic happens on port %v...\n", port)
+	// https://golang.org/pkg/net/http/pprof/
+	go func() {
+		app.Info.Println(http.ListenAndServe(":6060", nil))
+	}()
+	// }
 
 	// Initiate Database
 	app.DB = app.Database{File: database + ".db"}

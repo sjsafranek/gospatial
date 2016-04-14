@@ -13,4 +13,7 @@ rm src/gospatial/app/*.log
 cd bin
 rm *
 
+# remove test datbase
+rm src/gospatial/app/*.db
+
 echo "done"

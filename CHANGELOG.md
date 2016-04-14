@@ -1,14 +1,12 @@
 # TODO
- - ping route
- - TLS (wss:// && https://) 
  - pprof
- - Testing with Caddy --> https://github.com/mholt/caddy
  
 
 # Change Log
 
 ## Unrelease
-
+ - Remove LoadLayer route because it was unnecessary/redundant.
+ - Ping route added /ping
 
 
 ## 1.7.0 - 2016-04-12

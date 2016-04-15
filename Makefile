@@ -16,6 +16,7 @@ install: fmt
 	@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/gospatial_loader
 	@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/gospatial_apikey
 	@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/gospatial_backup
+	g++ -o setup src/settings/setup.cpp
 fmt:
 	@GOPATH=${GPATH} gofmt -s -w src/${PROJECT_NAME}
 get:

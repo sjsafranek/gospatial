@@ -1,13 +1,21 @@
-# TODO
- - pprof
- 
+
 
 # Change Log
 
 ## Unrelease
- - Remove LoadLayer route because it was unnecessary/redundant.
+
+### Added
  - Ping route added /ping
  - Unittesting for websocket handler
+ - pprof added to port 6060
+
+### Changed
+ - included bash scripts in Makefile 
+
+### Removed
+ - Remove LoadLayer route because it was unnecessary/redundant.
+
+
 
 
 ## 1.7.0 - 2016-04-12

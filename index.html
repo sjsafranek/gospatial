@@ -76,12 +76,20 @@ $ make install
   <h2 id="start-the-server">Start the server</h2>
   <p>Start server with the following command:</p>
 {% highlight text %}
-$ ./bin/gospatial
-[FIND] TRACE | 2016/03/18 19:43:15.269541 db.go:54: Creating database
-[FIND] TRACE | 2016/03/18 19:43:15.269616 db.go:36: Connecting to database: './bolt.db'
-[FIND] DEBUG | 2016/03/18 19:43:15.321743 db.go:62: Creating 'layers' bucket if not found
-[FIND] DEBUG | 2016/03/18 19:43:15.393999 db.go:72: Creating 'apikeys' bucket if not found
-[FIND] INFO  | 2016/03/18 19:43:15.412214 main.go:75: Magic happens on port 8080...
+stefan@stefan:~/Repos/gospatial$ ./bin/gospatial
+
+   ______                       __  _       __
+  / ____/___  _________  ____ _/ /_(_)___ _/ /
+ / / __/ __ \/ ___/ __ \/ __ '/ __/ / __ '/ /
+/ /_/ / /_/ (__  ) /_/ / /_/ / /_/ / /_/ / /
+\____/\____/____/ .___/\__,_/\__/_/\__,_/_/
+               /_/
+  
+2016/04/16 13:04:28 Authkey: su
+2016/04/16 13:04:28 Database: bolt
+2016/04/16 13:04:28 Profiling happens on port 6060...
+2016/04/16 13:04:28 Magic happens on port 8080...
+
 {% endhighlight %}
 
   <h3>Options</h3>
@@ -96,11 +104,6 @@ $ ./bin/gospatial
       </thead>
       <tbody>
         <tr>
-          <td>-d</td>
-          <td>false</td>
-          <td>Places the server into "debug mode". While the server app is in this mode, logs will be written to a log file</td>
-        </tr>
-        <tr>
           <td>-db</td>
           <td>bolt.db</td>
           <td>Specifies what database file to use</td>
@@ -114,6 +117,11 @@ $ ./bin/gospatial
           <td>-s</td>
           <td>su</td>
           <td>Specifies the superuser key for management routes</td>
+        </tr>
+        <tr>
+          <td>-c</td>
+          <td></td>
+          <td>Gets port, database, and superuser key from config json file (produced by ./setup)</td>
         </tr>
         <tr>
           <td>-v</td>

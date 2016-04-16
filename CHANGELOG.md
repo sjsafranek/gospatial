@@ -13,6 +13,7 @@
 ## 1.8.0 - 2016-04-16
 
 ### Added
+ - Ascii art 
  - Ping route added /ping
  - Unittesting for websocket handler
  - pprof added to port 6060

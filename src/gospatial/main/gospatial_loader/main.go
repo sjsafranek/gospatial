@@ -27,9 +27,9 @@ var (
 func init() {
 	flag.StringVar(&database, "db", "bolt", "app database")
 	flag.StringVar(&apikey, "a", "7q1qcqmsxnvw", "apikey key")
-	flag.StringVar(&upload_file, "f", "none", "shapefile or geojson to upload")
+	flag.StringVar(&upload_file, "f", "", "shapefile or geojson to upload")
 	flag.Parse()
-	if upload_file == "none" {
+	if upload_file == "" {
 		fmt.Println("Incorrect usage")
 		os.Exit(1)
 	}

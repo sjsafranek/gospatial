@@ -24,32 +24,8 @@ fmt:
 get:
 	@GOPATH=${GPATH} go get ${OPTS} ${ARGS}
 
-requirements:
-	if [ ! -d "`pwd`/src/github.com/gorilla/mux" ]; then
-		echo "installing mux..."
-		@GOPATH=${GPATH} go get github.com/gorilla/mux
-	fi
-
-	if [ ! -d "`pwd`/src/github.com/boltdb/bolt" ]; then
-		echo "installing bolt..."
-		@GOPATH=${GPATH} go get github.com/boltdb/bolt
-	fi
-
-	if [ ! -d "`pwd`/src/github.com/gorilla/websocket" ]; then
-		echo "installing websocket..."
-		@GOPATH=${GPATH} go get github.com/gorilla/websocket
-	fi
-
-	if [ ! -d "`pwd`/src/github.com/paulmach/go.geojson" ]; then
-		echo "installing go.geojson..."
-		@GOPATH=${GPATH} go get github.com/paulmach/go.geojson
-	fi
-
 scrape:
 	@find src -type d -name '.hg' -or -type d -name '.git' | xargs rm -rf
 
 clean:
 	@GOPATH=${GPATH} go clean
-	rm bin/* && rm setup
-	rm *.log && rm *.json
-	rm src/gospatial/app/*.log && rm src/gospatial/app/*.db

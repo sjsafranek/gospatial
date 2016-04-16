@@ -23,7 +23,9 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Get request body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		// Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
+		vars := mux.Vars(r)
+		ds := vars["ds"]
+		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -39,7 +41,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	/*=======================================*/
 	// Check for apikey in request
 	if apikey == "" {
-		Warning.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
+		network_logger_Warning.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -47,14 +49,14 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		Warning.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [404]")
+		network_logger_Warning.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	// Check customer datasource list
 	if !stringInSlice(ds, customer.Datasources) {
-		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
+		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -63,7 +65,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Get layer from database
 	featCollection, err := DB.GetLayer(ds)
 	if err != nil {
-		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
+		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -71,7 +73,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Unmarshal feature
 	feat, err := geojson.UnmarshalFeature(body)
 	if err != nil {
-		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
+		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
 		Error.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -85,7 +87,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"ok","datasource":"` + ds + `", "message":"feature added"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		Error.Println(r.RemoteAddr, "POST /api/v1/layer [500]")
+		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -98,7 +100,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	Info.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [200]")
+	network_logger_Info.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [200]")
 	w.Write(js)
 
 }
@@ -122,7 +124,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 
 	k, err := strconv.Atoi(vars["k"])
 	if err != nil {
-		Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [400]")
+		network_logger_Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [400]")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -130,7 +132,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	/*=======================================*/
 	// Check for apikey in request
 	if apikey == "" {
-		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
+		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -138,14 +140,14 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		Warning.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [404]")
+		network_logger_Warning.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	// Check customer datasource list
 	if !stringInSlice(ds, customer.Datasources) {
-		Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
+		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -154,14 +156,14 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Get layer from database
 	data, err := DB.GetLayer(ds)
 	if err != nil {
-		Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
+		network_logger_Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	// Check for feature
 	if k > len(data.Features) {
-		Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
+		network_logger_Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
 		err := fmt.Errorf("Not found")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -170,7 +172,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Marshal feature to json
 	js, err := data.Features[k].MarshalJSON()
 	if err != nil {
-		Error.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [500]")
+		network_logger_Error.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -180,7 +182,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//
-	Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [200]")
+	network_logger_Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [200]")
 	w.Write(js)
 
 }

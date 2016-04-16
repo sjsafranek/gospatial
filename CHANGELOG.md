@@ -1,21 +1,32 @@
+# TODO
+ - add apikey to request headers
 
 
 # Change Log
 
 ## Unrelease
 
+
+
+
+
+## 1.8.0 - 2016-04-16
+
 ### Added
  - Ping route added /ping
  - Unittesting for websocket handler
  - pprof added to port 6060
+ - manage.sh for running tests, getting requirements, and cleaning directory
+ - network logging
+ - "log" directory added for .log files
+ - config file for getting authkey, database and port
 
 ### Changed
- - included bash scripts in Makefile 
+ - StandardMode --> StdOutMode
 
 ### Removed
  - Remove LoadLayer route because it was unnecessary/redundant.
-
-
+ - Remove DebugModeHandler
 
 
 ## 1.7.0 - 2016-04-12

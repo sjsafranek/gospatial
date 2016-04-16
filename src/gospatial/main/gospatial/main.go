@@ -7,9 +7,12 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"gospatial/app"
+	"io/ioutil"
+	"log"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -19,16 +22,23 @@ import (
 )
 
 var (
-	port     int
-	database string
-	bind     string
-	debug    bool
-	version  bool
+	port        int
+	database    string
+	bind        string
+	version     bool
+	config_file string
 )
 
 const (
-	VERSION string = "1.7.0"
+	VERSION        string = "1.8.0"
+	default_config string = ""
 )
+
+type Configuration struct {
+	Port    int    `json:"port"`
+	Db      string `json:"db"`
+	Authkey string `json:"authkey"`
+}
 
 func init() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -36,19 +46,46 @@ func init() {
 		app.Error.Fatal(err)
 	}
 	db := strings.Replace(dir, "bin", "bolt", -1)
+	flag.StringVar(&config_file, "c", default_config, "server config file")
 	flag.IntVar(&port, "p", 8080, "server port")
 	flag.StringVar(&database, "db", db, "app database")
-	flag.StringVar(&app.SuperuserKey, "s", "7q1qcqmsxnvw", "superuser key")
-	// flag.BoolVar(&debug, "d", false, "debug mode")
+	// flag.StringVar(&app.SuperuserKey, "s", "7q1qcqmsxnvw", "superuser key")
+	flag.StringVar(&app.SuperuserKey, "s", "su", "superuser key")
 	flag.BoolVar(&version, "v", false, "App Version")
 	flag.Parse()
 	if version {
 		fmt.Println("Version:", VERSION)
 		os.Exit(0)
 	}
+	if config_file != "" {
+		file, err := ioutil.ReadFile(config_file)
+		if err != nil {
+			panic(err)
+		}
+		configuration := Configuration{}
+		err = json.Unmarshal(file, &configuration)
+		if err != nil {
+			fmt.Println("error:", err)
+		}
+		port = configuration.Port
+		database = configuration.Db
+		database = strings.Replace(database, ".db", "", -1)
+		app.SuperuserKey = configuration.Authkey
+	}
 }
 
 func main() {
+
+	// source: http://patorjk.com/software/taag/#p=display&f=Slant&t=Gospatial
+	// HyperCube Platforms
+	fmt.Println(`
+   ______                       __  _       __
+  / ____/___  _________  ____ _/ /_(_)___ _/ /
+ / / __/ __ \/ ___/ __ \/ __ '/ __/ / __ '/ /
+/ /_/ / /_/ (__  ) /_/ / /_/ / /_/ / /_/ / /
+\____/\____/____/ .___/\__,_/\__/_/\__,_/_/
+               /_/
+	`)
 
 	// Graceful shut down
 	sigs := make(chan os.Signal, 1)
@@ -70,8 +107,10 @@ func main() {
 	}()
 
 	app.DebugMode()
-	fmt.Printf("Profiling happens on port %v...\n", 6060)
-	fmt.Printf("Magic happens on port %v...\n", port)
+	log.Println("Authkey:", app.SuperuserKey)
+	log.Println("Database:", database)
+	log.Printf("Profiling happens on port %v...\n", 6060)
+	log.Printf("Magic happens on port %v...\n", port)
 	// https://golang.org/pkg/net/http/pprof/
 	go func() {
 		app.Info.Println(http.ListenAndServe(":6060", nil))

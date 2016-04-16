@@ -25,6 +25,7 @@ class GoSpatialTester(unittest.TestCase):
 		if req.status_code is not 200:
 			logging.error("Could not create apikey")
 			raise ValueError("Could not create apikey")
+		logger.info(req.text)
 		res = json.loads(req.json())
 		apikey = res['apikey']
 		logging.info("[ok] " + apikey)

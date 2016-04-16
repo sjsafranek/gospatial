@@ -22,7 +22,6 @@ func AttachHttpHandlers() {
 	Trace.Println("Attaching HTTP handler for route: [PUT] /api/v1/layer/{ds}")
 	Trace.Println("Attaching HTTP handler for route: [POST] /api/v1/layer/{ds}/feature")
 	Trace.Println("Attaching HTTP handler for route: [GET] /api/v1/layer/{ds}/feature/{k}")
-	// Trace.Println("Attaching HTTP handler for route: [GET] /management/mode/{md}")
 	Trace.Println("Attaching HTTP handler for route: [POST] /management/customer")
 	Trace.Println("Attaching HTTP handler for route: [GET] /map/{ds}")
 	Trace.Println("Attaching HTTP handler for route: [GET] /")
@@ -48,7 +47,6 @@ var routes = Routes{
 	Route{"ViewFeature", "GET", "/api/v1/layer/{ds}/feature/{k}", ViewFeatureHandler},
 
 	// Superuser Routes
-	// Route{"DebugMode", "GET", "/management/mode/{md}", DebugModeHandler},
 	Route{"NewCustomerHandler", "POST", "/management/customer", NewCustomerHandler},
 
 	// Web Client Routes

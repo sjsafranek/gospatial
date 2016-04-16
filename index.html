@@ -54,7 +54,7 @@ $ git clone https://github.com/sjsafranek/gospatial.git
 
 {% highlight text %}
 $ cd gospatial
-$ ./get_requirements.sh
+$ ./manage.sh -r
 {% endhighlight %}
 
   <h2 id="build-from-source">Building from source</h2>
@@ -131,6 +131,23 @@ stefan@stefan:~/Repos/gospatial$ ./bin/gospatial
       </tbody>
     </table>
   </div>
+
+  <h2 id="generate-config">Generate settings.json</h2>
+  <p>To create a settings.json (server config) run the following command</p>
+{% highlight text %}
+stefan@stefan:~/Repos/gospatial$ ./setup
+server port: 8888
+database: bolt
+authkey: testing
+{% endhighlight %}
+  <p>This will create a file called settings.json</p>
+{% highlight text %}
+{
+  "port": 8888,
+  "db": "bolt.db",
+  "authkey": "testing"
+}
+{% endhighlight %}
 
   <h2 id="troubleshooting">Troubleshooting</h2>
   <p>You are bound to run into problems. Please review the following hints for troubleshooting. Of course, you're welcome to contact us if you're unable to resolve.</p>

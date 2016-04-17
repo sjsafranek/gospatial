@@ -300,7 +300,7 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 		Error.Println(err)
 	}
 	//
-	self.Logger.Println(`{"method": "insert_layer", "datasource":` + datasource + `, "data":` + string(value) + `}`)
+	self.Logger.Println(`{"method": "insert_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
 	// Insert layer into database
 	Debug.Printf("Database insert datasource [%s]", datasource)
 	err = conn.Update(func(tx *bolt.Tx) error {
@@ -340,7 +340,7 @@ func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollect
 		if err != nil {
 			Error.Println(err)
 		}
-		self.Logger.Println(`{"method": "insert_layer", "datasource":` + datasource + `, "data":` + string(value) + `}`)
+		self.Logger.Println(`{"method": "insert_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
 		// Insert layer into database
 		Debug.Printf("Database insert datasource [%s]", datasource)
 		err = conn.Update(func(tx *bolt.Tx) error {

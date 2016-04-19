@@ -124,14 +124,12 @@ func decompressByte(src []byte) []byte {
 }
 
 func compress(src []byte, dest io.Writer, level int) {
-	// Info.Println("Compressing data")
 	compressor, _ := flate.NewWriter(dest, level)
 	compressor.Write(src)
 	compressor.Close()
 }
 
 func decompress(src io.Reader, dest io.Writer) {
-	// Info.Println("Decompressing data")
 	decompressor := flate.NewReader(src)
 	io.Copy(dest, decompressor)
 	decompressor.Close()

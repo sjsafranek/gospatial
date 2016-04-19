@@ -1,6 +1,8 @@
 package app
 
 import (
+	"bytes"
+	"compress/flate"
 	"encoding/json"
 	"fmt"
 	"github.com/boltdb/bolt"
@@ -322,7 +324,7 @@ func (self *Database) NewLayer() (string, error) {
 		if err != nil {
 			return err
 		}
-		err = bucket.Put(key, compressByte(value))
+		err = bucket.Put(key, self.compressByte(value))
 		return err
 	})
 	if err != nil {
@@ -371,7 +373,7 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 		if err != nil {
 			return err
 		}
-		err = bucket.Put(key, compressByte(value))
+		err = bucket.Put(key, self.compressByte(value))
 		return err
 	})
 	if err != nil {
@@ -410,7 +412,7 @@ func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollect
 			if err != nil {
 				return err
 			}
-			err = bucket.Put(key, compressByte(value))
+			err = bucket.Put(key, self.compressByte(value))
 			return err
 		})
 		if err != nil {
@@ -449,7 +451,7 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 		if bucket == nil {
 			return fmt.Errorf("Bucket %q not found!", bucket)
 		}
-		val = decompressByte(bucket.Get(key))
+		val = self.decompressByte(bucket.Get(key))
 		return nil
 	})
 	if err != nil {
@@ -569,7 +571,7 @@ func (self *Database) Dump() map[string]map[string]interface{} {
 		b := tx.Bucket([]byte("layers"))
 		b.ForEach(func(k, v []byte) error {
 			geojs := make(map[string]interface{})
-			err := json.Unmarshal(decompressByte(v), &geojs)
+			err := json.Unmarshal(self.decompressByte(v), &geojs)
 			if err != nil {
 				conn.Close()
 				Error.Fatal(err)
@@ -644,4 +646,36 @@ func (self *Database) CacheManager() {
 		}
 		time.Sleep(10000 * time.Millisecond)
 	}
+}
+
+/*=======================================*/
+// Methods: Compression
+// Source: https://github.com/schollz/gofind/blob/master/utils.go#L146-L169
+//         https://github.com/schollz/gofind/blob/master/fingerprint.go#L43-L54
+// Description:
+//		Compress and Decompress bytes
+/*=======================================*/
+func (self *Database) compressByte(src []byte) []byte {
+	compressedData := new(bytes.Buffer)
+	compress(src, compressedData, 9)
+	return compressedData.Bytes()
+}
+
+func (self *Database) decompressByte(src []byte) []byte {
+	compressedData := bytes.NewBuffer(src)
+	deCompressedData := new(bytes.Buffer)
+	decompress(compressedData, deCompressedData)
+	return deCompressedData.Bytes()
+}
+
+func (self *Database) compress(src []byte, dest io.Writer, level int) {
+	compressor, _ := flate.NewWriter(dest, level)
+	compressor.Write(src)
+	compressor.Close()
+}
+
+func (self *Database) decompress(src io.Reader, dest io.Writer) {
+	decompressor := flate.NewReader(src)
+	io.Copy(dest, decompressor)
+	decompressor.Close()
 }

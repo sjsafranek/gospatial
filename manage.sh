@@ -32,7 +32,7 @@ case $key in
         echo "cleaning working directory..."
         rm bin/* && rm setup || echo "no binaries found"
         rm log/*.log || echo "no log files found"
-        rm *.json || echo "no json files found"
+        # rm *.json || echo "no json files found"
         rm src/gospatial/app/*.log || echo "no testing log found"
         rm src/gospatial/app/*.db || echo "no testing db found"
         echo "done"

@@ -134,6 +134,28 @@ func (self *Database) startLogger() {
 }
 
 /*=======================================*/
+// Method: Database.TestLogger
+// Description:
+//		Starts database logger
+/*=======================================*/
+func (self *Database) TestLogger() {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		Error.Fatal(err)
+	}
+	log_file := strings.Replace(dir, "bin", "db_test.log", -1)
+	db_log, err := os.OpenFile(log_file, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		Error.Println("Error opening file: %v", err)
+		db_log, err = os.OpenFile("test_db.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			Error.Fatal("Error opening file: %v", err)
+		}
+	}
+	self.Logger = log.New(db_log, "[DB] | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+}
+
+/*=======================================*/
 // Method: Database.insertCustomer
 // Description:
 //		Inserts customer into apikeys table

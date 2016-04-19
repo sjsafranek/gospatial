@@ -108,6 +108,7 @@ func main() {
 	}()
 
 	app.DebugMode()
+	app.Network_logger_init()
 	log.Println("Authkey:", app.SuperuserKey)
 	log.Println("Database:", database)
 	log.Printf("Profiling happens on port %v...\n", 6060)

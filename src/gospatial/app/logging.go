@@ -22,7 +22,7 @@ var (
 	network_logger_Error   *log.Logger
 )
 
-func network_logger_init() {
+func Network_logger_init() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		Error.Fatal(err)
@@ -38,7 +38,7 @@ func network_logger_init() {
 }
 
 func init() {
-	network_logger_init()
+	// network_logger_init()
 	Trace = log.New(os.Stdout, "[GOSPATIAL] TRACE | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 	Info = log.New(os.Stdout, "[GOSPATIAL] INFO  | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 	Debug = log.New(os.Stdout, "[GOSPATIAL] DEBUG | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
@@ -65,7 +65,7 @@ func DebugMode() {
 	Error = log.New(DebugModeLogFile, "[SERVER] ERROR | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
-func TestMode() {
+func test_logger_init() {
 	AppMode = "test"
 	DebugModeLogFile, err := os.OpenFile("test.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {

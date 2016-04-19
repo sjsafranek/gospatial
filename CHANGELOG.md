@@ -5,6 +5,14 @@
 # Change Log
 
 ## Unrelease
+### Added
+ - NewLayer method added to Database
+ - InsertFeature method added to Database
+
+### Changed
+ - Creating new datasource layer pushed to database level (Database.NewLayer())
+ - manage.sh -c no longer removes .json files
+ - Adding new features
 
 
 

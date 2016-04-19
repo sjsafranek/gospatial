@@ -67,6 +67,7 @@ func init() {
 		if err != nil {
 			fmt.Println("error:", err)
 		}
+		app.Info.Printf("%v\n", configuration)
 		port = configuration.Port
 		database = configuration.Db
 		database = strings.Replace(database, ".db", "", -1)

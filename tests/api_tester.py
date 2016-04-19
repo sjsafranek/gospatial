@@ -22,10 +22,10 @@ class GoSpatialTester(unittest.TestCase):
 	def setUpClass(cls):
 		logging.info("[POST] NEW CUSTOMER")
 		req = requests.post("http://localhost:8888/management/customer", params={"authkey":"7q1qcqmsxnvw"})
+		logger.info(req.text)
 		if req.status_code is not 200:
 			logging.error("Could not create apikey")
 			raise ValueError("Could not create apikey")
-		logger.info(req.text)
 		res = json.loads(req.json())
 		apikey = res['apikey']
 		logging.info("[ok] " + apikey)

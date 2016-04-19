@@ -3,7 +3,7 @@ package app
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"github.com/paulmach/go.geojson"
+	// "github.com/paulmach/go.geojson"
 	"net/http"
 )
 
@@ -81,9 +81,15 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create datasource
-	ds, _ := NewUUID()
-	featCollection := geojson.NewFeatureCollection()
-	DB.InsertLayer(ds, featCollection)
+	// ds, _ := NewUUID()
+	// featCollection := geojson.NewFeatureCollection()
+	// DB.InsertLayer(ds, featCollection)
+	ds, err := DB.NewLayer()
+	if err != nil {
+		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer [500]")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// Add datasource uuid to customer
 	customer.Datasources = append(customer.Datasources, ds)

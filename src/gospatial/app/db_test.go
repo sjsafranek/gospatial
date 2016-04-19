@@ -8,6 +8,10 @@ import (
 // go test -bench=.
 // go test -bench=. -test.benchmem
 
+// Test NewLayer 
+// Benchmark InsertFeature
+// Test InsertFeature
+
 const (
 	test_db_file         string = "./test.db"
 	test_customer_apikey string = "testKey"
@@ -57,7 +61,7 @@ func BenchmarkDbGetCustomerWithOutCache(b *testing.B) {
 }
 
 /*=======================================*/
-// Unittest Database.getCustomer
+// Unittest Database.GetCustomer
 // Unittest Database.InsertCustomer
 /*=======================================*/
 func TestDbCustomers(t *testing.T) {
@@ -75,6 +79,19 @@ func TestDbCustomers(t *testing.T) {
 	}
 	if customer.Apikey != test_customer_apikey {
 		t.Errorf("Apikey does not match: %s %s", test_customer_apikey, customer.Apikey)
+	}
+}
+
+/*=======================================*/
+// Benchmark Database.NewLayer
+/*=======================================*/
+func BenchmarkDbNewLayer(b *testing.B) {
+	TestMode()
+	test_db := Database{File: test_db_file}
+	test_db.Init()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		test_db.NewLayer()
 	}
 }
 

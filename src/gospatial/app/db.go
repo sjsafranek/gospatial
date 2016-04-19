@@ -271,7 +271,47 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 }
 
 /*=======================================*/
-// Method: Database.insertLayer
+// Method: Database.NewLayer
+// Description:
+//		Creates new datasource layer
+// @returns string - datasource id
+// @returns Error
+/*=======================================*/
+func (self *Database) NewLayer() (string, error) {
+	// create geojson
+	datasource, _ := NewUUID()
+	geojs := geojson.NewFeatureCollection()
+	// Connect to database
+	conn := self.connect()
+	key := []byte(datasource)
+	// convert to bytes
+	Debug.Printf("Encoding datasource [%s]", datasource)
+	value, err := geojs.MarshalJSON()
+	if err != nil {
+		Error.Println(err)
+	}
+	// log
+	self.Logger.Println(`{"method": "new_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
+	// Insert layer into database
+	Debug.Printf("Database insert datasource [%s]", datasource)
+	err = conn.Update(func(tx *bolt.Tx) error {
+		table := []byte("layers")
+		bucket, err := tx.CreateBucketIfNotExists(table)
+		if err != nil {
+			return err
+		}
+		err = bucket.Put(key, compressByte(value))
+		return err
+	})
+	if err != nil {
+		Error.Fatal(err)
+	}
+	conn.Close()
+	return datasource, err
+}
+
+/*=======================================*/
+// Method: Database.InsertLayer
 // Description:
 //		Inserts layer into database
 // @param datasource {string}
@@ -300,7 +340,7 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 		Error.Println(err)
 	}
 	//
-	self.Logger.Println(`{"method": "insert_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
+	// self.Logger.Println(`{"method": "insert_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
 	// Insert layer into database
 	Debug.Printf("Database insert datasource [%s]", datasource)
 	err = conn.Update(func(tx *bolt.Tx) error {
@@ -309,7 +349,6 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 		if err != nil {
 			return err
 		}
-		// err = bucket.Put(key, value)
 		err = bucket.Put(key, compressByte(value))
 		return err
 	})
@@ -340,7 +379,7 @@ func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollect
 		if err != nil {
 			Error.Println(err)
 		}
-		self.Logger.Println(`{"method": "insert_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
+		// self.Logger.Println(`{"method": "insert_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
 		// Insert layer into database
 		Debug.Printf("Database insert datasource [%s]", datasource)
 		err = conn.Update(func(tx *bolt.Tx) error {
@@ -349,7 +388,6 @@ func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollect
 			if err != nil {
 				return err
 			}
-			// err = bucket.Put(key, value)
 			err = bucket.Put(key, compressByte(value))
 			return err
 		})
@@ -459,6 +497,38 @@ func (self *Database) DeleteLayer(datasource string) error {
 	conn.Close()
 	delete(self.Cache, datasource)
 	return err
+}
+
+/*=======================================*/
+// Method: Database.InsertFeature
+// Description:
+//		Adds feature to layer
+//		saves to database
+// @param datasource {string}
+// @param feat {Geojson Feature}
+// @returns Error
+/*=======================================*/
+func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) error {
+	// Get layer from database
+	featCollection, err := self.GetLayer(datasource)
+	if err != nil {
+		Error.Println(err)
+		return err
+	}
+	// Add new feature to layer
+	value, err := feat.MarshalJSON()
+	if err != nil {
+		Error.Println(err)
+	}
+	self.Logger.Println(`{"method": "insert_feature", "data": { "datasource": ` + datasource + `, "feature": ` + string(value) + `}}`)
+	//
+	featCollection.AddFeature(feat)
+	err = self.InsertLayer(datasource, featCollection)
+	if err != nil {
+		Error.Println(err)
+	}
+	return err
+
 }
 
 /*=======================================*/

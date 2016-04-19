@@ -62,26 +62,46 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	/*=======================================*/
 
-	// Get layer from database
-	featCollection, err := DB.GetLayer(ds)
-	if err != nil {
-		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	/*
+		// Get layer from database
+		featCollection, err := DB.GetLayer(ds)
+		if err != nil {
+			network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Unmarshal feature
+		feat, err := geojson.UnmarshalFeature(body)
+		if err != nil {
+			network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
+			Error.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Add new feature to layer
+		featCollection.AddFeature(feat)
+		DB.InsertLayer(ds, featCollection)
+	*/
 
 	// Unmarshal feature
 	feat, err := geojson.UnmarshalFeature(body)
+	if err != nil {
+		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [400]")
+		Error.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Save feature to database
+	err = DB.InsertFeature(ds, feat)
 	if err != nil {
 		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
 		Error.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	// Add new feature to layer
-	featCollection.AddFeature(feat)
-	DB.InsertLayer(ds, featCollection)
 
 	// Generate message
 	data := `{"status":"ok","datasource":"` + ds + `", "message":"feature added"}`

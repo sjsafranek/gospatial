@@ -160,6 +160,7 @@ L.Find.Draw = L.Class.extend({
 	},
 
 	sendFeature: function(id) {
+		var self = this;
 		// update websockets
 		var payload = {
 			feature: false,
@@ -182,34 +183,36 @@ L.Find.Draw = L.Class.extend({
 			payload.properties.date_modified = now.toISOString();
 		}
 		// Send request
-		results = this.postRequest(
+		this.postRequest(
 			'/api/v1/layer/' + $('#layers').val() + '/feature',
-			JSON.stringify(payload)
-			// payload
+			JSON.stringify(payload),
+			function(error, results) {
+				if (error) {
+					self.find._errorMessage(err);
+					throw err;
+				} else {
+					self.find.getLayer($('#layers').val());
+					map.removeLayer(self.drawnItems._layers[id]);
+					$("#properties .attr").val("");
+					return results;
+				}
+			}
 		);
-		// console.log(this.$super);
-		this.find.getLayer($('#layers').val());
-		map.removeLayer(this.drawnItems._layers[id]);
-		$("#properties .attr").val("");
-		return results;
 	},
 
-	postRequest: function(route, data) {
+	postRequest: function(route, data, callback) {
 		var results;
-		find = this;
+		self = this;
 		console.log(data);
 		$.ajax({
 			crossDomain: true,
 			type: "POST",
 			async: false,
 			data: data,
-			url: route + "?apikey=" + find.apikey,
+			url: route + "?apikey=" + self.apikey,
 			dataType: 'JSON',
 			success: function (data) {
-				try {
-					results = data;
-				}
-				catch(err){  console.log('Error:', err);  }
+				callback(null, data);
 			},
 			error: function(xhr,errmsg,err) {
 				console.log(xhr.status,xhr.responseText,errmsg,err);
@@ -218,41 +221,11 @@ L.Find.Draw = L.Class.extend({
 				message += "responseText: " + xhr.responseText + "<br>";
 				message += "errmsg: " + errmsg + "<br>";
 				message += "Error:" + err;
-				find.find.errorMessage(message);
+				callback(new Error(message));
 			}
 		});
 		return results;
 	},
-
-	getRequest: function(route, data) {
-		var results;
-		find = this;
-		$.ajax({
-			crossDomain: true,
-			type: "GET",
-			async: false,
-			data: data,
-			url: route + "?apikey=" + find.apikey,
-			dataType: 'JSON',
-			success: function (data) {
-				try {
-					results = data;
-				}
-				catch(err){  console.log('Error:', err);  }
-			},
-			error: function(xhr,errmsg,err) {
-				console.log(xhr.status,xhr.responseText,errmsg,err);
-				result = null;
-				var message = "status: " + xhr.status + "<br>";
-				message += "responseText: " + xhr.responseText + "<br>";
-				message += "errmsg: " + errmsg + "<br>";
-				message += "Error:" + err;
-				find.find.errorMessage(message);
-			}
-		});
-		return results;
-	}
-
 
 });
 

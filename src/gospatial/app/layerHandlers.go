@@ -2,8 +2,8 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
-	// "github.com/paulmach/go.geojson"
 	"net/http"
 )
 
@@ -15,14 +15,14 @@ import (
 // @return json
 /*=======================================*/
 func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
-
+	fmt.Printf("%v\n", r)
 	// Get params
 	apikey := r.FormValue("apikey")
 
 	/*=======================================*/
 	// Check for apikey in request
 	if apikey == "" {
-		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
+		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layers [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -30,7 +30,7 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		network_logger_Warning.Println(r.RemoteAddr, "POST /api/v1/layer [404]")
+		network_logger_Warning.Println(r.RemoteAddr, "POST /api/v1/layers [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -39,14 +39,14 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 	// return results
 	js, err := json.Marshal(customer)
 	if err != nil {
-		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer [500]")
+		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layers [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	network_logger_Info.Println(r.RemoteAddr, "POST /api/v1/layer [200]")
+	network_logger_Info.Println(r.RemoteAddr, "POST /api/v1/layers [200]")
 	w.Write(js)
 
 }

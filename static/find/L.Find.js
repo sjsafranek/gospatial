@@ -19,24 +19,23 @@ L.Find = L.Class.extend({
 	},
 
 	addTo: function(map) {
-		find = this;
+		self = this;
 		this._map = map;
-		this.addUiControls();
+		this._addUiControls();
 		this.getLayer($('#layers').val());
 		try {
 			this._map.fitBounds(
-				find.featureLayers[$('#layers').val()].getBounds()
+				self.featureLayers[$('#layers').val()].getBounds()
 			);
 		}
 		catch (err) {
-			console.log(err);
 			this._map.fitWorld();
 		}
 		this.ws = this.getWebSocket();
 		return this;
 	},
 
-	preventPropogation: function(obj) {
+	_preventPropogation: function(obj) {
 		map = this._map;
 		// http://gis.stackexchange.com/questions/104507/disable-panning-dragging-on-leaflet-map-for-div-within-map
 		// Disable dragging when user's cursor enters the element
@@ -49,7 +48,7 @@ L.Find = L.Class.extend({
 		});
 	},
 
-	addUiControls: function() {
+	_addUiControls: function() {
 		this._addLogoControl();
 		this._addLayerControl();
 		this._addMouseControl();
@@ -59,8 +58,6 @@ L.Find = L.Class.extend({
 	_addLogoControl: function() {
 		var logo = L.control({position : 'topleft'});
 		logo.onAdd = function () {
-			// this._div = L.DomUtil.create('div', 'logo-compass');
-			// this._div.innerHTML = "<img class='img-logo-compass' src='/images/compass.png' alt='logo'>"
 			this._div = L.DomUtil.create('div', 'logo-hypercube');
 			this._div.innerHTML = "<img class='img-logo-hypercube' src='/images/HyperCube2.png' alt='logo'>"
 			return this._div;
@@ -69,7 +66,7 @@ L.Find = L.Class.extend({
 	},
 
 	_addLayerControl: function() {
-		find = this;
+		self = this;
 		// Create UI control element
 		geojsonLayerControl = L.control({position: 'topright'});
 		geojsonLayerControl.onAdd = function () {
@@ -85,10 +82,9 @@ L.Find = L.Class.extend({
 			var newTiles = L.tileLayer(
 				$("#newTileLayer").val(),
 				{maxZoom:25});
-			newTiles.addTo(find._map);
-			// console.log("new tile layer", newTiles);
+			newTiles.addTo(self._map);
 		});
-		this.preventPropogation(geojsonLayerControl);
+		this._preventPropogation(geojsonLayerControl);
 		// Fill drop down options
 		for (var _i=0; _i < this.datasources.length; _i++) {
 			var obj = document.createElement('option');
@@ -98,11 +94,11 @@ L.Find = L.Class.extend({
 		}
 		// UI Events listeners
 		$('#layers').on('change', function(){ 
-			find.getLayer($('#layers').val());
+			self.getLayer($('#layers').val());
 		});
 		$('#zoom').on('click', function(){ 
-			find._map.fitBounds(
-				find.featureLayers[$('#layers').val()].getBounds()
+			self._map.fitBounds(
+				self.featureLayers[$('#layers').val()].getBounds()
 			);
 		});
 	},
@@ -116,7 +112,7 @@ L.Find = L.Class.extend({
 			return div;
 		};
 		mouseLocationControl.addTo(this._map);
-		this.preventPropogation(mouseLocationControl);
+		this._preventPropogation(mouseLocationControl);
 		// UI Event listeners
 		this._map.on('mousemove', function(e) {
 			$("#location")[0].innerHTML = "<strong>Lat, Lon : " + e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4) + "</strong>";
@@ -132,12 +128,19 @@ L.Find = L.Class.extend({
 			return div;
 		};
 		featureAttributesControl.addTo(this._map);
-		this.preventPropogation(featureAttributesControl);
+		this._preventPropogation(featureAttributesControl);
 	},
 
 	getLayer: function(datasource) {
-		data = this.getRequest("/api/v1/layer/" + datasource);
-		this.updateFeatureLayers(data);
+		self = this;
+		this.getRequest("/api/v1/layer/" + datasource, function(error, result){
+			if (error) {
+				throw error;
+				self.errorMessage(error);
+			} else {
+				self.updateFeatureLayers(result);
+			}
+		});
 	},
 
 	updateFeatureLayers: function(data) {
@@ -215,62 +218,23 @@ L.Find = L.Class.extend({
 		return featureLayer;
 	},
 
-	getFeature: function(datasource, k){
-		results = this.getRequest("/api/v1/layer/" + datasource + "/feature/" + k);
-		return results;
-	},
-
-	errorMessage: function(message) {
+	_errorMessage: function(message) {
 		console.log(message)
 		$(".err span").html(message);
 		$("#error").show();
 		$("#map").hide();
 	},
 
-	postRequest: function(route, data) {
-		var results;
-		find = this;
-		$.ajax({
-			crossDomain: true,
-			type: "POST",
-			async: false,
-			data: data,
-			url: route + "?apikey=" + find.apikey,
-			dataType: 'JSON',
-			success: function (data) {
-				try {
-					results = data;
-				}
-				catch(err){  console.log('Error:', err);  }
-			},
-			error: function(xhr,errmsg,err) {
-				console.log(xhr.status,xhr.responseText,errmsg,err);
-				result = null;
-				var message = "status: " + xhr.status + "<br>";
-				message += "responseText: " + xhr.responseText + "<br>";
-				message += "errmsg: " + errmsg + "<br>";
-				message += "Error:" + err;
-				find.errorMessage(message);
-			}
-		});
-		return results;
-	},
-
-	getRequest: function(route, data) {
-		var results;
-		find = this;
+	getRequest: function(route, callback) {
+		self = this;
 		$.ajax({
 			crossDomain: true,
 			type: "GET",
 			async: false,
-			data: data,
-			url: route + "?apikey=" + find.apikey,
+			url: route + "?apikey=" + self.apikey,
 			dataType: 'JSON',
 			success: function (data) {
-				try {
-					results = data;
-				}
-				catch(err){  console.log('Error:', err);  }
+				return callback(null, data);
 			},
 			error: function(xhr,errmsg,err) {
 				console.log(xhr.status,xhr.responseText,errmsg,err);
@@ -279,10 +243,9 @@ L.Find = L.Class.extend({
 				message += "responseText: " + xhr.responseText + "<br>";
 				message += "errmsg: " + errmsg + "<br>";
 				message += "Error:" + err;
-				find.errorMessage(message);
+				return callback(new Error(message));
 			}
 		});
-		return results;
 	},
 
 	randomColor: function() {
@@ -290,15 +253,15 @@ L.Find = L.Class.extend({
 	},
 
 	getWebSocket: function() {
-		find = this;
+		self = this;
 		console.log("Opening websocket");
 		try { 
-			var url = "ws://" + window.location.host + "/ws/" + find.datasources[0];
+			var url = "ws://" + window.location.host + "/ws/" + self.datasources[0];
 			ws = new WebSocket(url);
 		}
 		catch(err) {
 			console.log(err);
-			var url = "wss://" + window.location.host + "/ws/" + find.datasources[0];
+			var url = "wss://" + window.location.host + "/ws/" + self.datasources[0];
 			ws = new WebSocket(url);
 		}
 		ws.onopen = function(e) { 
@@ -309,28 +272,28 @@ L.Find = L.Class.extend({
 			var data = JSON.parse(e.data);
 			console.log(data);
 			if (data.update) {
-				find.getLayer($('#layers').val());
+				self.getLayer($('#layers').val());
 			}
 			$("#viewers").text(data.viewers);
 			if (data.key) {
-				if (!find._editFeatures.hasOwnProperty(data.client)) {
-					find._editFeatures[data.client] = {
-						color: find.randomColor()
+				if (!self._editFeatures.hasOwnProperty(data.client)) {
+					self._editFeatures[data.client] = {
+						color: self.randomColor()
 					};
 				}
-				if (find._editFeatures[data.client].hasOwnProperty(data.key)) {
-					find._map.removeLayer(find._editFeatures[data.client][data.key]);
+				if (self._editFeatures[data.client].hasOwnProperty(data.key)) {
+					self._map.removeLayer(self._editFeatures[data.client][data.key]);
 				}
 				if (data.feature) {
 					var featureLayer = L.geoJson(data.feature, {
 						style: {
 							fillOpacity: 0.5,
-							color: find._editFeatures[data.client].color
+							color: self._editFeatures[data.client].color
 						}
 					});
 					// featureLayer.editable.enable();
-					find._editFeatures[data.client][data.key] = featureLayer;
-					find._editFeatures[data.client][data.key].addTo(find._map);
+					self._editFeatures[data.client][data.key] = featureLayer;
+					self._editFeatures[data.client][data.key].addTo(self._map);
 				}
 			}
 		};

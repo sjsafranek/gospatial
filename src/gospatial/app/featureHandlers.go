@@ -60,30 +60,6 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-	/*=======================================*/
-
-	/*
-		// Get layer from database
-		featCollection, err := DB.GetLayer(ds)
-		if err != nil {
-			network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Unmarshal feature
-		feat, err := geojson.UnmarshalFeature(body)
-		if err != nil {
-			network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [500]")
-			Error.Println(err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Add new feature to layer
-		featCollection.AddFeature(feat)
-		DB.InsertLayer(ds, featCollection)
-	*/
 
 	// Unmarshal feature
 	feat, err := geojson.UnmarshalFeature(body)

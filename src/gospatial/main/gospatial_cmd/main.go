@@ -21,8 +21,8 @@ var (
 	datasource string
 	database   string
 	list       bool
-	imp bool
-	exp bool
+	imp        bool
+	exp        bool
 )
 
 func list_datsources() {
@@ -76,10 +76,10 @@ func init() {
 	flag.StringVar(&database, "db", "bolt", "app database")
 	flag.StringVar(&datasource, "ds", "", "datasource")
 	flag.BoolVar(&list, "ls", false, "list datasources")
-	// 
+	//
 	flag.BoolVar(&imp, "i", false, "import")
 	flag.BoolVar(&exp, "e", false, "export")
-	// 
+	//
 	flag.Parse()
 }
 

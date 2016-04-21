@@ -45,11 +45,11 @@ type Database struct {
 // @returns *bolt.DB
 /*=======================================*/
 func (self *Database) connect() *bolt.DB {
-	Trace.Printf("Connecting to database: '%s'", self.File)
 	conn, err := bolt.Open(self.File, 0644, nil)
 	if err != nil {
 		conn.Close()
-		Error.Fatal(err)
+		// log.Fatal(err)
+		panic(err)
 	}
 	return conn
 }
@@ -63,7 +63,6 @@ func (self *Database) connect() *bolt.DB {
 // @returns Error
 /*=======================================*/
 func (self *Database) Init() error {
-	Trace.Println("Creating database")
 	// Start db caching
 	m := make(map[string]*LayerCache)
 	self.Cache = m
@@ -71,37 +70,34 @@ func (self *Database) Init() error {
 	self.startLogger()
 	// connect to db
 	conn := self.connect()
+	defer conn.Close()
 	// datasources
-	Debug.Println("Creating 'layers' bucket if not found")
 	err := conn.Update(func(tx *bolt.Tx) error {
 		table := []byte("layers")
 		_, err := tx.CreateBucketIfNotExists(table)
 		return err
 	})
 	if err != nil {
-		Error.Fatal(err)
+		return err
 	}
 	// permissions
-	Debug.Println("Creating 'apikeys' bucket if not found")
 	err = conn.Update(func(tx *bolt.Tx) error {
 		table := []byte("apikeys")
 		_, err := tx.CreateBucketIfNotExists(table)
 		return err
 	})
 	if err != nil {
-		Error.Fatal(err)
+		return err
 	}
 	// put apikey into memory
 	self.Apikeys = make(map[string]Customer)
 	conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("apikeys"))
 		b.ForEach(func(k, v []byte) error {
-			// val := make(map[string]interface{})
 			customer := Customer{}
 			err := json.Unmarshal(v, &customer)
 			if err != nil {
-				conn.Close()
-				Error.Fatal(err)
+				return err
 			}
 			self.Apikeys[string(k)] = customer
 			return nil
@@ -109,7 +105,6 @@ func (self *Database) Init() error {
 		return nil
 	})
 	// close and return err
-	conn.Close()
 	return err
 }
 
@@ -121,18 +116,17 @@ func (self *Database) Init() error {
 func (self *Database) startLogger() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
-		Error.Fatal(err)
+		panic(err)
 	}
 	log_file := strings.Replace(dir, "bin", "log/db.log", -1)
 	db_log, err := os.OpenFile(log_file, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		Error.Println("Error opening file: %v", err)
-		db_log, err = os.OpenFile("test_db.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+		db_log, err = os.OpenFile("db.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
-			Error.Fatal("Error opening file: %v", err)
+			panic(err)
 		}
 	}
-	self.Logger = log.New(db_log, "[DB] | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	self.Logger = log.New(db_log, "[DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
 /*=======================================*/
@@ -143,18 +137,14 @@ func (self *Database) startLogger() {
 func (self *Database) TestLogger() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
-		Error.Fatal(err)
+		panic(err)
 	}
-	log_file := strings.Replace(dir, "bin", "db_test.log", -1)
-	db_log, err := os.OpenFile(log_file, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	f := filepath.Join(dir, "test_db.log")
+	db_log, err := os.OpenFile(f, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		Error.Println("Error opening file: %v", err)
-		db_log, err = os.OpenFile("test_db.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-		if err != nil {
-			Error.Fatal("Error opening file: %v", err)
-		}
+		panic(err)
 	}
-	self.Logger = log.New(db_log, "[DB] | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	self.Logger = log.New(db_log, "[DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
 /*=======================================*/
@@ -165,20 +155,19 @@ func (self *Database) TestLogger() {
 // @returns Error
 /*=======================================*/
 func (self *Database) InsertCustomer(customer Customer) error {
-	// self.Logger.Println(customer)
 	self.Apikeys[customer.Apikey] = customer
 	// Connect to database
 	conn := self.connect()
+	defer conn.Close()
 	// convert to bytes
 	table := []byte("apikeys")
 	key := []byte(customer.Apikey)
 	value, err := json.Marshal(customer)
 	if err != nil {
-		Error.Println(err)
+		return err
 	}
 	self.Logger.Println(`{"method": "insert_apikey", "data":` + string(value) + `}`)
-	// Insert layer into database
-	Debug.Printf("Database insert apikey [%s]", customer.Apikey)
+	// Insert customer into database
 	err = conn.Update(func(tx *bolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists(table)
 		if err != nil {
@@ -188,9 +177,8 @@ func (self *Database) InsertCustomer(customer Customer) error {
 		return err
 	})
 	if err != nil {
-		Error.Fatal(err)
+		panic(err)
 	}
-	conn.Close()
 	return err
 }
 
@@ -202,9 +190,9 @@ func (self *Database) InsertCustomer(customer Customer) error {
 // @returns Error
 /*=======================================*/
 func (self *Database) InsertCustomers(customers map[string]Customer) error {
-	Trace.Println("Batch inserting customers...")
 	// Connect to database
 	conn := self.connect()
+	defer conn.Close()
 	for i := range customers {
 		customer := customers[i]
 		// convert to bytes
@@ -212,11 +200,10 @@ func (self *Database) InsertCustomers(customers map[string]Customer) error {
 		key := []byte(customer.Apikey)
 		value, err := json.Marshal(customer)
 		if err != nil {
-			Error.Println(err)
+			return err
 		}
 		self.Logger.Println(`{"method": "insert_apikey", "data": ` + string(value) + `}`)
 		// Insert layer into database
-		Debug.Printf("Database insert apikey [%s]", customer.Apikey)
 		err = conn.Update(func(tx *bolt.Tx) error {
 			bucket, err := tx.CreateBucketIfNotExists(table)
 			if err != nil {
@@ -226,10 +213,9 @@ func (self *Database) InsertCustomers(customers map[string]Customer) error {
 			return err
 		})
 		if err != nil {
-			Error.Fatal(err)
+			panic(err)
 		}
 	}
-	conn.Close()
 	return nil
 }
 
@@ -244,12 +230,11 @@ func (self *Database) InsertCustomers(customers map[string]Customer) error {
 func (self *Database) GetCustomer(apikey string) (Customer, error) {
 	// Check apikey cache
 	if _, ok := self.Apikeys[apikey]; ok {
-		Debug.Printf("Cache read [%s]", apikey)
 		return self.Apikeys[apikey], nil
 	}
-	// If page not found get from database
-	Debug.Printf("Database read apikey [%s]", apikey)
+	// If customer not found get from database
 	conn := self.connect()
+	defer conn.Close()
 	// Make sure table exists
 	table := []byte("apikeys")
 	// Get datasrouce from database
@@ -269,28 +254,20 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 			_, err := tx.CreateBucketIfNotExists(table)
 			return err
 		})
-		conn.Close()
-		Error.Println(err)
 		return Customer{}, err
 	}
 	// datasource not found
 	if val == nil {
-		conn.Close()
-		Warning.Printf("Customer not found [%s]", apikey)
 		return Customer{}, fmt.Errorf("Apikey not found")
 	}
 	// Read to struct
-	Debug.Printf("Unmarshal customer [%s]", apikey)
 	customer := Customer{}
 	err = json.Unmarshal(val, &customer)
 	if err != nil {
-		conn.Close()
-		// Error.Printf("Cannot unmarshal customer [%s]", err)
-		Error.Println(err)
+		panic(err)
 		return Customer{}, err
 	}
 	// Close database connection
-	conn.Close()
 	return customer, nil
 }
 
@@ -307,17 +284,15 @@ func (self *Database) NewLayer() (string, error) {
 	geojs := geojson.NewFeatureCollection()
 	// Connect to database
 	conn := self.connect()
+	defer conn.Close()
 	key := []byte(datasource)
 	// convert to bytes
-	Debug.Printf("Encoding datasource [%s]", datasource)
 	value, err := geojs.MarshalJSON()
 	if err != nil {
-		Error.Println(err)
+		return "", nil
 	}
-	// log
 	self.Logger.Println(`{"method": "new_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
 	// Insert layer into database
-	Debug.Printf("Database insert datasource [%s]", datasource)
 	err = conn.Update(func(tx *bolt.Tx) error {
 		table := []byte("layers")
 		bucket, err := tx.CreateBucketIfNotExists(table)
@@ -328,9 +303,8 @@ func (self *Database) NewLayer() (string, error) {
 		return err
 	})
 	if err != nil {
-		Error.Fatal(err)
+		panic(err)
 	}
-	conn.Close()
 	return datasource, err
 }
 
@@ -344,26 +318,22 @@ func (self *Database) NewLayer() (string, error) {
 /*=======================================*/
 func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureCollection) error {
 	// Caching layer
-	Trace.Println("Checking cache")
 	if v, ok := self.Cache[datasource]; ok {
-		Debug.Printf("Cache update [%s]", datasource)
 		v.Geojson = geojs
 		v.Time = time.Now()
 	} else {
-		Debug.Printf("Cache insert [%s]", datasource)
 		pgc := &LayerCache{Geojson: geojs, Time: time.Now()}
 		self.Cache[datasource] = pgc
 	}
 	// Connect to database
 	conn := self.connect()
+	defer conn.Close()
 	key := []byte(datasource)
 	// convert to bytes
-	Debug.Printf("Encoding datasource [%s]", datasource)
 	value, err := geojs.MarshalJSON()
 	if err != nil {
-		Error.Println(err)
+		return err
 	}
-	//
 	// self.Logger.Println(`{"method": "insert_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
 	// Insert layer into database
 	Debug.Printf("Database insert datasource [%s]", datasource)
@@ -377,9 +347,8 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 		return err
 	})
 	if err != nil {
-		Error.Fatal(err)
+		panic(err)
 	}
-	conn.Close()
 	return err
 }
 
@@ -393,19 +362,17 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 /*=======================================*/
 func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollection) error {
 	// Connect to database
-	Trace.Println("Batch inserting datasources...")
 	conn := self.connect()
+	defer conn.Close()
 	for datasource, geojs := range datsources {
 		key := []byte(datasource)
-		// convert to bytes\
-		Debug.Printf("Encoding datasource [%s]", datasource)
+		// convert to bytes
 		value, err := geojs.MarshalJSON()
 		if err != nil {
-			Error.Println(err)
+			return err
 		}
 		// self.Logger.Println(`{"method": "insert_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
 		// Insert layer into database
-		Debug.Printf("Database insert datasource [%s]", datasource)
 		err = conn.Update(func(tx *bolt.Tx) error {
 			table := []byte("layers")
 			bucket, err := tx.CreateBucketIfNotExists(table)
@@ -416,10 +383,9 @@ func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollect
 			return err
 		})
 		if err != nil {
-			Error.Fatal(err)
+			panic(err)
 		}
 	}
-	conn.Close()
 	return nil
 }
 
@@ -431,17 +397,15 @@ func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollect
 // @returns Geojson
 // @returns Error
 /*=======================================*/
-// func (self *Database) getLayer(datasource string) (Geojson, error) {
 func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, error) {
 	// Caching layer
 	if v, ok := self.Cache[datasource]; ok {
-		Debug.Printf("Cache read [%s]", datasource)
 		v.Time = time.Now()
 		return v.Geojson, nil
 	}
 	// If page not found get from database
-	Debug.Printf("Database read [%s]", datasource)
 	conn := self.connect()
+	defer conn.Close()
 	table := []byte("layers")
 	// Get datasrouce from database
 	key := []byte(datasource)
@@ -460,29 +424,18 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 			_, err := tx.CreateBucketIfNotExists(table)
 			return err
 		})
-		conn.Close()
-		Error.Println(err)
 		return nil, err
 	}
 	// datasource not found
 	if val == nil {
-		conn.Close()
-		Warning.Printf("Datasource not found [%s]", datasource)
 		return nil, fmt.Errorf("Not found")
 	}
 	// Read to struct
-	Debug.Printf("Unmarshal datasource [%s]", datasource)
-
 	geojs, err := geojson.UnmarshalFeatureCollection(val)
 	if err != nil {
-		conn.Close()
-		Error.Println(err)
 		return geojs, err
 	}
-	// Close database connection
-	conn.Close()
 	// Store page in memory cache
-	Debug.Printf("Cache insert [%s]", datasource)
 	pgc := &LayerCache{Geojson: geojs, Time: time.Now()}
 	self.Cache[datasource] = pgc
 	return geojs, nil
@@ -498,11 +451,11 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 func (self *Database) DeleteLayer(datasource string) error {
 	// Connect to database
 	conn := self.connect()
+	defer conn.Close()
 	key := []byte(datasource)
 	//
 	self.Logger.Println(string(`{"method: "delete_layer", "data": ` + datasource + `}`))
 	// Insert layer into database
-	Debug.Printf("Database delete [%s]", datasource)
 	err := conn.Update(func(tx *bolt.Tx) error {
 		table := []byte("layers")
 		bucket, err := tx.CreateBucketIfNotExists(table)
@@ -516,9 +469,8 @@ func (self *Database) DeleteLayer(datasource string) error {
 		return nil
 	})
 	if err != nil {
-		Error.Println(err)
+		panic(err)
 	}
-	conn.Close()
 	delete(self.Cache, datasource)
 	return err
 }
@@ -536,20 +488,18 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 	// Get layer from database
 	featCollection, err := self.GetLayer(datasource)
 	if err != nil {
-		Error.Println(err)
 		return err
 	}
 	// Add new feature to layer
 	value, err := feat.MarshalJSON()
 	if err != nil {
-		Error.Println(err)
+		return err
 	}
 	self.Logger.Println(`{"method": "insert_feature", "data": { "datasource": ` + datasource + `, "feature": ` + string(value) + `}}`)
-	//
 	featCollection.AddFeature(feat)
 	err = self.InsertLayer(datasource, featCollection)
 	if err != nil {
-		Error.Println(err)
+		panic(err)
 	}
 	return err
 
@@ -559,8 +509,8 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 // Method: Dumps database
 /*=======================================*/
 func (self *Database) Dump() map[string]map[string]interface{} {
-	Info.Println("Extract all data from database...")
 	conn := self.connect()
+	defer conn.Close()
 	// Create struct to store db data
 	data := make(map[string]map[string]interface{})
 	data["apikeys"] = make(map[string]interface{})
@@ -573,7 +523,6 @@ func (self *Database) Dump() map[string]map[string]interface{} {
 			geojs := make(map[string]interface{})
 			err := json.Unmarshal(self.decompressByte(v), &geojs)
 			if err != nil {
-				conn.Close()
 				Error.Fatal(err)
 			}
 			data["layers"][string(k)] = geojs
@@ -589,7 +538,6 @@ func (self *Database) Dump() map[string]map[string]interface{} {
 			val := make(map[string]interface{})
 			err := json.Unmarshal(v, &val)
 			if err != nil {
-				conn.Close()
 				Error.Fatal(err)
 			}
 			data["apikeys"][string(k)] = val
@@ -597,19 +545,15 @@ func (self *Database) Dump() map[string]map[string]interface{} {
 		})
 		return nil
 	})
-	//
-	conn.Close()
 	return data
 }
 
 func (self *Database) Backup(filename ...string) {
-	Info.Println("Backing up database...")
-	// Create struct to store db data
+	// get data
 	data := self.Dump()
-	// marshal to json
 	b, err := json.Marshal(data)
 	if err != nil {
-		Error.Fatal(err)
+		panic(err)
 	}
 	// Write to file
 	savename := "backup_" + time.Now().String() + ".json"
@@ -637,9 +581,7 @@ func (self *Database) CacheManager() {
 				if limit < 0.0 {
 					limit = 10.0
 				}
-				// Info.Println(limit, key)
 				if time.Since(self.Cache[key].Time).Seconds() > limit {
-					Debug.Printf("Cache unload [%s]", key)
 					delete(self.Cache, key)
 				}
 			}

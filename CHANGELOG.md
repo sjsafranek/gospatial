@@ -1,6 +1,6 @@
 # TODO
  - add apikey to request headers
-
+ - make database cache thread safe!
 
 # Change Log
 
@@ -13,7 +13,8 @@
  - Creating new datasource layer pushed to database level (Database.NewLayer())
  - manage.sh -c no longer removes .json files
  - Adding new features
-
+ - refactor of database messaging. Independent of http layer
+ - refactor of L.Find.js && L.Find.Draw.js
 
 
 

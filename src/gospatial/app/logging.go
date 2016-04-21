@@ -32,6 +32,8 @@ func Network_logger_init() {
 	if err != nil {
 		Error.Fatal("Error opening file: %v", err)
 	}
+	// network_logger_Info_In = log.New(network_logger_writer, "[NETWORK] [IN] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	// network_logger_Info_Out = log.New(network_logger_writer, "[NETWORK] [OUT] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 	network_logger_Info = log.New(network_logger_writer, "[NETWORK] INFO  | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 	network_logger_Warning = log.New(network_logger_writer, "[NETWORK] WARN  | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 	network_logger_Error = log.New(network_logger_writer, "[NETWORK] ERROR | ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)

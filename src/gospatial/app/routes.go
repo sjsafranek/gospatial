@@ -14,21 +14,21 @@ type Route struct {
 type Routes []Route
 
 func AttachHttpHandlers() {
-	Trace.Println("Attaching HTTP handler for route: [GET] /ping")
-	Trace.Println("Attaching HTTP handler for route: [GET] /api/v1/layers")
-	Trace.Println("Attaching HTTP handler for route: [GET] /api/v1/layer/{ds}")
-	Trace.Println("Attaching HTTP handler for route: [POST] /api/v1/layer")
-	Trace.Println("Attaching HTTP handler for route: [DELETE] /api/v1/layer/{ds}")
-	Trace.Println("Attaching HTTP handler for route: [PUT] /api/v1/layer/{ds}")
-	Trace.Println("Attaching HTTP handler for route: [POST] /api/v1/layer/{ds}/feature")
-	Trace.Println("Attaching HTTP handler for route: [GET] /api/v1/layer/{ds}/feature/{k}")
-	Trace.Println("Attaching HTTP handler for route: [POST] /management/customer")
-	Trace.Println("Attaching HTTP handler for route: [GET] /map/{ds}")
-	Trace.Println("Attaching HTTP handler for route: [GET] /")
-	Trace.Println("Attaching HTTP handler for route: [GET] /ws/{ds}")
-	Trace.Println("Attaching HTTP handler for route: [GET] /management/unload/{ds}")
-	Trace.Println("Attaching HTTP handler for route: [GET] /management/loaded")
-	Trace.Println("Attaching HTTP handler for route: [GET] /management/profile")
+	Info.Println("Attaching HTTP handler for route: [GET] /ping")
+	Info.Println("Attaching HTTP handler for route: [GET] /api/v1/layers")
+	Info.Println("Attaching HTTP handler for route: [GET] /api/v1/layer/{ds}")
+	Info.Println("Attaching HTTP handler for route: [POST] /api/v1/layer")
+	Info.Println("Attaching HTTP handler for route: [DELETE] /api/v1/layer/{ds}")
+	Info.Println("Attaching HTTP handler for route: [PUT] /api/v1/layer/{ds}")
+	Info.Println("Attaching HTTP handler for route: [POST] /api/v1/layer/{ds}/feature")
+	Info.Println("Attaching HTTP handler for route: [GET] /api/v1/layer/{ds}/feature/{k}")
+	Info.Println("Attaching HTTP handler for route: [POST] /management/customer")
+	Info.Println("Attaching HTTP handler for route: [GET] /map/{ds}")
+	Info.Println("Attaching HTTP handler for route: [GET] /")
+	Info.Println("Attaching HTTP handler for route: [GET] /ws/{ds}")
+	Info.Println("Attaching HTTP handler for route: [GET] /management/unload/{ds}")
+	Info.Println("Attaching HTTP handler for route: [GET] /management/loaded")
+	Info.Println("Attaching HTTP handler for route: [GET] /management/profile")
 }
 
 var routes = Routes{

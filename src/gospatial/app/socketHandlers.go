@@ -28,14 +28,14 @@ func (self hub) broadcast(update bool, conn *connection) {
 		Viewers int  `json:"viewers"`
 	}
 	if len(self.Sockets[conn.ds]) != 0 {
-		Trace.Println("Broadcasting message to open connections")
+		Debug.Println("Broadcasting message to open connections")
 		self.guard.RLock()
 		num_viewers := len(self.Sockets[conn.ds])
 		self.guard.RUnlock()
 		msg := Message{Update: update, Viewers: num_viewers}
 		for i := range self.Sockets[conn.ds] {
 			if self.Sockets[conn.ds][i] != conn.ws {
-				Trace.Println("Sending message to client")
+				Debug.Println("Sending message to client")
 				self.Sockets[conn.ds][i].WriteJSON(msg)
 			}
 		}
@@ -47,13 +47,13 @@ func (self hub) broadcastAllDsViewers(update bool, ds string) {
 		Update  bool `json:"update"`
 		Viewers int  `json:"viewers"`
 	}
-	Trace.Println("Broadcasting message to open connections")
+	Debug.Println("Broadcasting message to open connections")
 	self.guard.RLock()
 	num_viewers := len(self.Sockets[ds])
 	self.guard.RUnlock()
 	msg := Message{Update: update, Viewers: num_viewers}
 	for i := range self.Sockets[ds] {
-		Trace.Println("Sending message to client")
+		Debug.Println("Sending message to client")
 		self.Sockets[ds][i].WriteJSON(msg)
 	}
 }
@@ -84,7 +84,7 @@ func messageListener(conn *connection) {
 		// Debug.Printf("Message: %v %s", m, conn.ds)
 		for i := range Hub.Sockets[conn.ds] {
 			if Hub.Sockets[conn.ds][i] != conn.ws {
-				Trace.Println("Sending message to client")
+				Debug.Println("Sending message to client")
 				Hub.Sockets[conn.ds][i].WriteJSON(m)
 			}
 		}

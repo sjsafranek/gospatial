@@ -99,7 +99,6 @@ func main() {
 			app.Info.Println("Waiting for sockets to close...")
 			for {
 				if len(app.Hub.Sockets) == 0 {
-					// app.DB.Backup("backup")
 					app.Info.Println("Shutting down...")
 					os.Exit(0)
 				}
@@ -107,7 +106,7 @@ func main() {
 		}
 	}()
 
-	app.DebugMode()
+	app.StdOutMode()
 	app.Network_logger_init()
 	log.Println("Authkey:", app.SuperuserKey)
 	log.Println("Database:", database)
@@ -121,7 +120,6 @@ func main() {
 	// Initiate Database
 	app.DB = app.Database{File: database + ".db"}
 	app.DB.Init()
-	// app.DB.Backup("backup")
 
 	// Attach Http Hanlders
 	app.AttachHttpHandlers()

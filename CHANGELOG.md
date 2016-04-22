@@ -12,6 +12,7 @@
 ### Added
  - NewLayer method added to Database
  - InsertFeature method added to Database
+ - Datasbase cache lock protection
 
 ### Changed
  - Creating new datasource layer pushed to database level (Database.NewLayer())

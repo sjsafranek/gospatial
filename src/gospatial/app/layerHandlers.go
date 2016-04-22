@@ -2,7 +2,7 @@ package app
 
 import (
 	"encoding/json"
-	"fmt"
+	// "fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -15,7 +15,7 @@ import (
 // @return json
 /*=======================================*/
 func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("%v\n", r)
+	network_logger_Info_In.Printf("%v\n", r)
 	// Get params
 	apikey := r.FormValue("apikey")
 
@@ -47,6 +47,7 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	network_logger_Info.Println(r.RemoteAddr, "POST /api/v1/layers [200]")
+	network_logger_Info_Out.Println(string(js))
 	w.Write(js)
 
 }
@@ -61,6 +62,7 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 // @return json
 /*=======================================*/
 func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
+	network_logger_Info_In.Printf("%v\n", r)
 
 	// Get params
 	apikey := r.FormValue("apikey")
@@ -109,6 +111,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	network_logger_Info.Println(r.RemoteAddr, "POST /api/v1/layer [200]")
+	network_logger_Info_Out.Println(string(js))
 	w.Write(js)
 
 }
@@ -124,6 +127,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 // @return geojson
 /*=======================================*/
 func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
+	network_logger_Info_In.Printf("%v\n", r)
 
 	// Get params
 	apikey := r.FormValue("apikey")
@@ -177,6 +181,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	network_logger_Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [200]")
+	network_logger_Info_Out.Println(string(rawJSON))
 	w.Write(rawJSON)
 
 }
@@ -192,6 +197,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 // @return json
 /*=======================================*/
 func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
+	network_logger_Info_In.Printf("%v\n", r)
 
 	// Get params
 	apikey := r.FormValue("apikey")
@@ -251,6 +257,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	network_logger_Info.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [200]")
+	network_logger_Info_Out.Println(string(js))
 	w.Write(js)
 
 }

@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -35,6 +36,7 @@ type Database struct {
 	Cache   map[string]*LayerCache
 	Apikeys map[string]Customer
 	Logger  *log.Logger
+	guard   sync.RWMutex
 }
 
 /*=======================================*/
@@ -126,7 +128,7 @@ func (self *Database) startLogger() {
 			panic(err)
 		}
 	}
-	self.Logger = log.New(db_log, "[DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	self.Logger = log.New(db_log, "WRITE [DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
 /*=======================================*/
@@ -144,7 +146,7 @@ func (self *Database) TestLogger() {
 	if err != nil {
 		panic(err)
 	}
-	self.Logger = log.New(db_log, "[DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	self.Logger = log.New(db_log, "WRITE [DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
 /*=======================================*/
@@ -319,8 +321,10 @@ func (self *Database) NewLayer() (string, error) {
 func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureCollection) error {
 	// Caching layer
 	if v, ok := self.Cache[datasource]; ok {
+		self.guard.Lock()
 		v.Geojson = geojs
 		v.Time = time.Now()
+		self.guard.Unlock()
 	} else {
 		pgc := &LayerCache{Geojson: geojs, Time: time.Now()}
 		self.Cache[datasource] = pgc
@@ -400,7 +404,9 @@ func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollect
 func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, error) {
 	// Caching layer
 	if v, ok := self.Cache[datasource]; ok {
+		self.guard.RLock()
 		v.Time = time.Now()
+		self.guard.RUnlock()
 		return v.Geojson, nil
 	}
 	// If page not found get from database
@@ -471,7 +477,9 @@ func (self *Database) DeleteLayer(datasource string) error {
 	if err != nil {
 		panic(err)
 	}
+	self.guard.Lock()
 	delete(self.Cache, datasource)
+	self.guard.Unlock()
 	return err
 }
 
@@ -582,7 +590,9 @@ func (self *Database) CacheManager() {
 					limit = 10.0
 				}
 				if time.Since(self.Cache[key].Time).Seconds() > limit {
+					self.guard.Lock()
 					delete(self.Cache, key)
+					self.guard.Unlock()
 				}
 			}
 		}

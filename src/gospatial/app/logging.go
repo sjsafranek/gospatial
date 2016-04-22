@@ -11,15 +11,17 @@ import (
 
 var (
 	// Trace                  *log.Logger
-	Info                   *log.Logger
-	Debug                  *log.Logger
-	Warning                *log.Logger
-	Error                  *log.Logger
-	LogFileHandler         io.Writer
-	network_logger_writer  io.Writer
-	network_logger_Info    *log.Logger
-	network_logger_Warning *log.Logger
-	network_logger_Error   *log.Logger
+	Info                    *log.Logger
+	Debug                   *log.Logger
+	Warning                 *log.Logger
+	Error                   *log.Logger
+	LogFileHandler          io.Writer
+	network_logger_writer   io.Writer
+	network_logger_Info     *log.Logger
+	network_logger_Warning  *log.Logger
+	network_logger_Error    *log.Logger
+	network_logger_Info_In  *log.Logger
+	network_logger_Info_Out *log.Logger
 )
 
 func Network_logger_init() {
@@ -32,11 +34,11 @@ func Network_logger_init() {
 	if err != nil {
 		Error.Fatal("Error opening file: %v", err)
 	}
-	// network_logger_Info_In = log.New(network_logger_writer, "[NETWORK] [IN] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	// network_logger_Info_Out = log.New(network_logger_writer, "[NETWORK] [OUT] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	network_logger_Info = log.New(network_logger_writer, "INFO  [NETWORK]", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	network_logger_Warning = log.New(network_logger_writer, "WARN  [NETWORK]", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	network_logger_Error = log.New(network_logger_writer, "ERROR [NETWORK]", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	network_logger_Info_In = log.New(network_logger_writer, "INFO  [NETWORK] [IN] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	network_logger_Info_Out = log.New(network_logger_writer, "INFO  [NETWORK] [OUT] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	network_logger_Info = log.New(network_logger_writer, "INFO  [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	network_logger_Warning = log.New(network_logger_writer, "WARN  [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	network_logger_Error = log.New(network_logger_writer, "ERROR [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
 func init() {
@@ -82,4 +84,6 @@ func StdOutMode() {
 	network_logger_Info = log.New(os.Stdout, "INFO  [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 	network_logger_Warning = log.New(os.Stdout, "WARN  [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 	network_logger_Error = log.New(os.Stderr, "ERROR [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	network_logger_Info_In = log.New(os.Stdout, "INFO  [NETWORK] [IN] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	network_logger_Info_Out = log.New(os.Stdout, "INFO  [NETWORK] [OUT] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }

@@ -20,6 +20,8 @@ import (
 // @return json
 /*=======================================*/
 func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
+	network_logger_Info_In.Printf("%v\n", r)
+
 	// Get request body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -97,6 +99,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	network_logger_Info.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [200]")
+	network_logger_Info_Out.Println(string(js))
 	w.Write(js)
 
 }
@@ -110,6 +113,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 // @return feature geojson
 /*=======================================*/
 func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
+	network_logger_Info_In.Printf("%v\n", r)
 
 	// Get params
 	apikey := r.FormValue("apikey")
@@ -179,6 +183,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//
 	network_logger_Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [200]")
+	network_logger_Info_Out.Println(string(js))
 	w.Write(js)
 
 }

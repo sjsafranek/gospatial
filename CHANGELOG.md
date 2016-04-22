@@ -2,9 +2,13 @@
  - add apikey to request headers
  - make database cache thread safe!
 
+
 # Change Log
 
 ## Unrelease
+
+## 1.9.0 - 2016-04-21
+
 ### Added
  - NewLayer method added to Database
  - InsertFeature method added to Database
@@ -15,8 +19,7 @@
  - Adding new features
  - refactor of database messaging. Independent of http layer
  - refactor of L.Find.js && L.Find.Draw.js
-
-
+ - Network In and Out logging
 
 
 ## 1.8.0 - 2016-04-16

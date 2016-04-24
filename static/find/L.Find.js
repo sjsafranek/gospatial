@@ -4,13 +4,13 @@
  * Email:  sjsafranek@gmail.com
  */
 
-
+//
 // TODO
 // Server argument
 // Get datsources request on initialize
 // utils class
 // communication class
-//
+// 
 
 L.Find = L.Class.extend({
 

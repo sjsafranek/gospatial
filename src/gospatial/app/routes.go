@@ -51,6 +51,7 @@ var routes = Routes{
 
 	// Web Client Routes
 	Route{"Map", "GET", "/map/{ds}", MapHandler},
+	Route{"MapNew", "GET", "/map", MapHandlerNew},
 	Route{"Index", "GET", "/", IndexHandler},
 
 	// Web Socket Route

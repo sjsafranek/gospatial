@@ -6,6 +6,10 @@
 # Change Log
 
 ## Unrelease
+## 1.9.1 - 2016-04-24
+### Changed
+ - refactor of L.Find.js && L.Find.Draw.js --> L.GoSpatial.js
+
 
 ## 1.9.0 - 2016-04-21
 

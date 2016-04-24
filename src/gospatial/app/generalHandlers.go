@@ -39,7 +39,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	/*=======================================*/
 	// Check for apikey in request
 	if apikey == "" {
-		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
+		network_logger_Error.Println(r.RemoteAddr, "POST /map/"+ds+" [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -47,14 +47,14 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		network_logger_Warning.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [404]")
+		network_logger_Warning.Println(r.RemoteAddr, "POST /map/"+ds+" [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	// Check customer datasource list
 	if !stringInSlice(ds, customer.Datasources) {
-		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
+		network_logger_Error.Println(r.RemoteAddr, "POST /map/"+ds+" [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -65,5 +65,36 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, _ := template.ParseFiles(map_tmpl)
 	network_logger_Info.Println(r.RemoteAddr, "GET /map/"+ds+" [200]")
 	tmpl.Execute(w, MapData{Datasource: ds, Apikey: apikey})
+
+}
+
+func MapHandlerNew(w http.ResponseWriter, r *http.Request) {
+
+	// Get params
+	apikey := r.FormValue("apikey")
+
+	/*=======================================*/
+	// Check for apikey in request
+	if apikey == "" {
+		network_logger_Error.Println(r.RemoteAddr, "POST /map [401]")
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Get customer from database
+	_, err := DB.GetCustomer(apikey)
+	if err != nil {
+		network_logger_Warning.Println(r.RemoteAddr, "POST /map [404]")
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	/*=======================================*/
+
+	// Return results
+	map_tmpl := "./templates/new_map.html"
+	tmpl, _ := template.ParseFiles(map_tmpl)
+	network_logger_Info.Println(r.RemoteAddr, "GET /map [200]")
+	tmpl.Execute(w, MapData{Apikey: apikey})
 
 }

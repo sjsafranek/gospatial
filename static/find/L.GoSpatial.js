@@ -337,11 +337,11 @@ L.GoSpatial = L.Class.extend({
 			else {
 				popup
 					.setLatLng(e.latlng)
-					.setContent("<div class='button' value='Submit Feature' onClick='FindGeo.sendFeature(" + e.target._leaflet_id + ")'><h4>Submit Feature</h4><div>")
+					.setContent("<div class='button' value='Submit Feature' onClick='GoSpatial.sendFeature(" + e.target._leaflet_id + ")'><h4>Submit Feature</h4><div>")
 					.openOn(map);
 			}
 		}
-		self = this;
+		var self = this;
 		this._map.on('draw:created', function(event) {
 			var layer = event.layer;
 			layer.on('click', onMapClick);
@@ -349,7 +349,6 @@ L.GoSpatial = L.Class.extend({
 			layer.layerType = event.layerType;
 			self.drawnItems.addLayer(layer);
 		});
-		// testing 1234
 		this._map.on("draw:drawstop", function(event) {
 			var key = Object.keys(self.drawnItems._layers).pop();
 			var feature = self.drawnItems._layers[key];
@@ -358,7 +357,6 @@ L.GoSpatial = L.Class.extend({
 				key: key,
 				client: self.uuid
 			}
-			console.log(payload);
 			// self.ws.send(JSON.stringify(payload));
 		});
 		this._map.on("draw:editstop", function(event) {
@@ -369,14 +367,7 @@ L.GoSpatial = L.Class.extend({
 				key: key,
 				client: self.uuid
 			}
-			console.log(payload);
 			// self.ws.send(JSON.stringify(payload));
-		});
-		this._map.on("draw:drawstart", function(event) {
-			console.log(event);
-		});
-		this._map.on("draw:editstart", function(event) {
-			console.log(event);
 		});
 	},
 
@@ -491,7 +482,7 @@ L.GoSpatial = L.Class.extend({
 			key: id,
 			client: this.uuid
 		}
-		console.log(payload);
+		// console.log(payload);
 		// this.ws.send(JSON.stringify(payload));
 		// send new feature
 		var results;
@@ -512,7 +503,7 @@ L.GoSpatial = L.Class.extend({
 			JSON.stringify(payload),
 			function(error, results) {
 				if (error) {
-					self.find._errorMessage(err);
+					self._errorMessage(err);
 					throw err;
 				} else {
 					self.apiClient.getLayer($('#layers').val(), function(error, result){
@@ -627,6 +618,7 @@ function GoSpatialApi(apikey, server) {
 	}
 
 	this.submitFeature = function(datasource, feature, callback) {
+		var self = this;
 		this.POST(
 			'/api/v1/layer/' + datasource + '/feature?apikey=' + self.apikey,
 			feature,
@@ -660,7 +652,7 @@ function GoSpatialApi(apikey, server) {
 	}
 
 	this.POST = function(route, data, callback) {
-		self = this;
+		var self = this;
 		$.ajax({
 			crossDomain: true,
 			type: "POST",

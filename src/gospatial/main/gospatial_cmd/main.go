@@ -29,7 +29,18 @@ type DumpedDatabase struct {
 	Layers  map[string]*geojson.FeatureCollection `json:"layers"`
 }
 
-func list_datsources() {
+func usage_error(message string) {
+	fmt.Println("Incorrect usage!")
+	fmt.Println(message)
+	os.Exit(1)
+}
+
+func setup_db() {
+	app.DB = app.Database{File: "./" + database + ".db"}
+	app.DB.Init()
+}
+
+func list_datasources() {
 	fmt.Println("Datasources:")
 	// get datbase
 	app.DB = app.Database{File: "./" + database + ".db"}
@@ -56,8 +67,7 @@ func list_datsources() {
 func export_datasource(datasource string) {
 	fmt.Println("Exporting datasource: ", datasource)
 	// setup database
-	app.DB = app.Database{File: "./" + database + ".db"}
-	app.DB.Init()
+	setup_db()
 	// get datasource from database
 	lyr, err := app.DB.GetLayer(datasource)
 	if err != nil {
@@ -78,8 +88,7 @@ func export_datasource(datasource string) {
 func import_datasource(import_file string) {
 	fmt.Println("Importing", import_file)
 	// setup database
-	app.DB = app.Database{File: "./" + database + ".db"}
-	app.DB.Init()
+	setup_db()
 	// get geojson file
 	var geojson_file string
 	ext := strings.Split(import_file, ".")[1]
@@ -127,9 +136,18 @@ func import_datasource(import_file string) {
 }
 
 func init() {
-	// flag.Usage = func{
-	// 	"stuff"
-	// }
+	flag.Usage = func() {
+		fmt.Println("Usage: gospatial_cmd [method] [option]\n")
+		fmt.Printf("Methods:\n")
+		fmt.Printf("  ls\n\tList all datasources from database\n")
+		fmt.Printf("  export [datasource]\n\tExports datasource to GeoJSON file\n")
+		fmt.Printf("  import [<filename>.shp || <filename>.geojson]\n\tImports datasource from shapefile or GeoJSON\n")
+		fmt.Printf("  create [datasource || customer]\n\tCreates new datasource or customer\n")
+		fmt.Printf("  assign [datasource] [customer]\n\tAssigns datasource to customer\n")
+		fmt.Printf("\n")
+		fmt.Printf("Defaults:\n")
+		flag.PrintDefaults()
+	}
 	flag.StringVar(&database, "db", "bolt", "app database")
 	flag.Parse()
 }
@@ -139,36 +157,31 @@ func main() {
 	required_args := flag.Args()
 
 	if len(required_args) == 0 {
-		fmt.Println("Incorrect usage!")
-		os.Exit(1)
+		usage_error("No method provided")
 	}
 
 	method := required_args[0]
 
 	if method == "ls" {
-		list_datsources()
+		list_datasources()
 	} else if method == "export" {
 		if len(required_args) != 2 {
-			fmt.Println("Incorrect usage!")
-			os.Exit(1)
+			usage_error("No datasource provided")
 		}
 		datasource := required_args[1]
 		export_datasource(datasource)
 	} else if method == "import" {
 		if len(required_args) != 2 {
-			fmt.Println("Incorrect usage!")
-			os.Exit(1)
+			usage_error("No file provided")
 		}
 		import_file := required_args[1]
 		import_datasource(import_file)
 	} else if method == "create" {
 		if len(required_args) != 2 {
-			fmt.Println("Incorrect usage!")
-			os.Exit(1)
+			usage_error("Please specify either 'datasource' or 'customer' to create")
 		} else if required_args[1] == "datasource" {
 			fmt.Println("Creating datasource")
-			app.DB = app.Database{File: "./" + database + ".db"}
-			app.DB.Init()
+			setup_db()
 			ds, err := app.DB.NewLayer()
 			if err != nil {
 				fmt.Println(err)
@@ -177,8 +190,7 @@ func main() {
 			fmt.Println("Datasource created:", ds)
 		} else if required_args[1] == "customer" {
 			fmt.Println("Creating customer")
-			app.DB = app.Database{File: "./" + database + ".db"}
-			app.DB.Init()
+			setup_db()
 			apikey := app.NewAPIKey(12)
 			customer := app.Customer{Apikey: apikey}
 			err := app.DB.InsertCustomer(customer)
@@ -188,25 +200,21 @@ func main() {
 			}
 			fmt.Println("Customer created:", apikey)
 		} else {
-			fmt.Println("Incorrect usage!")
-			os.Exit(1)
+			usage_error("Cannot create '" + required_args[1] + "'")
 		}
 	} else if method == "backup" {
 		fmt.Println("Backing up database...")
-		app.DB = app.Database{File: "./" + database + ".db"}
-		app.DB.Init()
+		setup_db()
 		savefile := "backup_" + time.Now().String()
 		app.DB.Backup(savefile)
 		fmt.Println("Backup created:", savefile)
 	} else if method == "load" {
 		if len(required_args) != 2 {
-			fmt.Println("Incorrect usage!")
-			os.Exit(1)
+			usage_error("Please provide a database to load")
 		} else {
 			filename := required_args[1]
 			fmt.Println("Loading database...")
-			app.DB = app.Database{File: "./" + database + ".db"}
-			app.DB.Init()
+			setup_db()
 			fmt.Printf("Loading database [%s]\n", filename)
 			// check for file
 			if _, err := os.Stat(filename); os.IsNotExist(err) {
@@ -228,9 +236,23 @@ func main() {
 			app.DB.InsertCustomers(data.Apikeys)
 			app.DB.InsertLayers(data.Layers)
 		}
+	} else if method == "assign" {
+		if len(required_args) != 3 {
+			usage_error("Please datasource and customer key")
+		} else {
+			setup_db()
+			customer, err := app.DB.GetCustomer(required_args[2])
+			if err != nil {
+				fmt.Println("Customer key not found!")
+				os.Exit(1)
+			}
+			// CHECK IF DATASOURCE EXISTS
+			// Add datasource uuid to customer
+			customer.Datasources = append(customer.Datasources, required_args[1])
+			app.DB.InsertCustomer(customer)
+		}
 	} else {
-		fmt.Println("Incorrect usage!")
-		os.Exit(1)
+		usage_error("Method not found")
 	}
 	// exit
 	os.Exit(0)

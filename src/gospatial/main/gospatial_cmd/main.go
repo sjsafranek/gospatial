@@ -139,6 +139,7 @@ func init() {
 	flag.Usage = func() {
 		fmt.Println("Usage: gospatial_cmd [method] [option]\n")
 		fmt.Printf("Methods:\n")
+		// CHANGE [ls] to [datasource ls] and [customer ls]
 		fmt.Printf("  ls\n\tList all datasources from database\n")
 		fmt.Printf("  export [datasource]\n\tExports datasource to GeoJSON file\n")
 		fmt.Printf("  import [<filename>.shp || <filename>.geojson]\n\tImports datasource from shapefile or GeoJSON\n")

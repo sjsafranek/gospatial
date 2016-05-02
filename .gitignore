@@ -1,3 +1,5 @@
 *.db
 *.log
 *.json
+*.geojson
+setup

@@ -1,21 +1,28 @@
 # TODO
  - add apikey to request headers
- - make database cache thread safe!
-
+ - jsend complient messages https://labs.omniti.com/labs/jsend
 
 # Change Log
 
 ## Unrelease
-## 1.9.1 - 2016-04-24
+## 1.9.2 - 2016-05-03
+- jsend complient messages https://labs.omniti.com/labs/jsend
+
+
+## 1.9.1 - 2016-05-03
+
 ### Changed
  - refactor of L.Find.js && L.Find.Draw.js --> L.GoSpatial.js
  - gospatial_cmd creates and imports new datasources from shapefiles and geojsons
  - gospatial_cmd creates customers and new datasources
  - gospatial_cmd backups and loads databases
+ - database cache thread safe
+
 ### Removed
  - gospatial_loader
  - gospatial_apikey
  - gospatial_backup
+
 
 ## 1.9.0 - 2016-04-21
 

@@ -445,15 +445,21 @@ authkey: testing
         </tr>
         <tr>
           <td>export</td>
-          <td><em>datasource</em></td>
+          <td><em>datasource id</em></td>
           <td></td>
           <td>Exports datasource to GeoJSON file</td>
         </tr>
         <tr>
           <td>import</td>
-          <td>*.shp || *.geojson</td>
+          <td>*.shp</td>
           <td></td>
-          <td>Imports geojson or shapefile into database</td>
+          <td>Imports shapefile into database</td>
+        </tr>
+        <tr>
+          <td>import</td>
+          <td>*.geojson</td>
+          <td></td>
+          <td>Imports geojson file into database</td>
         </tr>
         <tr>
           <td>create</td>
@@ -469,8 +475,8 @@ authkey: testing
         </tr>
         <tr>
           <td>assign</td>
-          <td>[datasource id]</td>
-          <td>[customer key]</td>
+          <td><em>datasource id</em></td>
+          <td><em>customer key</em></td>
           <td>Assigns datasource to customer</td>
         </tr>
       </tbody>

@@ -403,6 +403,81 @@ authkey: testing
 <section class="bs-docs-section">
 <h1 id="command-line-tools" class="page-header">Command line tools</h1>
 
+<h2 id="gospatial_apikey">gospatial_cmd</h2>
+<p>Command line tool for backend operations</p>
+<h3>Options</h3>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th style="width: 130px;">Option</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>-db</td>
+          <td>bolt.db</td>
+          <td>Specifies what database file to use</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+<h3>Methods</h3>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th style="width: 130px;">Option</th>
+          <th>Method</th>
+          <th>Arg</th>
+          <th>Arg</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ls</td>
+          <td></td>
+          <td></td>
+          <td>Lists all datasources in database</td>
+        </tr>
+        <tr>
+          <td>export</td>
+          <td><em>datasource</em></td>
+          <td></td>
+          <td>Exports datasource to GeoJSON file</td>
+        </tr>
+        <tr>
+          <td>import</td>
+          <td>*.shp || *.geojson</td>
+          <td></td>
+          <td>Imports geojson or shapefile into database</td>
+        </tr>
+        <tr>
+          <td>create</td>
+          <td>datasource</td>
+          <td></td>
+          <td>Creates new datasource</td>
+        </tr>
+        <tr>
+          <td>create</td>
+          <td>customer</td>
+          <td></td>
+          <td>Creates new customer</td>
+        </tr>
+        <tr>
+          <td>assign</td>
+          <td>[datasource id]</td>
+          <td>[customer key]</td>
+          <td>Assigns datasource to customer</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+<!-- 
 <h2 id="gospatial_apikey">gospatial_apikey</h2>
 <p>Creates new customer apikey</p>
 <h3>Options</h3>
@@ -488,7 +563,7 @@ authkey: testing
       </tbody>
     </table>
   </div>
-
+ -->
 </section> 
 
 

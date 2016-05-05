@@ -70,6 +70,8 @@ L.GoSpatial = L.Class.extend({
 	 */
 	utils: {
 
+		color: d3.scale.category20b(),
+
 		/** 
 		 * method:     parseURL()
 		 * source:     http://www.abeautifulsite.net/parsing-urls-in-javascript/
@@ -389,7 +391,6 @@ L.GoSpatial = L.Class.extend({
 		catch(err) { console.log(err); }
 	},
 
-
 	/** 
 	 * method:     createFeatureLayer()
 	 * desciption: creates vector layer from geojson
@@ -411,6 +412,16 @@ L.GoSpatial = L.Class.extend({
 				});
 			},
 			onEachFeature: function (feature, layer) {
+
+				if (feature.properties) {
+						var results = "<table>";
+						results += "<th>Field</th><th>Attribute</th>";
+						for (var item in feature.properties) {
+							results += "<tr><td>" + item + "</td><td>" + feature.properties[item] + "</td></tr>";
+						}
+						results += "</table>";
+					layer.bindPopup(results);
+				}
 
 				function highlightFeature(e) {
 					var layer = e.target;
@@ -434,27 +445,68 @@ L.GoSpatial = L.Class.extend({
 
 				layer.on({
 					mouseover: function(feature){
-						var properties = feature.target.feature.properties;
-						var results = "<table>";
-						results += "<th>Field</th><th>Attribute</th>";
-						for (var item in properties) {
-							results += "<tr><td>" + item + "</td><td>" + properties[item] + "</td></tr>";
-						}
-						results += "</table>";
-						$("#attributes")[0].innerHTML = results;
+						// var properties = feature.target.feature.properties;
+						// var results = "<table>";
+						// results += "<th>Field</th><th>Attribute</th>";
+						// for (var item in properties) {
+						// 	results += "<tr><td>" + item + "</td><td>" + properties[item] + "</td></tr>";
+						// }
+						// results += "</table>";
+						// $("#attributes")[0].innerHTML = results;
 						highlightFeature(feature);
 					},
 					mouseout: function(feature){
-						$("#attributes")[0].innerHTML = "Hover over features";
+						// $("#attributes")[0].innerHTML = "Hover over features";
 						resetHighlight(feature);
 					},
-					click: function(feature) {
+					dblclick: function(feature) {
 						zoomToFeature(feature);
 					}
 				});
 			}
 		});
 		return featureLayer;
+	},
+
+/**
+ * FOR CHOROPLETH OPTIONS
+ *
+ *
+ */
+	getFeatureProperties: function(){
+		var data = {};
+		this.vectorLayers[$('#layers').val()].eachLayer(function(layer) {
+			for (var i in layer.feature.properties) {
+				if (!data.hasOwnProperty(i)) {
+					data[i] = [];
+				}
+				data[i].push(layer.feature.properties[i]);
+			}
+		});
+		return data;
+	},
+
+	getFeaturePropertyValues: function() {
+		var values = {};
+		data = this.getFeatureProperties();
+		for (var i in data) {
+			values[i] = {}
+			console.log(data[i][0], typeof(data[i][0]), data[i][data[i].legnth-1], typeof(data[i][data[i].legnth-1]));
+			if (typeof(data[i][0]) == "number" && typeof(data[i][data[i].legnth-1]) == "number") {
+				data[i].sort(function(a, b){return a-b});
+				values[i].min = data[i][0];
+				values[i].max = data[i][data[i].legnth-1];
+			} else {
+				values[i].options = [];
+				for (var j=0; j < data[i].length; j++) {
+					if (values[i].options.indexOf(data[i][j]) == -1) {
+						values[i].options.push(data[i][j])
+					}
+				}
+			}
+			// data[i].sort(function(a, b){return a-b});
+		}
+		return values;
 	},
 
 	/** 

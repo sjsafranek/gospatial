@@ -248,6 +248,7 @@ func main() {
 				os.Exit(1)
 			}
 			// CHECK IF DATASOURCE EXISTS
+			// CHECK IF DATASOURCE ALREADY ADDED TO CUSTOMER
 			// Add datasource uuid to customer
 			customer.Datasources = append(customer.Datasources, required_args[1])
 			app.DB.InsertCustomer(customer)

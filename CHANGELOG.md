@@ -1,12 +1,22 @@
 # TODO
  - add apikey to request headers
- - jsend complient messages https://labs.omniti.com/labs/jsend
+- create django front end for web management
+- django control layer schema
+- fix gospatial_cmd assign
+- add popups to map features listing properties
+- jsend complient messages https://labs.omniti.com/labs/jsend
+
 
 # Change Log
 
 ## Unrelease
 ## 1.9.2 - 2016-05-03
+- create django front end
+- django control layer schema
+- fix gospatial_cmd assign
+- add popups to map features listing properties
 - jsend complient messages https://labs.omniti.com/labs/jsend
+
 
 
 ## 1.9.1 - 2016-05-03

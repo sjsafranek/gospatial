@@ -397,6 +397,7 @@ L.GoSpatial = L.Class.extend({
 	 * @param data {geojson}
 	 */
 	createFeatureLayer: function(data) {
+		map = this._map;
 		var featureLayer = L.geoJson(data, {
 			style: {
 				weight: 2, 
@@ -461,7 +462,10 @@ L.GoSpatial = L.Class.extend({
 					},
 					dblclick: function(feature) {
 						zoomToFeature(feature);
-					}
+					} //,
+					// click: function(feature) {
+					// 	map.setView(feature.target.getBounds());
+					// }
 				});
 			}
 		});

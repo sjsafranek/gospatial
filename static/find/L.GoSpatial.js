@@ -509,6 +509,7 @@ L.GoSpatial = L.Class.extend({
 		return data;
 	},
 
+// COLOR ISSUES
 	generateChoroplethColors: function() {
 		fields = this.getUniqueFeatureProperties();
 		this.choroplethColors = {};

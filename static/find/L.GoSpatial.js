@@ -441,7 +441,7 @@ L.GoSpatial = L.Class.extend({
 				}
 
 				function zoomToFeature(e) {
-					map.fitBounds(e.target.getBounds());
+					map.fitBounds(e.target.getBounds(), {maxZoom:12});
 				}
 
 				layer.on({
@@ -462,10 +462,10 @@ L.GoSpatial = L.Class.extend({
 					},
 					dblclick: function(feature) {
 						zoomToFeature(feature);
-					} //,
-					// click: function(feature) {
-					// 	map.setView(feature.target.getBounds());
-					// }
+					},
+					click: function(feature) {
+						zoomToFeature(feature);
+					}
 				});
 			}
 		});

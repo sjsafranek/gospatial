@@ -70,7 +70,11 @@ L.GoSpatial = L.Class.extend({
 	 */
 	utils: {
 
-		color: d3.scale.category20b(),
+		// color: d3.scale.category20b(),
+
+		// colorGradient: d3.scale.linear()
+		//     .domain([-1, 0, 1])
+		//     .range(["yellow", "darkred"]),
 
 		/** 
 		 * method:     parseURL()
@@ -387,6 +391,7 @@ L.GoSpatial = L.Class.extend({
 		try {
 			this.vectorLayers[$('#layers').val()] = this.createFeatureLayer(data);
 			this.vectorLayers[$('#layers').val()].addTo(this._map);
+			this.generateChoroplethColors();
 		}
 		catch(err) { console.log(err); }
 	},
@@ -477,40 +482,74 @@ L.GoSpatial = L.Class.extend({
  *
  *
  */
-	getFeatureProperties: function(){
+	choroplethColors: {},
+
+	getUniqueFeatureProperties: function(){
 		var data = {};
+		// Get unique values
 		this.vectorLayers[$('#layers').val()].eachLayer(function(layer) {
 			for (var i in layer.feature.properties) {
 				if (!data.hasOwnProperty(i)) {
 					data[i] = [];
 				}
-				data[i].push(layer.feature.properties[i]);
+				var value = layer.feature.properties[i];
+				if (data[i].indexOf(value) == -1 && value != null) {
+					data[i].push(value);
+				}
 			}
 		});
+		// Sort values
+		for (var i in data) {
+			if (typeof(data[i] == "number")) {
+				data[i].sort(function(a, b){return a-b});
+			} else {
+				data[i].sort();
+			}
+		}
 		return data;
 	},
 
-	getFeaturePropertyValues: function() {
-		var values = {};
-		data = this.getFeatureProperties();
-		for (var i in data) {
-			values[i] = {}
-			console.log(data[i][0], typeof(data[i][0]), data[i][data[i].legnth-1], typeof(data[i][data[i].legnth-1]));
-			if (typeof(data[i][0]) == "number" && typeof(data[i][data[i].legnth-1]) == "number") {
-				data[i].sort(function(a, b){return a-b});
-				values[i].min = data[i][0];
-				values[i].max = data[i][data[i].legnth-1];
-			} else {
-				values[i].options = [];
-				for (var j=0; j < data[i].length; j++) {
-					if (values[i].options.indexOf(data[i][j]) == -1) {
-						values[i].options.push(data[i][j])
+	generateChoroplethColors: function() {
+		fields = this.getUniqueFeatureProperties();
+		this.choroplethColors = {};
+		for (var field in fields) {
+			if (!this.choroplethColors.hasOwnProperty(field)) {
+				if (typeof(fields[field][0]) == "number") {
+					this.choroplethColors[field] = { 
+						type: "number",
+						color: d3.scale.linear()
+							.domain([fields[field][0], fields[field][fields[field].length-1]])
+							.range(["yellow", "darkred"])
+					};
+				} else {
+					this.choroplethColors[field] = { 
+						type: "string",
+						color: d3.scale.category20b(),
+						colors: {}
+					};
+					var color = d3.scale.category20b();
+					for (var i=0; fields[field]; i++) {
+						// console.log(fields[field]);
+						this.choroplethColors[fields].colors[fields[field]] = color(i);
 					}
 				}
 			}
-			// data[i].sort(function(a, b){return a-b});
 		}
-		return values;
+	},
+
+	choropleth: function(field) {
+		var self = this;
+		this.vectorLayers[$('#layers').val()].eachLayer(function(layer) {
+			if (self.choroplethColors[field].type == "number" ) {
+				layer.setStyle({ 
+					fillColor: self.choroplethColors[field].color( layer.feature.properties[field] )
+				});
+			} else {
+				layer.setStyle({ 
+					fillColor: self.choroplethColors[field].colors[layer.feature.properties[field]]
+				});
+			}
+		});
 	},
 
 	/** 

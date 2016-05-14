@@ -35,7 +35,7 @@ L.GoSpatial = L.Class.extend({
 		this._addLogoControl();
 		this._addLayerControl();
 		this._addMouseControl();
-		this._addFeatureAttributesControl(); 
+		// this._addFeatureAttributesControl(); 
 		// Drawing
 		this._addMeasureControl();
 		this._addLocateControl();
@@ -43,6 +43,7 @@ L.GoSpatial = L.Class.extend({
 		this._addDrawingControl();
 		this._addDrawEventHandlers();
 		this._addFeaturePropertiesControl();
+		this._addChoroplethOptions();
 		//
 		this.apiClient.getLayer($('#layers').val(), function(error, result){
 			if (error) {
@@ -235,21 +236,21 @@ L.GoSpatial = L.Class.extend({
 		});
 	},
 
-	/** 
-	 * method:     _addFeatureAttributesControl()
-	 * desciption: Creates L.control for displaying feature attributes
-	 */
-	_addFeatureAttributesControl: function() {
-		// Create UI control element
-		featureAttributesControl = L.control({position: 'bottomright'});
-		featureAttributesControl.onAdd = function () {
-			var div = L.DomUtil.create('div', 'info legend');
-			div.innerHTML = "<div id='attributes'>Hover over features</div>";
-			return div;
-		};
-		featureAttributesControl.addTo(this._map);
-		this._preventPropogation(featureAttributesControl);
-	},
+	// /** 
+	//  * method:     _addFeatureAttributesControl()
+	//  * desciption: Creates L.control for displaying feature attributes
+	//  */
+	// _addFeatureAttributesControl: function() {
+	// 	// Create UI control element
+	// 	featureAttributesControl = L.control({position: 'bottomright'});
+	// 	featureAttributesControl.onAdd = function () {
+	// 		var div = L.DomUtil.create('div', 'info legend');
+	// 		div.innerHTML = "<div id='attributes'>Hover over features</div>";
+	// 		return div;
+	// 	};
+	// 	featureAttributesControl.addTo(this._map);
+	// 	this._preventPropogation(featureAttributesControl);
+	// },
 
 	/** 
 	 * method:     _addMeasureControl()
@@ -431,10 +432,13 @@ L.GoSpatial = L.Class.extend({
 
 				function highlightFeature(e) {
 					var layer = e.target;
+					// console.log(layer);
 					layer.setStyle({
-						weight: 3,
-						opacity: 1,
-						color: '#000'
+						// weight: 3,
+						// opacity: 1,
+						// color: '#000'
+						weight: 4,
+						radius: 6
 					});
 					if (!L.Browser.ie && !L.Browser.opera) {
 						layer.bringToFront();
@@ -442,7 +446,12 @@ L.GoSpatial = L.Class.extend({
 				}
 
 				function resetHighlight(e) {
-					featureLayer.resetStyle(e.target);
+					// featureLayer.resetStyle(e.target);
+					var layer = e.target;
+					layer.setStyle({
+						weight: 1,
+						radius: 4
+					});
 				}
 
 				function zoomToFeature(e) {
@@ -482,6 +491,32 @@ L.GoSpatial = L.Class.extend({
  *
  *
  */
+ 	/** 
+	 * method:     _addChoroplethOptions()
+	 * desciption: Creates L.control for changing choropleth
+	 */
+	_addChoroplethOptions: function() {
+		var self = this;
+		// Create UI control element
+		featureAttributesControl = L.control({position: 'bottomright'});
+		featureAttributesControl.onAdd = function () {
+			var div = L.DomUtil.create('div', 'info legend');
+			div.innerHTML =  "<h4>Legend</h4>";
+			div.innerHTML += "<select id='choroplethField'></select>";
+			div.innerHTML += "<div id='legend'></div>";
+			return div;
+		};
+		featureAttributesControl.addTo(this._map);
+		this._preventPropogation(featureAttributesControl);
+		var obj = document.createElement('option');
+		obj.value = "off";
+		obj.text = "off";
+		$('#choroplethField').append(obj);
+		$('#choroplethField').on("change", function() {
+			self.choropleth($('#choroplethField').val());
+		});
+	},
+
 	choroplethColors: {},
 
 	getUniqueFeatureProperties: function(){
@@ -525,15 +560,18 @@ L.GoSpatial = L.Class.extend({
 				} else {
 					this.choroplethColors[field] = { 
 						type: "string",
-						color: d3.scale.category20b(),
+						// color: d3.scale.category20b(),
 						colors: {}
 					};
 					var color = d3.scale.category20b();
-					for (var i=0; fields[field]; i++) {
-						// console.log(fields[field]);
-						this.choroplethColors[fields].colors[fields[field]] = color(i);
+					for (var i=0; i < fields[field].length; i++) {
+						this.choroplethColors[field].colors[fields[field][i]] = color(i);
 					}
 				}
+				var obj = document.createElement('option');
+				obj.value = field;
+				obj.text = field;
+				$('#choroplethField').append(obj);
 			}
 		}
 	},
@@ -543,14 +581,32 @@ L.GoSpatial = L.Class.extend({
 		this.vectorLayers[$('#layers').val()].eachLayer(function(layer) {
 			if (self.choroplethColors[field].type == "number" ) {
 				layer.setStyle({ 
+					weight: 2, 
+					color: self.choroplethColors[field].color( layer.feature.properties[field] ), 
+					fillOpacity: 0.8,
 					fillColor: self.choroplethColors[field].color( layer.feature.properties[field] )
 				});
 			} else {
-				layer.setStyle({ 
+				layer.setStyle({
+					weight: 2, 
+					color: self.choroplethColors[field].colors[layer.feature.properties[field]],  
+					fillOpacity: 0.8,
 					fillColor: self.choroplethColors[field].colors[layer.feature.properties[field]]
 				});
 			}
 		});
+		// Create color legend
+		$("#legend").html("");
+		if (self.choroplethColors[field].type != "number") {
+			console.log(self.choroplethColors[field]);
+			for (var attr in self.choroplethColors[field].colors) {
+				console.log(self.choroplethColors[field].colors[attr]);
+				obj = '<i style="background:' + self.choroplethColors[field].colors[attr] + '"></i> ' + attr + '<br>';
+				$("#legend").append(obj);
+			}
+		} else {
+			// Display color gradient
+		}
 	},
 
 	/** 

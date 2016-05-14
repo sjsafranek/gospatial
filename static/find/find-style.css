@@ -63,6 +63,13 @@ i#zoom {
 	background: white;
 }
 
+#legend {
+	max-height: 200px;
+	max-width: 200px;
+	overflow-y: scroll; 
+	overflow-x: hidden;
+}
+
 input.field, input.attr {
 	width: 100px;
 }

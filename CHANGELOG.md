@@ -1,5 +1,5 @@
 # TODO
- - add apikey to request headers
+- add apikey to request headers
 - create django front end for web management
 - django control layer schema
 - fix gospatial_cmd assign
@@ -9,13 +9,13 @@
 
 # Change Log
 
-## Unrelease
-## 1.9.2 - 2016-05-03
+## Unreleased
+## 1.9.2 - 2016-05-014
 - create django front end
-- django control layer schema
 - fix gospatial_cmd assign
 - add popups to map features listing properties
-- jsend complient messages https://labs.omniti.com/labs/jsend
+- choroplething of layers
+
 
 
 

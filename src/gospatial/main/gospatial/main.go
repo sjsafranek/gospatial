@@ -30,7 +30,7 @@ var (
 )
 
 const (
-	VERSION        string = "1.9.0"
+	VERSION        string = "1.9.2"
 	default_config string = ""
 )
 

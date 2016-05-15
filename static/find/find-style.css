@@ -63,6 +63,15 @@ i#zoom {
 	background: white;
 }
 
+.attr {
+	padding: 1px;
+}
+
+#choroplethField {
+	padding: 1px;
+}
+
+
 #legend {
 	max-height: 200px;
 	max-width: 200px;

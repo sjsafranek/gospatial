@@ -14,4 +14,5 @@ type Customer struct {
 type MapData struct {
 	Datasource string
 	Apikey     string
+	Version    string
 }

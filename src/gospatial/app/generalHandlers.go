@@ -44,6 +44,6 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	map_tmpl := "./templates/map.html"
 	tmpl, _ := template.ParseFiles(map_tmpl)
 	network_logger_Info.Println(r.RemoteAddr, "GET /map [200]")
-	tmpl.Execute(w, MapData{Apikey: apikey})
+	tmpl.Execute(w, MapData{Apikey: apikey, Version: "1.9.2"})
 
 }

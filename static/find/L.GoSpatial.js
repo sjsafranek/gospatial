@@ -600,8 +600,7 @@ L.GoSpatial = L.Class.extend({
 		if (self.choroplethColors[field].type != "number") {
 			console.log(self.choroplethColors[field]);
 			for (var attr in self.choroplethColors[field].colors) {
-				console.log(self.choroplethColors[field].colors[attr]);
-				obj = '<i style="background:' + self.choroplethColors[field].colors[attr] + '"></i> ' + attr + '<br>';
+				obj = '<div class="attr"><i style="background:' + self.choroplethColors[field].colors[attr] + '"></i> ' + attr + '</div>';
 				$("#legend").append(obj);
 			}
 		} else {

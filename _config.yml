@@ -1,7 +1,7 @@
 # name of the software
 name: GoSpatial Api Docs
 # current version of the software
-version: 1.9.1
+version: 1.9.2
 # url of the download button
 downloadUrl: https://github.com/sjsafranek/gospatial
 # licence of the software

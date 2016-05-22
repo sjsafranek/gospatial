@@ -378,6 +378,9 @@ L.GoSpatial = L.Class.extend({
 		});
 	},
 
+/*************************************************************************
+ * FEATURE LAYERS
+ *************************************************************************/
 	/** 
 	 * method:     updateFeatureLayers()
 	 * desciption: updates map vector layers
@@ -609,6 +612,9 @@ L.GoSpatial = L.Class.extend({
 		$("#map").hide();
 	},
 
+/*************************************************************************
+ * SUBMIT FEATURES
+ *************************************************************************/
 	/** 
 	 * method:     sendFeature()
 	 * desciption: send feature layer to GoSpatialApi

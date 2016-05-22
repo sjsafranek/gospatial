@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% block head_scripts %}
+
+        <!--  Leaflet.draw-master  -->
+        <script src="/static/leaflet.js"></script>
+        <link rel="stylesheet" href="/static/leaflet.css" />
+
+        <!-- D3 and JQuery -->
+        <script src="/static/js/jquery-1.11.0.js"></script>  <!-- | JQUERY -->
+        <!-- <script src="/static/js/jquery-ui-1.11.4.js"></script> -->  <!-- JQUERY UI -->
+        <script src = "/static/js/d3.js"></script>
+
+        <!-- LOCATE CONTROL -->
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+        <!-- HEAT MAP -->
+    <!--
+        <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.0/leaflet-heat.js'></script>
+    -->
+        <!-- <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.3/leaflet-heat.js'></script> -->
+
+        <!-- Font Awesome CSS -->
+        <link rel="stylesheet" href="/static/font-awesome-4.3.0/css/font-awesome.min.css">
+
+
+        <link rel="stylesheet" href="/static/mapClient.css" />       
+
+
+{% endblock %}
+{% block content %}
+
+        {% csrf_token %}
+
+        <div class="container-fluid">
+            <div class="row">
+                <div id='map'> </div>
+            </div>
+        </div>
+
+        <script>
+
+            var map;
+            var geojsonLayer = null;
+
+            var baselayers = {{ baselayers|safe }};
+            var vectorlayers = {{ layers|safe }};
+            var servers = {{ servers|safe }};
+            var group = "{{ group|safe}}";
+            var username = "{{ username|safe }}";
+            var newLocationMarker = null;
+
+            $(function(){
+
+                map = L.map('map', {maxZoom: 23});
+
+                L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{ 
+                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> | F.I.N.D.'
+                }).addTo(map);
+
+                map.setView( [0,0], 1 );
+
+
+                // GEOJSON LAYERS
+                geojsonLayerControl = L.control({position: 'topright'});
+                geojsonLayerControl.onAdd = function () {
+                    var div = L.DomUtil.create('div', 'info legend');
+                    div.innerHTML += '<select name="geojson" id="layers"></select>';
+                    return div;
+                };
+                geojsonLayerControl.addTo(map);
+                for (var _i in vectorlayers) {
+                    var obj = document.createElement('option');
+                    obj.value = vectorlayers[_i];
+                    obj.text = _i;
+                    $('#layers').append(obj);
+                }
+
+                $("#layers").on("change", function(){
+                    changeLayer($("#layers").val());
+                });
+
+                // BASEMAPS
+                var baseMaps = {};
+                for (var i in baselayers) {
+                    baseMaps[i] = L.tileLayer(baselayers[i], {
+                        maxZoom: 23
+                    });
+                }
+                L.control.layers(baseMaps, {}).addTo(map);
+
+                trackingControl = L.control({position: 'bottomright'});
+                trackingControl.onAdd = function () {
+                    var div = L.DomUtil.create('div', 'info legend');
+                    div.innerHTML = '<div><input type="checkbox" id="track"> Track<br>';
+                    div.innerHTML += '<input type="checkbox" id="createNewLocation"> New Locations <br>';
+                    div.innerHTML += '<input type="text" id="newLocationName"></div>';
+                    return div;
+                };
+                trackingControl.addTo(map);
+
+                $("#track").on('change', function() {
+                    if ($("#track")[0].checked) {
+                        startTracking();
+                    }
+                    else {
+                        stopTracking();
+                    }
+                });
+
+                map.on("click", function(e){
+                    if (!$("#createNewLocation")[0].checked) {
+                        map.removeLayer(newLocationMarker);
+                        newLocationMarker = null;
+                    } else if (newLocationMarker) {
+                        newLocationMarker.setLatLng(L.latLng(e.latlng.lat, e.latlng.lng));
+                    } else {
+                        newLocationMarker = L.marker([e.latlng.lat, e.latlng.lng], {
+                            draggable: true
+                        }).addTo(map);
+                        var popupContent = "<div class='button' value='Submit Feature' onClick='sendFeature()'><h4>Submit Feature</h4><div>";
+                        newLocationMarker.bindPopup(popupContent).openPopup();
+                    }
+                });
+
+
+            });
+
+
+
+function changeLayer(datasource) {
+    getLayer(datasource, function(error, result){
+        if (error) {
+            throw error;
+        } else {
+            if (geojsonLayer) {
+                map.removeLayer(geojsonLayer);
+            }
+            geojsonLayer = L.geoJson(result);
+            geojsonLayer.addTo(map);
+        }
+    });
+}
+
+function getLayer(datasource, callback){
+    var results;
+    $.ajax({
+        crossDomain: true,
+        type: "GET",
+        async: false,
+        url:  servers.gis.address + "/api/v1/layer/" + datasource + "?apikey=" + servers.gis.apikey,
+        dataType: 'JSON',
+        success: function (data) {
+            callback(null, data);
+        },
+        error: function(xhr,errmsg,err) {
+            return callback(new Error(errmsg));
+        }
+    });
+}
+
+
+
+
+
+
+function sendFeature(){
+    if ($("#newLocationName").val() == ""){
+        throw new Error("No location name!");
+    } else {
+        var payload = newLocationMarker.toGeoJSON();
+        payload.properties = {"name": $("#newLocationName").val()};
+        var now = new Date();
+        if (!payload.properties.hasOwnProperty("date_created")) {
+            payload.properties.date_created = now.toISOString();
+        }
+        if (!payload.properties.hasOwnProperty("date_modified")) {
+            payload.properties.date_modified = now.toISOString();
+        }
+        console.log(payload);
+        // Send request
+
+        $.ajax({
+            crossDomain: true,
+            type: "POST",
+            async: false,
+            data:  JSON.stringify(payload),
+            url: servers.gis.address + '/api/v1/layer/' + $('#layers').val() + "/feature?apikey=" + servers.gis.apikey,
+            dataType: 'JSON',
+            success: function (data) {
+                console.log(data)
+            },
+            error: function(xhr,errmsg,err) {
+                throw new Error(errmsg);
+            }
+        });
+
+    }
+
+}
+
+
+var current_location_marker = false;
+var timer;
+var trackingLocations = {};
+var trackingUsers = {};
+
+function getFeature(datasource, k){
+    var results;
+    $.ajax({
+        crossDomain: true,
+        type: "GET",
+        async: false,
+        url:  servers.gis.address + "/api/v1/layer/" + datasource + "/feature/" + k + "?apikey=" + servers.gis.apikey,
+        dataType: 'JSON',
+        success: function (data) {
+            try {
+                results = data;
+            }
+            catch(err){  console.log('Error:', err);  }
+        },
+        error: function(xhr,errmsg,err) {
+            throw new Error(errmsg);
+        }
+    });
+    return results;
+}
+
+function startTracking() {
+    timer = window.setInterval(function() {
+        $.ajax({
+            crossDomain: true,
+            type: "GET",
+            async: false,
+            url:  servers.ml + '/userlocs?group=' + servers.gis.apikey,
+            dataType: 'JSON',
+            success: function (data) {
+                try {
+                    for (var user in data.users) {
+                        var userLoc = data.users[user].location;
+                        console.log(user, userLoc);
+                        // locations
+                        if(!trackingLocations.hasOwnProperty(userLoc)) {
+                            var lyr = userLoc.split(":")[0];
+                            var feat = userLoc.split(":")[1];
+                            var feature = getFeature(lyr, feat);
+                            trackingLocations[userLoc] = feature;
+                            trackingLocations[userLoc].properties.users = user;
+                        }
+                        else {
+                            trackingLocations[userLoc].properties.users += "\n" + user;
+                        }
+                        // users
+                        if(!trackingUsers.hasOwnProperty(user)) {
+                            trackingUsers[user] = L.geoJson(trackingLocations[userLoc]).addTo(map).bindPopup(
+                                    trackingLocations[userLoc].properties.name + "\n" + trackingLocations[userLoc].properties.users
+                                );
+                        } else {
+                            map.removeLayer(trackingUsers[user]);
+                            trackingUsers[user] = L.geoJson(trackingLocations[userLoc]).addTo(map).bindPopup(
+                                    trackingLocations[userLoc].properties.name
+                                );
+                        }
+                    }
+                }
+                catch(err){  console.log(err);  }
+            },
+            error: function(xhr,errmsg,err) {
+                throw new Error(errmsg);
+            }
+        });
+    }, 1000);
+}
+
+function stopTracking(){
+    window.clearInterval(timer);
+}
+
+        </script>
+
+{% endblock %}
+

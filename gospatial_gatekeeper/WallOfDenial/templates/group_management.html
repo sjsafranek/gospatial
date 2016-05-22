@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% csrf_token %}
+
+<!-- Page Header -->
+<div class="row">
+  <div class="col-lg-12">
+    <h2 class="page-header">Management <small>Manage users, layers, and basemaps</small></h2>
+  </div>
+</div>
+
+<div class="alert alert-success">Customer: {{ group }}</div>
+<div class="alert alert-success">Username: {{ username }}</div>
+
+<div class="row clearfix" id="content-row">
+  <div class="col-xs-12 column">
+
+
+    <div class="row clearfix" id="content-row">
+      <div class="col-xs-12 column">
+        <h3>User Management</h3>
+      </div>
+    </div>
+    <div class="well" id="volume-parameters-well">
+      <div class="row clearfix" id="volume-fees-row">
+        <div class="col-md-6 column" id="volume-fees-chart">
+          <div class="panel panel-primary" id="volume-fees-panel">
+            <div class="panel-heading">
+              <h3 class="panel-title">New user</h3>
+            </div>
+            <div class="panel-body">
+                <form action="../create_user/" enctype="multipart/form-data" method="post">
+                  {% csrf_token %} <!-- CSRF token is rendered by Django in forms to avoid CSRF attacks -->
+            <!--
+                  <div class="form-group">
+                      <label for="firstname">First name:</label>
+                      <input type="text" name="firstname" class="form-control" id="firstname">
+                    </div>
+                  <div class="form-group">
+                      <label for="lastname">Last name:</label>
+                      <input type="text" name="lastname" class="form-control" id="lastname">
+                    </div>
+            -->
+                  <div class="form-group">
+                      <label for="username">Username:</label>
+                      <input type="text" name="username" class="form-control" id="username">
+                    </div>
+                  <div class="form-group">
+                      <label for="password">Password:</label>
+                      <input type="text" name="password" class="form-control" id="password">
+                    </div>
+                  <div class="form-group">
+                      <label for="email">Email:</label>
+                      <input type="email" name="email" class="form-control" id="email">
+                    </div>
+                    <input type="hidden" name="permissions" value=777>
+                  <input type="hidden" name="group" value={{group}}>
+                  <div class="form-group">
+                     <button type="submit" class="btn btn-default">Create user</button>
+                   </div>
+                </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 column">
+          <div class="panel panel-primary" id="volume-fees-summary-panel">
+            <div class="panel-heading">
+              <h3 class="panel-title">Current users</h3>
+            </div>
+            <div class="panel-body">
+                {% if users %}
+                  <p>
+                    <strong>
+                      Users:
+                    </strong> 
+                    {% if users %}
+                      <ul>
+                        {% for user in users %}
+                              <li>{{ user }}</li>
+                          {% endfor %}
+                        </ul>
+                    {% endif %}
+                  </p>
+                {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="row clearfix" id="content-row">
+      <div class="col-xs-12 column">
+        <h3>Layer Management</h3>
+      </div>
+    </div>
+    <div class="well" id="volume-parameters-well">
+      <div class="row clearfix" id="volume-fees-row">
+        <div class="col-md-6 column" id="volume-fees-chart">
+          <div class="panel panel-primary" id="volume-fees-panel">
+            <div class="panel-heading">
+              <h3 class="panel-title">New user</h3>
+            </div>
+            <div class="panel-body">
+                <form action="../create_layer/" enctype="multipart/form-data" method="post">
+                  {% csrf_token %} <!-- CSRF token is rendered by Django in forms to avoid CSRF attacks -->
+                  <div class="form-group">
+                      <label for="name">Name:</label>
+                      <input type="text" name="name" class="form-control" id="name">
+                      <input type="hidden" name="group" value={{group}}>
+                    </div>
+                  <div class="form-group">
+                     <button type="submit" class="btn btn-default">Create new layer</button>
+                   </div>
+                </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 column">
+          <div class="panel panel-primary" id="volume-fees-summary-panel">
+            <div class="panel-heading">
+              <h3 class="panel-title">Current layers</h3>
+            </div>
+            <div class="panel-body">
+              {% if layers %}
+                <p>
+                  <strong>
+                    Layers:
+                  </strong> 
+                  {% if layers %}
+                    <ul>
+                      {% for name,details in layers.items %}
+                            <li id={{ details.datasource_id }}> 
+                              <a href="{{details.apiserver}}/map?apikey={{details.apikey}}">
+                                <i class="fa fa-globe view"></i>
+                              </a>
+                              {{ name }} : {{ details.datasource_id }} 
+                              <i class="fa fa-trash layer"></i>
+                            </li>
+                        {% endfor %}
+                      </ul>
+                  {% endif %}
+                </p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="row clearfix" id="content-row">
+      <div class="col-xs-12 column">
+        <h3>Baselayer Management</h3>
+      </div>
+    </div>
+    <div class="well" id="volume-parameters-well">
+      <div class="row clearfix" id="volume-fees-row">
+        <div class="col-md-6 column" id="volume-fees-chart">
+          <div class="panel panel-primary" id="volume-fees-panel">
+            <div class="panel-heading">
+              <h3 class="panel-title">New Baselayer</h3>
+            </div>
+            <div class="panel-body">
+              <form action="../create_baselayer/" enctype="multipart/form-data" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" name="name" class="form-control" id="name">
+                    <label for="name">Url:</label>
+                    <input type="text" name="url" class="form-control" id="url">
+                    <input type="hidden" name="group" value={{group}}>
+                  </div>
+                <div class="form-group">
+                  <button type="submit" class="btn btn-default">Create Baselayer</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 column">
+          <div class="panel panel-primary" id="volume-fees-summary-panel">
+            <div class="panel-heading">
+              <h3 class="panel-title">Current Baselayers</h3>
+            </div>
+            <div class="panel-body">
+              {% if baselayers %}
+                <p>
+                  <strong>
+                    Baselayers:
+                  </strong> 
+                  {% if baselayers %}
+                    <ul>
+                      {% for name,url in baselayers.items %}
+                            <li> {{ name }} : {{ url }} <i class="fa fa-trash"></i></li>
+                        {% endfor %}
+                      </ul>
+                  {% endif %}
+                </p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+
+
+<script>
+
+  // var servers = {{servers|safe}};
+
+  $(document).ready(function(){
+    $(".fa.fa-trash.layer").click(function(){
+      var layer = $(this).closest("li").attr("id");
+      console.log("delete:", layer);
+
+      swal({
+          title: "Delete layer",
+          text: "Are you sure you want to delete " + layer,
+          type: "warning",   
+          showCancelButton: true,   
+          confirmButtonColor: "#DD6B55",   
+          confirmButtonText: "Yes, delete it!",   
+          cancelButtonText: "No, cancel pls!",   
+          closeOnConfirm: false,   
+          closeOnCancel: true,
+          showLoaderOnConfirm: true
+        },
+        function(isConfirm){
+          if (isConfirm) {
+            $.ajax({
+              url: '/delete_layer/',
+              type: 'POST',
+              data: {
+                'layer': layer,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]')[0].value
+              },
+              success: function(result) {
+                swal("Deleted!", result, "success");
+                location.reload();
+              },
+              failure: function(result) { console.log(result); }
+            });
+          } 
+          else {
+            swal("Cancelled", "Your data is safe :)", "error");
+            location.reload();
+          }
+        });
+    })
+    .css('cursor', 'pointer');
+
+  });
+
+
+</script>
+
+{% endblock %}

@@ -432,7 +432,6 @@ L.GoSpatial = L.Class.extend({
 
 				function highlightFeature(e) {
 					var layer = e.target;
-					// console.log(layer);
 					layer.setStyle({
 						// weight: 3,
 						// opacity: 1,
@@ -460,18 +459,9 @@ L.GoSpatial = L.Class.extend({
 
 				layer.on({
 					mouseover: function(feature){
-						// var properties = feature.target.feature.properties;
-						// var results = "<table>";
-						// results += "<th>Field</th><th>Attribute</th>";
-						// for (var item in properties) {
-						// 	results += "<tr><td>" + item + "</td><td>" + properties[item] + "</td></tr>";
-						// }
-						// results += "</table>";
-						// $("#attributes")[0].innerHTML = results;
 						highlightFeature(feature);
 					},
 					mouseout: function(feature){
-						// $("#attributes")[0].innerHTML = "Hover over features";
 						resetHighlight(feature);
 					},
 					dblclick: function(feature) {
@@ -486,11 +476,9 @@ L.GoSpatial = L.Class.extend({
 		return featureLayer;
 	},
 
-/**
- * FOR CHOROPLETH OPTIONS
- *
- *
- */
+/*************************************************************************
+ * CHOROPLETH
+ *************************************************************************/
  	/** 
 	 * method:     _addChoroplethOptions()
 	 * desciption: Creates L.control for changing choropleth
@@ -508,6 +496,7 @@ L.GoSpatial = L.Class.extend({
 		};
 		featureAttributesControl.addTo(this._map);
 		this._preventPropogation(featureAttributesControl);
+		// Choropleth attribute switcher
 		var obj = document.createElement('option');
 		obj.value = "off";
 		obj.text = "off";

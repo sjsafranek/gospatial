@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block head_scripts %}
+
+    <title>Compass &#8226; The Jekyll theme for your personal landing page</title>
+    <link rel="stylesheet" href="/static/css/main-landing.css">
+    <meta name="author" content="Zack Scholl">
+    <meta name="description" content=""/>
+
+{% endblock %}
+{% block content %}
+
+    <div class="wrapper">
+        <header>
+            <div class="logo-container">
+                <a class="logo" href="" style="background-image: url('/static/img/compass.png')"></a>
+            </div>
+            <div class="author-container"><h1>GoSpatial</h1></div>
+            <div class="tagline-container">
+                <p>GoSpatial Gatekeeper</p>
+            </div>
+        </header>
+        <main>
+            <div class="content">
+                <h2>Help/Contact-Us</h2>
+                <p>
+                    <b>Tech Support:</b> <br>
+                    sjsafranek@gmail.com
+                </p>
+
+                <ul class="fa-ul main-list">
+                    <li class="main-list-item">
+                        <span class="fa fa-question fa-lg main-list-item-icon"></span>
+                        <a href="http://sjsafranek.github.io/gospatial/">More help</a>
+                    </li>
+                </ul>
+                
+                <hr />
+                <p>Copyright &copy; Stefan Safranek 2015-2016</p>
+
+            </div>
+        </main>
+    </div>
+
+{% endblock %}

@@ -11,7 +11,8 @@
 
 
 
-## 1.9.2 - 2016-05-14
+
+## 1.9.2 - 2016-05-21
 
 ### Added
 - django front end for layer management

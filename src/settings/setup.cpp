@@ -1,24 +1,11 @@
 #include <iostream>
 #include <fstream>
-// #include <stdlib.h>
 #include <string>
 
-// class Person {
-// 	private:
-// 		int age;
-// 	public:
-// 		char name;
-// 		void input_age() {
-// 			std::cout << "enter int\n";
-// 			std::cin >> age;
-// 		}
-// 		void output_name() {
-// 			std::cout << "My name is: ";
-// 			std::cout << name << "\n";
-// 		}
-// };
-
 int main(int argc, char *argv[]) {
+
+	// Create directors
+	// bin, log, pkg
 
 	std::ofstream config_file;
 	config_file.open ("./settings.json");

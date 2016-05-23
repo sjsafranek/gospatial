@@ -1,0 +1,11 @@
+[Unit]
+Description=GoSpatial Api server
+
+[Service]
+ExecStart=/root/gospatial/bin/gospatial -p 8888 -d
+StandardOutput=null
+Restart=on-failure
+User=root
+
+[Install]
+WantedBy=multi-user.target

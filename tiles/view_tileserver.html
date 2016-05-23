@@ -1,0 +1,28 @@
+<html>
+<head>
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.css" />
+
+<!--[if lte IE 8]>
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.0/leaflet.ie.css" />
+<![endif]-->
+ 
+<script type="text/javascript" src="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.js"></script>
+</head>
+<body id="map" style="height:100%;width:100%;">
+
+</body>
+<script type="text/javascript">
+
+var map = L.map('map').setView([45.52, -122.681944], 13);
+
+var osm = L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png");
+osm.addTo(map);
+
+var testTiles = L.tileLayer('http://localhost:5000/default/{z}/{x}/{y}.png', {
+			maxZoom: 20,
+			minZoom: 2,
+		});
+testTiles.addTo(map);
+
+</script>
+</html>

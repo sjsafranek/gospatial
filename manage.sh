@@ -44,7 +44,23 @@ case $key in
         # cd tests
         # python3 api_tester.py        
     ;;
+    -h| --help)
+# HELP STUFF
+        echo "-c -t -h -r"
+        # cd ../../..
+        # cd tests
+        # python3 api_tester.py        
+    ;;
     *)
         echo "unknown option"
     ;;
 esac
+
+
+
+
+
+
+
+
+

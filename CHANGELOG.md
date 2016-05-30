@@ -8,6 +8,12 @@
 # Change Log
 
 ## Unreleased
+## 1.9.3 - 2016-05-21
+### Changed
+ - setup generates bin, pkg and log directories
+ - added help (-h) flag to manage.sh 
+
+
 
 
 

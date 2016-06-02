@@ -44,7 +44,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	map_tmpl := "./templates/map.html"
 	tmpl, _ := template.ParseFiles(map_tmpl)
 	network_logger_Info.Println(r.RemoteAddr, "GET /map [200]")
-	tmpl.Execute(w, MapData{Apikey: apikey, Version: "1.9.2"})
+	tmpl.Execute(w, MapData{Apikey: apikey, Version: "1.9.3"})
 
 }
 
@@ -75,6 +75,6 @@ func CustomerManagementHandler(w http.ResponseWriter, r *http.Request) {
 	map_tmpl := "./templates/management.html"
 	tmpl, _ := template.ParseFiles(map_tmpl)
 	network_logger_Info.Println(r.RemoteAddr, "GET /management [200]")
-	tmpl.Execute(w, MapData{Apikey: apikey, Version: "1.9.2"})
+	tmpl.Execute(w, MapData{Apikey: apikey, Version: "1.9.3"})
 
 }

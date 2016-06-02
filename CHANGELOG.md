@@ -16,7 +16,6 @@
 ### Changed
  - setup.cpp generates bin, pkg and log directories
  - added help (-h) flag to manage.sh 
- - /map added to gatekeeper django app
 
 ### Removed
  - django front end for layer management

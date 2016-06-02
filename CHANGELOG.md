@@ -5,16 +5,21 @@
 - fix gospatial_cmd assign
 
 
+
 # Change Log
 
 ## Unreleased
-## 1.9.3 - 2016-05-21
+## 1.9.3 - 2016-05-31
+### Added
+ -  front end for layer management added to core app
+
 ### Changed
- - setup generates bin, pkg and log directories
+ - setup.cpp generates bin, pkg and log directories
  - added help (-h) flag to manage.sh 
+ - /map added to gatekeeper django app
 
-
-
+### Removed
+ - django front end for layer management
 
 
 
@@ -28,9 +33,6 @@
 
 ### Changed
  - setup generated in bin directory
-
-
-
 
 
 ## 1.9.1 - 2016-05-03

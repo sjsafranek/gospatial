@@ -2,4 +2,7 @@
 *.log
 *.json
 *.geojson
+bin
+pkg
+src
 setup

@@ -23,18 +23,18 @@ int main(int argc, char *argv[]) {
 
 	// Create required directories
 	// bin, log, pkg
-	const char *pathBin = "./bin/";
-	const char *pathLog = "./log/";
-	const char *pathPkg = "./pkg/";
-	if (!dirExists(pathBin)) {
-		mkdir(pathBin,  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	}
-	if (!dirExists(pathLog)) {
-		mkdir(pathLog,  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	}
-	if (!dirExists(pathPkg)) {
-		mkdir(pathPkg,  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	}
+	// const char *pathBin = "./bin/";
+	// const char *pathLog = "./log/";
+	// const char *pathPkg = "./pkg/";
+	// if (!dirExists(pathBin)) {
+	// 	mkdir(pathBin,  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	// }
+	// if (!dirExists(pathLog)) {
+	// 	mkdir(pathLog,  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	// }
+	// if (!dirExists(pathPkg)) {
+	// 	mkdir(pathPkg,  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	// }
 
 	// Create settings file
 	std::ofstream config_file;

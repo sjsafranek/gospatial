@@ -5,15 +5,16 @@ Full documentation: http://sjsafranek.github.io/gospatial/
 
 Golang RESTful api for writing, storing, and serving GeoJSON data. GoSpatial also includes a mapping front end powered by Leaflet.js. Users are able to see eachothers work before submitting.
 
-## Install
 
-	``./install.sh`` will install the following packages and setup the workspace:
+## Install
+``./install.sh`` will install the following packages and setup the workspace:
 
 	github.com/gorilla/websocket
 	github.com/gorilla/mux
 	github.com/boltdb/bolt
 
-	``make install`` will building the binary to the bin folder
+Run ``make install`` to build the binary for the application
+
 
 ## Run
 Execute the binary file produced in the projects `bin` directory

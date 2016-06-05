@@ -50,11 +50,11 @@ $ git clone https://github.com/sjsafranek/gospatial.git
 
 
   <h2 id="install-dependencies">Installing Dependencies</h2>
-  <p>We will now need to aquire the three Go packages (<a href="https://github.com/gorilla/mux">Gorilla Mux</a> , <a href="https://github.com/gorilla/websocket">Gorilla WebSocket</a> and <a href="https://github.com/boltdb/bolt">Bolt</a>). There is a simple shell script provided in the repositories main directory that will <code>go get</code> these packages:</p>
+  <p>We will now need to aquire the three Go packages (<a href="https://github.com/gorilla/mux">Gorilla Mux</a> , <a href="https://github.com/gorilla/websocket">Gorilla WebSocket</a> and <a href="https://github.com/boltdb/bolt">Bolt</a>). There is a simple shell script provided in the repositories main directory that will <code>go get</code> these packages and setup the working directory:</p>
 
 {% highlight text %}
 $ cd gospatial
-$ ./manage.sh -r
+$ ./install.sh
 {% endhighlight %}
 
   <h2 id="build-from-source">Building from source</h2>
@@ -74,7 +74,7 @@ $ make install
 <h1 id="quickstart" class="page-header">Quickstart</h1>
   
   <h2 id="start-the-server">Start the server</h2>
-  <p>Start server with the following command:</p>
+  <p>Start server with the by executing the binary file produced in the bin directory:</p>
 {% highlight text %}
 stefan@stefan:~/Repos/gospatial$ ./bin/gospatial
 

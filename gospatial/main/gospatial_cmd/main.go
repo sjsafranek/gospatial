@@ -24,7 +24,7 @@ var (
 	database string
 )
 
-type DumpedDatabase struct {
+type dumpedDatabase struct {
 	Apikeys map[string]app.Customer               `json:"apikeys"`
 	Layers  map[string]*geojson.FeatureCollection `json:"layers"`
 }
@@ -227,7 +227,7 @@ func main() {
 				fmt.Println(err)
 			}
 			// unmarshal data
-			var data DumpedDatabase
+			var data dumpedDatabase
 			data.Apikeys = make(map[string]app.Customer)
 			data.Layers = make(map[string]*geojson.FeatureCollection)
 			err = json.Unmarshal(file, &data)

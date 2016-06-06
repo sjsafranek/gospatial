@@ -30,9 +30,9 @@ func (self hub) broadcast(update bool, conn *connection) {
 	if len(self.Sockets[conn.ds]) != 0 {
 		Debug.Println("Broadcasting message to open connections")
 		self.guard.RLock()
-		num_viewers := len(self.Sockets[conn.ds])
+		viewers := len(self.Sockets[conn.ds])
 		self.guard.RUnlock()
-		msg := Message{Update: update, Viewers: num_viewers}
+		msg := Message{Update: update, Viewers: viewers}
 		for i := range self.Sockets[conn.ds] {
 			if self.Sockets[conn.ds][i] != conn.ws {
 				Debug.Println("Sending message to client")
@@ -49,9 +49,9 @@ func (self hub) broadcastAllDsViewers(update bool, ds string) {
 	}
 	Debug.Println("Broadcasting message to open connections")
 	self.guard.RLock()
-	num_viewers := len(self.Sockets[ds])
+	viewers := len(self.Sockets[ds])
 	self.guard.RUnlock()
-	msg := Message{Update: update, Viewers: num_viewers}
+	msg := Message{Update: update, Viewers: viewers}
 	for i := range self.Sockets[ds] {
 		Debug.Println("Sending message to client")
 		self.Sockets[ds][i].WriteJSON(msg)

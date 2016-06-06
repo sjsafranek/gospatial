@@ -5,6 +5,11 @@ export GOPATH="`pwd`"
 key="$1"
 
 case $key in
+    -f|--format)
+        go fmt gospatial/app/*
+        go fmt gospatial/main/gospatial/*
+        go fmt gospatial/main/gospatial_cmd/*
+    ;;
     -c|--clean)
         echo "cleaning working directory..."
         rm bin/* && rm setup || echo "no binaries found"

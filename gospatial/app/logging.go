@@ -11,15 +11,18 @@ import (
 
 var (
 	// Info log handler
-	Info                    *log.Logger
-	Debug                   *log.Logger
-	Warning                 *log.Logger
-	Error                   *log.Logger
-	serverLoggerWriter      io.Writer
-	networkLoggerWriter     io.Writer
-	networkLoggerInfo     *log.Logger
-	networkLoggerWarning  *log.Logger
-	networkLoggerError    *log.Logger
+	Info *log.Logger
+	// Debug log handler
+	Debug *log.Logger
+	// Warning log handler
+	Warning *log.Logger
+	// Error log handler
+	Error                *log.Logger
+	serverLoggerWriter   io.Writer
+	networkLoggerWriter  io.Writer
+	networkLoggerInfo    *log.Logger
+	networkLoggerWarning *log.Logger
+	networkLoggerError   *log.Logger
 	networkLoggerInfoIn  *log.Logger
 	networkLoggerInfoOut *log.Logger
 )

@@ -22,11 +22,11 @@ import (
 )
 
 var (
-	port       int
-	database   string
-	bind       string
-	versionReport    bool
-	configFile string
+	port          int
+	database      string
+	bind          string
+	versionReport bool
+	configFile    string
 )
 
 const (

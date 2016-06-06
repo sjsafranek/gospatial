@@ -10,16 +10,13 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// Method: MapHandler
-// Description:
-//		Returns map client for layer
+// MapHandler returns leaflet map view for customer layers
 // @param apikey customer id
 // @return map template
 func MapHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get params
 	apikey := r.FormValue("apikey")
-
 
 	// Check for apikey in request
 	if apikey == "" {
@@ -36,8 +33,6 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
-
 	// Return results
 	htmlFile := "./templates/map.html"
 	tmpl, _ := template.ParseFiles(htmlFile)
@@ -46,6 +41,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// CustomerManagementHandler returns customer management gui. Allows customers to create and delete both geojson layers and tile baselayers.
 func CustomerManagementHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get params

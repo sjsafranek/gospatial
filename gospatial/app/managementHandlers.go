@@ -10,7 +10,10 @@ import (
 
 var startTime = time.Now()
 
+// SuperuserKey api servers superuser key
 var SuperuserKey string = "su"
+
+// AppMode api server mode
 var AppMode string = "standard"
 
 // PingHandler provides an api route for server health check

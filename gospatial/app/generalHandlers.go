@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// IndexHandler returns html page containing api docs
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "http://sjsafranek.github.io/gospatial/", 200)
 	return

@@ -16,9 +16,10 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-// NewUUID generates a url friendly uuid
+// NewUUID generates and returns url friendly uuid
 // Source: http://play.golang.org/p/4FkNSiUDMg
 // @returns string
+// @returns error
 func NewUUID() (string, error) {
 	uuid := make([]byte, 16)
 	n, err := io.ReadFull(crand.Reader, uuid)
@@ -33,6 +34,9 @@ func NewUUID() (string, error) {
 	return fmt.Sprintf("%x%x%x%x%x", uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:]), nil
 }
 
+// NewUUID2 generates and returns a uuid
+// @returns string
+// @returns error
 func NewUUID2() (string, error) {
 	b := make([]byte, 16)
 	n, err := io.ReadFull(crand.Reader, b)
@@ -46,7 +50,7 @@ func NewUUID2() (string, error) {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:]), nil
 }
 
-// NewAPIKey generates apikey of desired length
+// NewAPIKey generates and returns an apikey of desired length
 // @param int length of apikey
 // @returns string
 func NewAPIKey(n int) string {

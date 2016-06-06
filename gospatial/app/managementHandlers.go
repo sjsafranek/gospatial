@@ -13,6 +13,7 @@ var startTime = time.Now()
 var SuperuserKey string = "su"
 var AppMode string = "standard"
 
+// PingHandler provides an api route for server health check
 func PingHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status": "ok", "message": "pong"}`
 	js, err := json.Marshal(data)
@@ -26,6 +27,7 @@ func PingHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
+// UnloadLayer unloads layer from memory cache
 func UnloadLayer(w http.ResponseWriter, r *http.Request) {
 	// Check auth key
 	if SuperuserKey != r.FormValue("authkey") {
@@ -52,6 +54,7 @@ func UnloadLayer(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
+// LoadedLayers returns list of layers loaded in memory
 func LoadedLayers(w http.ResponseWriter, r *http.Request) {
 	// Check auth key
 	if SuperuserKey != r.FormValue("authkey") {
@@ -81,6 +84,7 @@ func LoadedLayers(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
+// ServerProfile returns basic server stats
 func ServerProfile(w http.ResponseWriter, r *http.Request) {
 	var data map[string]interface{}
 	data = make(map[string]interface{})
@@ -100,7 +104,7 @@ func ServerProfile(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-// SUPERUSER
+// NewCustomerHandler superuser route to create new api customers/apikeys
 func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	// Check auth key
 	if SuperuserKey != r.FormValue("authkey") {
@@ -133,9 +137,7 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-// Method: ShareLayerHandler
-// Description:
-//		Gives customer access to datasource
+// ShareLayerHandler gives customer access to an existing datasource.
 // @param apikey - customer to give access
 // @param authkey
 // @return json

@@ -7,9 +7,7 @@ import (
 	"net/http"
 )
 
-// Method: ViewLayersHandler
-// Description:
-//		Returns customer layers
+// ViewLayersHandler returns json containing customer layers
 // @param apikey customer id
 // @return json
 func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
@@ -50,11 +48,7 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Method: NewLayerHandler
-// Description:
-//		Creates a new layer
-// 		Layer is saved to database
-//		Layer uuid is added to customer list
+// NewLayerHandler creates a new geojson layer. Saves layer to database and adds layer to customer
 // @param apikey
 // @return json
 func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
@@ -112,11 +106,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Method: ViewLayerHandler
-// Description:
-//		Gets requested layer from database
-//		Checks apikey/customer permissions
-//		Returns layer geojson
+// ViewLayerHandler returns geojson of requested layer. Apikey/customer is checked for permissions to requested layer. 
 // @param ds
 // @param apikey
 // @return geojson
@@ -180,11 +170,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Method: DeleteLayerHandler
-// Description:
-//		Checks apikey/customer permissions
-//		Deletes layer from database
-//		Deletes layer from customer list
+// DeleteLayerHandler deletes layer from database and removes it from customer list. 
 // @param ds
 // @param apikey
 // @return json

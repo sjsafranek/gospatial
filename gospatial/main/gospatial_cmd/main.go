@@ -29,18 +29,18 @@ type DumpedDatabase struct {
 	Layers  map[string]*geojson.FeatureCollection `json:"layers"`
 }
 
-func usage_error(message string) {
+func usageError(message string) {
 	fmt.Println("Incorrect usage!")
 	fmt.Println(message)
 	os.Exit(1)
 }
 
-func setup_db() {
+func setupDb() {
 	app.DB = app.Database{File: "./" + database + ".db"}
 	app.DB.Init()
 }
 
-func list_datasources() {
+func listDatasources() {
 	fmt.Println("Datasources:")
 	// get datbase
 	app.DB = app.Database{File: "./" + database + ".db"}
@@ -64,10 +64,10 @@ func list_datasources() {
 	conn.Close()
 }
 
-func export_datasource(datasource string) {
+func exportDatasource(datasource string) {
 	fmt.Println("Exporting datasource: ", datasource)
 	// setup database
-	setup_db()
+	setupDb()
 	// get datasource from database
 	lyr, err := app.DB.GetLayer(datasource)
 	if err != nil {
@@ -85,36 +85,36 @@ func export_datasource(datasource string) {
 	ioutil.WriteFile(savename, b, 0644)
 }
 
-func import_datasource(import_file string) {
-	fmt.Println("Importing", import_file)
+func importDatasource(importFile string) {
+	fmt.Println("Importing", importFile)
 	// setup database
-	setup_db()
+	setupDb()
 	// get geojson file
-	var geojson_file string
-	ext := strings.Split(import_file, ".")[1]
+	var geojsonFile string
+	ext := strings.Split(importFile, ".")[1]
 	// convert shapefile
 	if ext == "shp" {
 		// Convert .shp to .geojson
 		// ogr2ogr -f GeoJSON -t_srs crs:84 [name].geojson [name].shp
-		geojson_file := strings.Replace(import_file, ".shp", ".geojson", -1)
-		// fmt.Println("ogr2ogr", "-f", "GeoJSON", "-t_srs", "crs:84", geojson_file, shapefile)
-		out, err := exec.Command("ogr2ogr", "-f", "GeoJSON", "-t_srs", "crs:84", geojson_file, import_file).Output()
+		geojsonFile := strings.Replace(importFile, ".shp", ".geojson", -1)
+		// fmt.Println("ogr2ogr", "-f", "GeoJSON", "-t_srs", "crs:84", geojsonFile, shapefile)
+		out, err := exec.Command("ogr2ogr", "-f", "GeoJSON", "-t_srs", "crs:84", geojsonFile, importFile).Output()
 		if err != nil {
 			fmt.Println(err)
 			fmt.Println(string(out))
 			os.Exit(1)
 		} else {
-			fmt.Println(geojson_file, "created")
+			fmt.Println(geojsonFile, "created")
 			fmt.Println(string(out))
 		}
 	} else if ext == "geojson" {
-		geojson_file = import_file
+		geojsonFile = importFile
 	} else {
 		fmt.Println("Unsupported file type", ext)
 		os.Exit(1)
 	}
 	// Read .geojson file
-	file, err := ioutil.ReadFile(geojson_file)
+	file, err := ioutil.ReadFile(geojsonFile)
 	if err != nil {
 		fmt.Printf("File error: %v\n", err)
 		os.Exit(1)
@@ -130,8 +130,8 @@ func import_datasource(import_file string) {
 	app.DB.InsertLayer(ds, geojs)
 	fmt.Println("Datasource created:", ds)
 	// Cleanup artifacts
-	if geojson_file != import_file {
-		os.Remove(geojson_file)
+	if geojsonFile != importFile {
+		os.Remove(geojsonFile)
 	}
 }
 
@@ -155,43 +155,43 @@ func init() {
 
 func main() {
 
-	required_args := flag.Args()
+	requiredArgs := flag.Args()
 
-	if len(required_args) == 0 {
-		usage_error("No method provided")
+	if len(requiredArgs) == 0 {
+		usageError("No method provided")
 	}
 
-	method := required_args[0]
+	method := requiredArgs[0]
 
 	if method == "ls" {
-		list_datasources()
+		listDatasources()
 	} else if method == "export" {
-		if len(required_args) != 2 {
-			usage_error("No datasource provided")
+		if len(requiredArgs) != 2 {
+			usageError("No datasource provided")
 		}
-		datasource := required_args[1]
-		export_datasource(datasource)
+		datasource := requiredArgs[1]
+		exportDatasource(datasource)
 	} else if method == "import" {
-		if len(required_args) != 2 {
-			usage_error("No file provided")
+		if len(requiredArgs) != 2 {
+			usageError("No file provided")
 		}
-		import_file := required_args[1]
-		import_datasource(import_file)
+		importFile := requiredArgs[1]
+		importDatasource(importFile)
 	} else if method == "create" {
-		if len(required_args) != 2 {
-			usage_error("Please specify either 'datasource' or 'customer' to create")
-		} else if required_args[1] == "datasource" {
+		if len(requiredArgs) != 2 {
+			usageError("Please specify either 'datasource' or 'customer' to create")
+		} else if requiredArgs[1] == "datasource" {
 			fmt.Println("Creating datasource")
-			setup_db()
+			setupDb()
 			ds, err := app.DB.NewLayer()
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
 			fmt.Println("Datasource created:", ds)
-		} else if required_args[1] == "customer" {
+		} else if requiredArgs[1] == "customer" {
 			fmt.Println("Creating customer")
-			setup_db()
+			setupDb()
 			apikey := app.NewAPIKey(12)
 			customer := app.Customer{Apikey: apikey}
 			err := app.DB.InsertCustomer(customer)
@@ -201,21 +201,21 @@ func main() {
 			}
 			fmt.Println("Customer created:", apikey)
 		} else {
-			usage_error("Cannot create '" + required_args[1] + "'")
+			usageError("Cannot create '" + requiredArgs[1] + "'")
 		}
 	} else if method == "backup" {
 		fmt.Println("Backing up database...")
-		setup_db()
+		setupDb()
 		savefile := "backup_" + time.Now().String()
 		app.DB.Backup(savefile)
 		fmt.Println("Backup created:", savefile)
 	} else if method == "load" {
-		if len(required_args) != 2 {
-			usage_error("Please provide a database to load")
+		if len(requiredArgs) != 2 {
+			usageError("Please provide a database to load")
 		} else {
-			filename := required_args[1]
+			filename := requiredArgs[1]
 			fmt.Println("Loading database...")
-			setup_db()
+			setupDb()
 			fmt.Printf("Loading database [%s]\n", filename)
 			// check for file
 			if _, err := os.Stat(filename); os.IsNotExist(err) {
@@ -238,11 +238,11 @@ func main() {
 			app.DB.InsertLayers(data.Layers)
 		}
 	} else if method == "assign" {
-		if len(required_args) != 3 {
-			usage_error("Please datasource and customer key")
+		if len(requiredArgs) != 3 {
+			usageError("Please datasource and customer key")
 		} else {
-			setup_db()
-			customer, err := app.DB.GetCustomer(required_args[2])
+			setupDb()
+			customer, err := app.DB.GetCustomer(requiredArgs[2])
 			if err != nil {
 				fmt.Println("Customer key not found!")
 				os.Exit(1)
@@ -250,11 +250,11 @@ func main() {
 			// CHECK IF DATASOURCE EXISTS
 			// CHECK IF DATASOURCE ALREADY ADDED TO CUSTOMER
 			// Add datasource uuid to customer
-			customer.Datasources = append(customer.Datasources, required_args[1])
+			customer.Datasources = append(customer.Datasources, requiredArgs[1])
 			app.DB.InsertCustomer(customer)
 		}
 	} else {
-		usage_error("Method not found")
+		usageError("Method not found")
 	}
 	// exit
 	os.Exit(0)

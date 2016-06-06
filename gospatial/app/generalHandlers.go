@@ -48,7 +48,6 @@ func CustomerManagementHandler(w http.ResponseWriter, r *http.Request) {
 	// Get params
 	apikey := r.FormValue("apikey")
 
-
 	// Check for apikey in request
 	if apikey == "" {
 		network_logger_Error.Println(r.RemoteAddr, "POST /map [401]")
@@ -63,8 +62,6 @@ func CustomerManagementHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-
-
 
 	// Return results
 	htmlFile := "./templates/management.html"

@@ -15,7 +15,7 @@ import (
 const (
 	testDbFile         string = "./test.db"
 	testCustomerApikey string = "testKey"
-	testDatasource      string = "testLayer"
+	testDatasource     string = "testLayer"
 )
 
 // Benchmark Database.InsertCustomer

@@ -15,7 +15,6 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 	// Get params
 	apikey := r.FormValue("apikey")
 
-
 	// Check for apikey in request
 	if apikey == "" {
 		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layers [401]")
@@ -30,7 +29,6 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-
 
 	// return results
 	js, err := json.Marshal(customer)
@@ -106,7 +104,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// ViewLayerHandler returns geojson of requested layer. Apikey/customer is checked for permissions to requested layer. 
+// ViewLayerHandler returns geojson of requested layer. Apikey/customer is checked for permissions to requested layer.
 // @param ds
 // @param apikey
 // @return geojson
@@ -119,7 +117,6 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Get ds from url path
 	vars := mux.Vars(r)
 	ds := vars["ds"]
-
 
 	// Check for apikey in request
 	if apikey == "" {
@@ -142,7 +139,6 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-
 
 	// Get layer from database
 	lyr, err := DB.GetLayer(ds)
@@ -170,7 +166,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// DeleteLayerHandler deletes layer from database and removes it from customer list. 
+// DeleteLayerHandler deletes layer from database and removes it from customer list.
 // @param ds
 // @param apikey
 // @return json
@@ -183,7 +179,6 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Get ds from url path
 	vars := mux.Vars(r)
 	ds := vars["ds"]
-
 
 	// Check for apikey in request
 	if apikey == "" {
@@ -206,7 +201,6 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-
 
 	// Delete layer from database
 	err = DB.DeleteLayer(ds)

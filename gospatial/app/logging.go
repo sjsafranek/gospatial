@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	// Info log handler
 	Info                    *log.Logger
 	Debug                   *log.Logger
 	Warning                 *log.Logger

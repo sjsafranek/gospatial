@@ -13,9 +13,6 @@ var startTime = time.Now()
 // SuperuserKey api servers superuser key
 var SuperuserKey string = "su"
 
-// AppMode api server mode
-var AppMode string = "standard"
-
 // PingHandler provides an api route for server health check
 func PingHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status": "ok", "message": "pong"}`
@@ -93,7 +90,7 @@ func ServerProfile(w http.ResponseWriter, r *http.Request) {
 	data = make(map[string]interface{})
 	data["registered"] = startTime.UTC()
 	data["uptime"] = time.Since(startTime).Seconds()
-	data["status"] = AppMode // debug, static, standard
+	// data["status"] = AppMode // debug, static, standard
 	data["num_cores"] = runtime.NumCPU()
 	// data["free_mem"] = runtime.MemStats()
 	js, err := json.Marshal(data)

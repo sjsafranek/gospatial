@@ -4,43 +4,43 @@ import (
 	"net/http"
 )
 
-type route struct {
+type apiRoute struct {
 	Name        string
 	Method      string
 	Pattern     string
 	HandlerFunc http.HandlerFunc
 }
 
-type routes []route
+type apiRoutes []apiRoute
 
-var routes = routes{
+var routes = apiRoutes{
 	// Health check
-	route{"Ping", "GET", "/ping", PingHandler},
+	apiRoute{"Ping", "GET", "/ping", PingHandler},
 
 	// Layers
-	route{"ViewLayers", "GET", "/api/v1/layers", ViewLayersHandler},
-	route{"ViewLayer", "GET", "/api/v1/layer/{ds}", ViewLayerHandler},
-	route{"NewLayer", "POST", "/api/v1/layer", NewLayerHandler},
-	route{"DeleteLayer", "DELETE", "/api/v1/layer/{ds}", DeleteLayerHandler},
-	route{"ShareLayerHandler", "PUT", "/api/v1/layer/{ds}", ShareLayerHandler},
+	apiRoute{"ViewLayers", "GET", "/api/v1/layers", ViewLayersHandler},
+	apiRoute{"ViewLayer", "GET", "/api/v1/layer/{ds}", ViewLayerHandler},
+	apiRoute{"NewLayer", "POST", "/api/v1/layer", NewLayerHandler},
+	apiRoute{"DeleteLayer", "DELETE", "/api/v1/layer/{ds}", DeleteLayerHandler},
+	apiRoute{"ShareLayerHandler", "PUT", "/api/v1/layer/{ds}", ShareLayerHandler},
 
 	//
-	route{"NewFeature", "POST", "/api/v1/layer/{ds}/feature", NewFeatureHandler},
-	route{"ViewFeature", "GET", "/api/v1/layer/{ds}/feature/{k}", ViewFeatureHandler},
+	apiRoute{"NewFeature", "POST", "/api/v1/layer/{ds}/feature", NewFeatureHandler},
+	apiRoute{"ViewFeature", "GET", "/api/v1/layer/{ds}/feature/{k}", ViewFeatureHandler},
 
-	// Superuser routes
-	route{"NewCustomerHandler", "POST", "/api/v1/customer", NewCustomerHandler},
+	// Superuser apiRoutes
+	apiRoute{"NewCustomerHandler", "POST", "/api/v1/customer", NewCustomerHandler},
 
-	// Web Client routes
-	route{"Index", "GET", "/", IndexHandler},
-	route{"MapNew", "GET", "/map", MapHandler},
-	route{"CustomerManagement", "GET", "/management", CustomerManagementHandler},
+	// Web Client apiRoutes
+	apiRoute{"Index", "GET", "/", IndexHandler},
+	apiRoute{"MapNew", "GET", "/map", MapHandler},
+	apiRoute{"CustomerManagement", "GET", "/management", CustomerManagementHandler},
 
-	// Web Socket route
-	route{"Socket", "GET", "/ws/{ds}", serveWs},
+	// Web Socket apiRoute
+	apiRoute{"Socket", "GET", "/ws/{ds}", serveWs},
 
 	// Experimental
-	route{"UnloadLayer", "GET", "/management/unload/{ds}", UnloadLayer},
-	route{"LoadedLayers", "GET", "/management/loaded", LoadedLayers},
-	route{"LoadedLayers", "GET", "/management/profile", ServerProfile},
+	apiRoute{"UnloadLayer", "GET", "/management/unload/{ds}", UnloadLayer},
+	apiRoute{"LoadedLayers", "GET", "/management/loaded", LoadedLayers},
+	apiRoute{"LoadedLayers", "GET", "/management/profile", ServerProfile},
 }

@@ -137,7 +137,7 @@ func import_datasource(import_file string) {
 
 func init() {
 	flag.Usage = func() {
-		fmt.Println("Usage: gospatial_cmd [method] [option]\n")
+		fmt.Println("Usage: gospatial_cmd [method] [option]")
 		fmt.Printf("Methods:\n")
 		// CHANGE [ls] to [datasource ls] and [customer ls]
 		fmt.Printf("  ls\n\tList all datasources from database\n")

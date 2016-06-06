@@ -251,7 +251,7 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 		return nil
 	})
 	if err != nil {
-		// bucket doesnt exist
+		// bucket doesn't exist
 		conn.Update(func(tx *bolt.Tx) error {
 			_, err := tx.CreateBucketIfNotExists(table)
 			return err
@@ -266,7 +266,7 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 	customer := Customer{}
 	err = json.Unmarshal(val, &customer)
 	if err != nil {
-		panic(err)
+		// panic(err)
 		return Customer{}, err
 	}
 	// Close database connection
@@ -425,7 +425,7 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 		return nil
 	})
 	if err != nil {
-		// bucket doesnt exist
+		// bucket doesn't exist
 		conn.Update(func(tx *bolt.Tx) error {
 			_, err := tx.CreateBucketIfNotExists(table)
 			return err

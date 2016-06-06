@@ -16,7 +16,8 @@
 ### Changed
  - goreport fixes
 
-
+### Added
+ - Version & license shields to README.md
 
 
 

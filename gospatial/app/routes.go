@@ -61,5 +61,5 @@ var routes = Routes{
 	// Experimental
 	Route{"UnloadLayer", "GET", "/management/unload/{ds}", UnloadLayer},
 	Route{"LoadedLayers", "GET", "/management/loaded", LoadedLayers},
-	Route{"LoadedLayers", "GET", "/management/profile", server_profile},
+	Route{"LoadedLayers", "GET", "/management/profile", ServerProfile},
 }

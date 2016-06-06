@@ -23,13 +23,13 @@ const (
 /*=======================================*/
 func BenchmarkDbInsertCustomer(b *testing.B) {
 	test_logger_init()
-	test_db := Database{File: testDbFile}
-	test_db.Init()
-	test_db.TestLogger()
-	test_customer := Customer{Apikey: testCustomerApikey}
+	testDb := Database{File: testDbFile}
+	testDb.Init()
+	testDb.TestLogger()
+	testCustomer := Customer{Apikey: testCustomerApikey}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		test_db.InsertCustomer(test_customer)
+		testDb.InsertCustomer(testCustomer)
 	}
 }
 
@@ -38,28 +38,28 @@ func BenchmarkDbInsertCustomer(b *testing.B) {
 /*=======================================*/
 func BenchmarkDbGetCustomerWithCache(b *testing.B) {
 	test_logger_init()
-	test_db := Database{File: testDbFile}
-	test_db.Init()
-	test_db.TestLogger()
-	test_customer := Customer{Apikey: testCustomerApikey}
-	test_db.InsertCustomer(test_customer)
+	testDb := Database{File: testDbFile}
+	testDb.Init()
+	testDb.TestLogger()
+	testCustomer := Customer{Apikey: testCustomerApikey}
+	testDb.InsertCustomer(testCustomer)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		test_db.GetCustomer(testCustomerApikey)
+		testDb.GetCustomer(testCustomerApikey)
 	}
 }
 
 func BenchmarkDbGetCustomerWithOutCache(b *testing.B) {
 	test_logger_init()
-	test_db := Database{File: testDbFile}
-	test_db.Init()
-	test_db.TestLogger()
-	test_customer := Customer{Apikey: testCustomerApikey}
-	test_db.InsertCustomer(test_customer)
+	testDb := Database{File: testDbFile}
+	testDb.Init()
+	testDb.TestLogger()
+	testCustomer := Customer{Apikey: testCustomerApikey}
+	testDb.InsertCustomer(testCustomer)
 	b.ResetTimer()
-	test_db.Apikeys = make(map[string]Customer)
+	testDb.Apikeys = make(map[string]Customer)
 	for i := 0; i < b.N; i++ {
-		test_db.GetCustomer(testCustomerApikey)
+		testDb.GetCustomer(testCustomerApikey)
 	}
 }
 
@@ -69,15 +69,15 @@ func BenchmarkDbGetCustomerWithOutCache(b *testing.B) {
 /*=======================================*/
 func TestDbCustomers(t *testing.T) {
 	test_logger_init()
-	test_db := Database{File: testDbFile}
-	test_db.Init()
-	test_db.TestLogger()
-	test_customer := Customer{Apikey: testCustomerApikey}
-	err := test_db.InsertCustomer(test_customer)
+	testDb := Database{File: testDbFile}
+	testDb.Init()
+	testDb.TestLogger()
+	testCustomer := Customer{Apikey: testCustomerApikey}
+	err := testDb.InsertCustomer(testCustomer)
 	if err != nil {
 		t.Error(err)
 	}
-	customer, err := test_db.GetCustomer(testCustomerApikey)
+	customer, err := testDb.GetCustomer(testCustomerApikey)
 	if err != nil {
 		t.Error(err)
 	}
@@ -91,12 +91,12 @@ func TestDbCustomers(t *testing.T) {
 /*=======================================*/
 func BenchmarkDbNewLayer(b *testing.B) {
 	test_logger_init()
-	test_db := Database{File: testDbFile}
-	test_db.Init()
-	test_db.TestLogger()
+	testDb := Database{File: testDbFile}
+	testDb.Init()
+	testDb.TestLogger()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		test_db.NewLayer()
+		testDb.NewLayer()
 	}
 }
 
@@ -105,9 +105,9 @@ func BenchmarkDbNewLayer(b *testing.B) {
 /*=======================================*/
 func BenchmarkDbInsertLayer(b *testing.B) {
 	test_logger_init()
-	test_db := Database{File: testDbFile}
-	test_db.Init()
-	test_db.TestLogger()
+	testDb := Database{File: testDbFile}
+	testDb.Init()
+	testDb.TestLogger()
 	data := []byte(`{"crs":{"properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"},"type":"name"},"features":[{"geometry":{"coordinates":[[[-76.64062,50.73645513701065],[-76.64062,65.65827451982659],[-38.67187,65.65827451982659],[-38.67187,50.73645513701065],[-76.64062,50.73645513701065]]],"type":"Polygon"},"properties":{"FID":0},"type":"Feature"},{"geometry":{"coordinates":[[[-87.97851562499999,58.995311187950925],[-87.97851562499999,60.500525410511294],[-84.63867187499997,60.500525410511294],[-84.63867187499997,58.995311187950925],[-87.97851562499999,58.995311187950925]]],"type":"Polygon"},"properties":{"FID":1},"type":"Feature"}],"type":"FeatureCollection"}`)
 	geojs, err := geojson.UnmarshalFeatureCollection(data)
 	if err != nil {
@@ -115,7 +115,7 @@ func BenchmarkDbInsertLayer(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		test_db.InsertLayer(testDatasource, geojs)
+		testDb.InsertLayer(testDatasource, geojs)
 	}
 }
 
@@ -124,18 +124,18 @@ func BenchmarkDbInsertLayer(b *testing.B) {
 /*=======================================*/
 func BenchmarkDbGetLayerWithCache(b *testing.B) {
 	test_logger_init()
-	test_db := Database{File: testDbFile}
-	test_db.Init()
-	test_db.TestLogger()
+	testDb := Database{File: testDbFile}
+	testDb.Init()
+	testDb.TestLogger()
 	data := []byte(`{"crs":{"properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"},"type":"name"},"features":[{"geometry":{"coordinates":[[[-76.64062,50.73645513701065],[-76.64062,65.65827451982659],[-38.67187,65.65827451982659],[-38.67187,50.73645513701065],[-76.64062,50.73645513701065]]],"type":"Polygon"},"properties":{"FID":0},"type":"Feature"},{"geometry":{"coordinates":[[[-87.97851562499999,58.995311187950925],[-87.97851562499999,60.500525410511294],[-84.63867187499997,60.500525410511294],[-84.63867187499997,58.995311187950925],[-87.97851562499999,58.995311187950925]]],"type":"Polygon"},"properties":{"FID":1},"type":"Feature"}],"type":"FeatureCollection"}`)
 	geojs, err := geojson.UnmarshalFeatureCollection(data)
 	if err != nil {
 		b.Error(err)
 	}
 	b.ResetTimer()
-	test_db.InsertLayer(testDatasource, geojs)
+	testDb.InsertLayer(testDatasource, geojs)
 	for i := 0; i < b.N; i++ {
-		test_db.GetLayer(testDatasource)
+		testDb.GetLayer(testDatasource)
 	}
 }
 
@@ -144,19 +144,19 @@ func BenchmarkDbGetLayerWithCache(b *testing.B) {
 /*=======================================*/
 func BenchmarkDbGetLayerWithoutCache(b *testing.B) {
 	test_logger_init()
-	test_db := Database{File: testDbFile}
-	test_db.Init()
-	test_db.TestLogger()
+	testDb := Database{File: testDbFile}
+	testDb.Init()
+	testDb.TestLogger()
 	data := []byte(`{"crs":{"properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"},"type":"name"},"features":[{"geometry":{"coordinates":[[[-76.64062,50.73645513701065],[-76.64062,65.65827451982659],[-38.67187,65.65827451982659],[-38.67187,50.73645513701065],[-76.64062,50.73645513701065]]],"type":"Polygon"},"properties":{"FID":0},"type":"Feature"},{"geometry":{"coordinates":[[[-87.97851562499999,58.995311187950925],[-87.97851562499999,60.500525410511294],[-84.63867187499997,60.500525410511294],[-84.63867187499997,58.995311187950925],[-87.97851562499999,58.995311187950925]]],"type":"Polygon"},"properties":{"FID":1},"type":"Feature"}],"type":"FeatureCollection"}`)
 	geojs, err := geojson.UnmarshalFeatureCollection(data)
 	if err != nil {
 		b.Error(err)
 	}
 	b.ResetTimer()
-	test_db.InsertLayer(testDatasource, geojs)
+	testDb.InsertLayer(testDatasource, geojs)
 	for i := 0; i < b.N; i++ {
-		delete(test_db.Cache, testDatasource)
-		test_db.GetLayer(testDatasource)
+		delete(testDb.Cache, testDatasource)
+		testDb.GetLayer(testDatasource)
 	}
 }
 
@@ -166,19 +166,19 @@ func BenchmarkDbGetLayerWithoutCache(b *testing.B) {
 /*=======================================*/
 func TestDbLayers(t *testing.T) {
 	test_logger_init()
-	test_db := Database{File: testDbFile}
-	test_db.Init()
-	test_db.TestLogger()
+	testDb := Database{File: testDbFile}
+	testDb.Init()
+	testDb.TestLogger()
 	data := []byte(`{"crs":{"properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"},"type":"name"},"features":[{"geometry":{"coordinates":[[[-76.64062,50.73645513701065],[-76.64062,65.65827451982659],[-38.67187,65.65827451982659],[-38.67187,50.73645513701065],[-76.64062,50.73645513701065]]],"type":"Polygon"},"properties":{"FID":0},"type":"Feature"},{"geometry":{"coordinates":[[[-87.97851562499999,58.995311187950925],[-87.97851562499999,60.500525410511294],[-84.63867187499997,60.500525410511294],[-84.63867187499997,58.995311187950925],[-87.97851562499999,58.995311187950925]]],"type":"Polygon"},"properties":{"FID":1},"type":"Feature"}],"type":"FeatureCollection"}`)
 	geojs, err := geojson.UnmarshalFeatureCollection(data)
 	if err != nil {
 		t.Error(err)
 	}
-	err = test_db.InsertLayer(testDatasource, geojs)
+	err = testDb.InsertLayer(testDatasource, geojs)
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = test_db.GetLayer(testDatasource)
+	_, err = testDb.GetLayer(testDatasource)
 	if err != nil {
 		t.Error(err)
 	}

@@ -35,10 +35,7 @@ type Database struct {
 	guard   sync.RWMutex
 }
 
-// Method: Database.connect
-// Description:
-//		Connects to database
-//		Returns open database connection
+// Database.connect Connects to bolt database. Returns open database connection
 // @returns *bolt.DB
 func (self *Database) connect() *bolt.DB {
 	conn, err := bolt.Open(self.File, 0644, nil)
@@ -50,11 +47,8 @@ func (self *Database) connect() *bolt.DB {
 	return conn
 }
 
-// Method: Database.Init
-// Description:
-//		Creates database
-//		Creates layers and apikey tables
-//		Starts database caching
+// Database.Init creates bolt database if existing one not found. 
+// Creates layers and apikey tables. Starts database caching for layers
 // @returns Error
 func (self *Database) Init() error {
 	// Start db caching
@@ -102,7 +96,7 @@ func (self *Database) Init() error {
 	return err
 }
 
-// Method: Database.startLogger
+// Database.startLogger
 // Description:
 //		Starts database logger
 func (self *Database) startLogger() {

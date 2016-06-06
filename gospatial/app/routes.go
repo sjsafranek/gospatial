@@ -4,62 +4,43 @@ import (
 	"net/http"
 )
 
-type Route struct {
+type route struct {
 	Name        string
 	Method      string
 	Pattern     string
 	HandlerFunc http.HandlerFunc
 }
 
-type Routes []Route
+type routes []route
 
-func AttachHttpHandlers() {
-	Info.Println("Attaching HTTP handler for route: [GET] /ping")
-	Info.Println("Attaching HTTP handler for route: [GET] /api/v1/layers")
-	Info.Println("Attaching HTTP handler for route: [GET] /api/v1/layer/{ds}")
-	Info.Println("Attaching HTTP handler for route: [POST] /api/v1/layer")
-	Info.Println("Attaching HTTP handler for route: [DELETE] /api/v1/layer/{ds}")
-	Info.Println("Attaching HTTP handler for route: [PUT] /api/v1/layer/{ds}")
-	Info.Println("Attaching HTTP handler for route: [POST] /api/v1/layer/{ds}/feature")
-	Info.Println("Attaching HTTP handler for route: [GET] /api/v1/layer/{ds}/feature/{k}")
-	Info.Println("Attaching HTTP handler for route: [POST] /api/v1/customer")
-	Info.Println("Attaching HTTP handler for route: [GET] /")
-	Info.Println("Attaching HTTP handler for route: [GET] /map/{ds}")
-	Info.Println("Attaching HTTP handler for route: [GET] /management")
-	Info.Println("Attaching HTTP handler for route: [GET] /ws/{ds}")
-	Info.Println("Attaching HTTP handler for route: [GET] /management/unload/{ds}")
-	Info.Println("Attaching HTTP handler for route: [GET] /management/loaded")
-	Info.Println("Attaching HTTP handler for route: [GET] /management/profile")
-}
-
-var routes = Routes{
-	// General
-	Route{"Ping", "GET", "/ping", PingHandler},
+var routes = routes{
+	// Health check
+	route{"Ping", "GET", "/ping", PingHandler},
 
 	// Layers
-	Route{"ViewLayers", "GET", "/api/v1/layers", ViewLayersHandler},
-	Route{"ViewLayer", "GET", "/api/v1/layer/{ds}", ViewLayerHandler},
-	Route{"NewLayer", "POST", "/api/v1/layer", NewLayerHandler},
-	Route{"DeleteLayer", "DELETE", "/api/v1/layer/{ds}", DeleteLayerHandler},
-	Route{"ShareLayerHandler", "PUT", "/api/v1/layer/{ds}", ShareLayerHandler},
+	route{"ViewLayers", "GET", "/api/v1/layers", ViewLayersHandler},
+	route{"ViewLayer", "GET", "/api/v1/layer/{ds}", ViewLayerHandler},
+	route{"NewLayer", "POST", "/api/v1/layer", NewLayerHandler},
+	route{"DeleteLayer", "DELETE", "/api/v1/layer/{ds}", DeleteLayerHandler},
+	route{"ShareLayerHandler", "PUT", "/api/v1/layer/{ds}", ShareLayerHandler},
 
 	//
-	Route{"NewFeature", "POST", "/api/v1/layer/{ds}/feature", NewFeatureHandler},
-	Route{"ViewFeature", "GET", "/api/v1/layer/{ds}/feature/{k}", ViewFeatureHandler},
+	route{"NewFeature", "POST", "/api/v1/layer/{ds}/feature", NewFeatureHandler},
+	route{"ViewFeature", "GET", "/api/v1/layer/{ds}/feature/{k}", ViewFeatureHandler},
 
-	// Superuser Routes
-	Route{"NewCustomerHandler", "POST", "/api/v1/customer", NewCustomerHandler},
+	// Superuser routes
+	route{"NewCustomerHandler", "POST", "/api/v1/customer", NewCustomerHandler},
 
-	// Web Client Routes
-	Route{"Index", "GET", "/", IndexHandler},
-	Route{"MapNew", "GET", "/map", MapHandler},
-	Route{"CustomerManagement", "GET", "/management", CustomerManagementHandler},
+	// Web Client routes
+	route{"Index", "GET", "/", IndexHandler},
+	route{"MapNew", "GET", "/map", MapHandler},
+	route{"CustomerManagement", "GET", "/management", CustomerManagementHandler},
 
-	// Web Socket Route
-	Route{"Socket", "GET", "/ws/{ds}", serveWs},
+	// Web Socket route
+	route{"Socket", "GET", "/ws/{ds}", serveWs},
 
 	// Experimental
-	Route{"UnloadLayer", "GET", "/management/unload/{ds}", UnloadLayer},
-	Route{"LoadedLayers", "GET", "/management/loaded", LoadedLayers},
-	Route{"LoadedLayers", "GET", "/management/profile", ServerProfile},
+	route{"UnloadLayer", "GET", "/management/unload/{ds}", UnloadLayer},
+	route{"LoadedLayers", "GET", "/management/loaded", LoadedLayers},
+	route{"LoadedLayers", "GET", "/management/profile", ServerProfile},
 }

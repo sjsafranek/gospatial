@@ -123,9 +123,26 @@ func main() {
 	app.DB.Init()
 
 	// Attach Http Hanlders
-	app.AttachHttpHandlers()
 	router := app.NewRouter()
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
+
+	// Report available routes
+	Info.Println("Attaching HTTP handler for route: [GET] /ping")
+	Info.Println("Attaching HTTP handler for route: [GET] /api/v1/layers")
+	Info.Println("Attaching HTTP handler for route: [GET] /api/v1/layer/{ds}")
+	Info.Println("Attaching HTTP handler for route: [POST] /api/v1/layer")
+	Info.Println("Attaching HTTP handler for route: [DELETE] /api/v1/layer/{ds}")
+	Info.Println("Attaching HTTP handler for route: [PUT] /api/v1/layer/{ds}")
+	Info.Println("Attaching HTTP handler for route: [POST] /api/v1/layer/{ds}/feature")
+	Info.Println("Attaching HTTP handler for route: [GET] /api/v1/layer/{ds}/feature/{k}")
+	Info.Println("Attaching HTTP handler for route: [POST] /api/v1/customer")
+	Info.Println("Attaching HTTP handler for route: [GET] /")
+	Info.Println("Attaching HTTP handler for route: [GET] /map/{ds}")
+	Info.Println("Attaching HTTP handler for route: [GET] /management")
+	Info.Println("Attaching HTTP handler for route: [GET] /ws/{ds}")
+	Info.Println("Attaching HTTP handler for route: [GET] /management/unload/{ds}")
+	Info.Println("Attaching HTTP handler for route: [GET] /management/loaded")
+	Info.Println("Attaching HTTP handler for route: [GET] /management/profile")
 
 	// Start server
 	app.Info.Printf("Magic happens on port %v...\n", port)

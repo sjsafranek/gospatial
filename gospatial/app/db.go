@@ -17,16 +17,17 @@ import (
 	"time"
 )
 
-// Gobals
+// DB application Database
 var DB Database
 var dbLog io.Writer
 
-// Models
+// LayerCache keeps track of Database's loaded geojson layers
 type LayerCache struct {
 	Geojson *geojson.FeatureCollection
 	Time    time.Time
 }
 
+// Database strust for application.
 type Database struct {
 	File    string
 	Cache   map[string]*LayerCache
@@ -35,7 +36,7 @@ type Database struct {
 	guard   sync.RWMutex
 }
 
-// Database.connect Connects to bolt database. Returns open database connection
+// Connect to bolt database. Returns open database connection.
 // @returns *bolt.DB
 func (self *Database) connect() *bolt.DB {
 	conn, err := bolt.Open(self.File, 0644, nil)
@@ -47,7 +48,7 @@ func (self *Database) connect() *bolt.DB {
 	return conn
 }
 
-// Database.Init creates bolt database if existing one not found. 
+// Init creates bolt database if existing one not found. 
 // Creates layers and apikey tables. Starts database caching for layers
 // @returns Error
 func (self *Database) Init() error {

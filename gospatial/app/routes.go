@@ -22,9 +22,10 @@ func AttachHttpHandlers() {
 	Info.Println("Attaching HTTP handler for route: [PUT] /api/v1/layer/{ds}")
 	Info.Println("Attaching HTTP handler for route: [POST] /api/v1/layer/{ds}/feature")
 	Info.Println("Attaching HTTP handler for route: [GET] /api/v1/layer/{ds}/feature/{k}")
-	Info.Println("Attaching HTTP handler for route: [POST] /management/customer")
-	Info.Println("Attaching HTTP handler for route: [GET] /map/{ds}")
+	Info.Println("Attaching HTTP handler for route: [POST] /api/v1/customer")
 	Info.Println("Attaching HTTP handler for route: [GET] /")
+	Info.Println("Attaching HTTP handler for route: [GET] /map/{ds}")
+	Info.Println("Attaching HTTP handler for route: [GET] /management")
 	Info.Println("Attaching HTTP handler for route: [GET] /ws/{ds}")
 	Info.Println("Attaching HTTP handler for route: [GET] /management/unload/{ds}")
 	Info.Println("Attaching HTTP handler for route: [GET] /management/loaded")
@@ -42,17 +43,17 @@ var routes = Routes{
 	Route{"DeleteLayer", "DELETE", "/api/v1/layer/{ds}", DeleteLayerHandler},
 	Route{"ShareLayerHandler", "PUT", "/api/v1/layer/{ds}", ShareLayerHandler},
 
-	// Features
+	// 
 	Route{"NewFeature", "POST", "/api/v1/layer/{ds}/feature", NewFeatureHandler},
 	Route{"ViewFeature", "GET", "/api/v1/layer/{ds}/feature/{k}", ViewFeatureHandler},
 
 	// Superuser Routes
-	Route{"NewCustomerHandler", "POST", "/management/customer", NewCustomerHandler},
+	Route{"NewCustomerHandler", "POST", "/api/v1/customer", NewCustomerHandler},
 
 	// Web Client Routes
+	Route{"Index", "GET", "/", IndexHandler},
 	Route{"MapNew", "GET", "/map", MapHandler},
 	Route{"CustomerManagement", "GET", "/management", CustomerManagementHandler},
-	Route{"Index", "GET", "/", IndexHandler},
 
 	// Web Socket Route
 	Route{"Socket", "GET", "/ws/{ds}", serveWs},

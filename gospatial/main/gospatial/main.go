@@ -22,15 +22,15 @@ import (
 )
 
 var (
-	port        int
-	database    string
-	bind        string
-	version     bool
+	port       int
+	database   string
+	bind       string
+	version    bool
 	configFile string
 )
 
 const (
-	version        string = "1.9.3"
+	version       string = "1.9.3"
 	configDefault string = ""
 )
 

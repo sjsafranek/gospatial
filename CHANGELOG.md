@@ -10,6 +10,17 @@
 
 ## Unreleased
 
+
+## 1.10.1 - 2016-06-06
+
+### Changed
+ - goreport fixes
+
+
+
+
+
+
 ## 1.10.0 - 2016-06-03
 
 ### Changed

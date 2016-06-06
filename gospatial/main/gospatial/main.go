@@ -26,15 +26,15 @@ var (
 	database    string
 	bind        string
 	version     bool
-	config_file string
+	configFile string
 )
 
 const (
-	VERSION        string = "1.9.3"
-	default_config string = ""
+	version        string = "1.9.3"
+	configDefault string = ""
 )
 
-type Configuration struct {
+type serverConfig struct {
 	Port    int    `json:"port"`
 	Db      string `json:"db"`
 	Authkey string `json:"authkey"`
@@ -46,7 +46,7 @@ func init() {
 		app.Error.Fatal(err)
 	}
 	db := strings.Replace(dir, "bin", "bolt", -1)
-	flag.StringVar(&config_file, "c", default_config, "server config file")
+	flag.StringVar(&configFile, "c", configDefault, "server config file")
 	flag.IntVar(&port, "p", 8080, "server port")
 	flag.StringVar(&database, "db", db, "app database")
 	// flag.StringVar(&app.SuperuserKey, "s", "7q1qcqmsxnvw", "superuser key")
@@ -54,15 +54,15 @@ func init() {
 	flag.BoolVar(&version, "v", false, "App Version")
 	flag.Parse()
 	if version {
-		fmt.Println("Version:", VERSION)
+		fmt.Println("Version:", version)
 		os.Exit(0)
 	}
-	if config_file != "" {
-		file, err := ioutil.ReadFile(config_file)
+	if configFile != "" {
+		file, err := ioutil.ReadFile(configFile)
 		if err != nil {
 			panic(err)
 		}
-		configuration := Configuration{}
+		configuration := serverConfig{}
 		err = json.Unmarshal(file, &configuration)
 		if err != nil {
 			fmt.Println("error:", err)

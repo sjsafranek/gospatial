@@ -1,6 +1,6 @@
 # GoSpatial
 [![Go Report Card](https://goreportcard.com/badge/github.com/sjsafranek/gospatial)](https://goreportcard.com/report/github.com/sjsafranek/gospatial)
-[![Version 1.10.1](https://img.shields.io/badge/version-2.1-brightgreen.svg)](http://sjsafranek.github.io/gospatial/)
+[![Version 1.10.1](https://img.shields.io/badge/version-1.10-brightgreen.svg)](http://sjsafranek.github.io/gospatial/)
 
 Full documentation: http://sjsafranek.github.io/gospatial/
 

@@ -106,7 +106,7 @@ func main() {
 		}
 	}()
 
-	app.Network_logger_init()
+	// app.Network_logger_init()
 	// app.StdOutMode()
 
 	log.Println("Authkey:", app.SuperuserKey)

@@ -20,7 +20,7 @@ const (
 
 // Benchmark Database.InsertCustomer
 func BenchmarkDbInsertCustomer(b *testing.B) {
-	test_logger_init()
+	testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
@@ -33,7 +33,7 @@ func BenchmarkDbInsertCustomer(b *testing.B) {
 
 // Benchmark Database.getCustomer
 func BenchmarkDbGetCustomerWithCache(b *testing.B) {
-	test_logger_init()
+	testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
@@ -46,7 +46,7 @@ func BenchmarkDbGetCustomerWithCache(b *testing.B) {
 }
 
 func BenchmarkDbGetCustomerWithOutCache(b *testing.B) {
-	test_logger_init()
+	testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
@@ -62,7 +62,7 @@ func BenchmarkDbGetCustomerWithOutCache(b *testing.B) {
 // Unittest Database.GetCustomer
 // Unittest Database.InsertCustomer
 func TestDbCustomers(t *testing.T) {
-	test_logger_init()
+	testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
@@ -82,7 +82,7 @@ func TestDbCustomers(t *testing.T) {
 
 // Benchmark Database.NewLayer
 func BenchmarkDbNewLayer(b *testing.B) {
-	test_logger_init()
+	testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
@@ -94,7 +94,7 @@ func BenchmarkDbNewLayer(b *testing.B) {
 
 // Benchmark Database.InsertLayer
 func BenchmarkDbInsertLayer(b *testing.B) {
-	test_logger_init()
+	testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
@@ -111,7 +111,7 @@ func BenchmarkDbInsertLayer(b *testing.B) {
 
 // Benchmark Database.GetLayer
 func BenchmarkDbGetLayerWithCache(b *testing.B) {
-	test_logger_init()
+	testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
@@ -129,7 +129,7 @@ func BenchmarkDbGetLayerWithCache(b *testing.B) {
 
 // Benchmark Database.GetLayer
 func BenchmarkDbGetLayerWithoutCache(b *testing.B) {
-	test_logger_init()
+	testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
@@ -149,7 +149,7 @@ func BenchmarkDbGetLayerWithoutCache(b *testing.B) {
 // Unittest: Database.GetLayer
 // Unittest: Database.InsertLayer
 func TestDbLayers(t *testing.T) {
-	test_logger_init()
+	testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()

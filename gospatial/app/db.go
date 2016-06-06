@@ -21,7 +21,7 @@ import (
 // Gobals
 /*=======================================*/
 var DB Database
-var db_log io.Writer
+var dbLog io.Writer
 
 /*=======================================*/
 // Models
@@ -120,15 +120,15 @@ func (self *Database) startLogger() {
 	if err != nil {
 		panic(err)
 	}
-	log_file := strings.Replace(dir, "bin", "log/db.log", -1)
-	db_log, err := os.OpenFile(log_file, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	dbLogFile := strings.Replace(dir, "bin", "log/db.log", -1)
+	dbLog, err := os.OpenFile(dbLogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		db_log, err = os.OpenFile("db.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+		dbLog, err = os.OpenFile("db.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			panic(err)
 		}
 	}
-	self.Logger = log.New(db_log, "WRITE [DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	self.Logger = log.New(dbLog, "WRITE [DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
 /*=======================================*/
@@ -142,11 +142,11 @@ func (self *Database) TestLogger() {
 		panic(err)
 	}
 	f := filepath.Join(dir, "test_db.log")
-	db_log, err := os.OpenFile(f, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	dbLog, err := os.OpenFile(f, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		panic(err)
 	}
-	self.Logger = log.New(db_log, "WRITE [DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	self.Logger = log.New(dbLog, "WRITE [DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
 /*=======================================*/

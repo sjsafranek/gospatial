@@ -17,15 +17,11 @@ import (
 	"time"
 )
 
-/*=======================================*/
 // Gobals
-/*=======================================*/
 var DB Database
 var dbLog io.Writer
 
-/*=======================================*/
 // Models
-/*=======================================*/
 type LayerCache struct {
 	Geojson *geojson.FeatureCollection
 	Time    time.Time
@@ -39,13 +35,11 @@ type Database struct {
 	guard   sync.RWMutex
 }
 
-/*=======================================*/
 // Method: Database.connect
 // Description:
 //		Connects to database
 //		Returns open database connection
 // @returns *bolt.DB
-/*=======================================*/
 func (self *Database) connect() *bolt.DB {
 	conn, err := bolt.Open(self.File, 0644, nil)
 	if err != nil {
@@ -56,14 +50,12 @@ func (self *Database) connect() *bolt.DB {
 	return conn
 }
 
-/*=======================================*/
 // Method: Database.Init
 // Description:
 //		Creates database
 //		Creates layers and apikey tables
 //		Starts database caching
 // @returns Error
-/*=======================================*/
 func (self *Database) Init() error {
 	// Start db caching
 	m := make(map[string]*LayerCache)
@@ -110,11 +102,9 @@ func (self *Database) Init() error {
 	return err
 }
 
-/*=======================================*/
 // Method: Database.startLogger
 // Description:
 //		Starts database logger
-/*=======================================*/
 func (self *Database) startLogger() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
@@ -131,11 +121,9 @@ func (self *Database) startLogger() {
 	self.Logger = log.New(dbLog, "WRITE [DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
-/*=======================================*/
 // Method: Database.TestLogger
 // Description:
 //		Starts database logger
-/*=======================================*/
 func (self *Database) TestLogger() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
@@ -149,13 +137,11 @@ func (self *Database) TestLogger() {
 	self.Logger = log.New(dbLog, "WRITE [DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
-/*=======================================*/
 // Method: Database.insertCustomer
 // Description:
 //		Inserts customer into apikeys table
 // @param customer {Customer}
 // @returns Error
-/*=======================================*/
 func (self *Database) InsertCustomer(customer Customer) error {
 	self.Apikeys[customer.Apikey] = customer
 	// Connect to database
@@ -184,13 +170,11 @@ func (self *Database) InsertCustomer(customer Customer) error {
 	return err
 }
 
-/*=======================================*/
 // Method: Database.insertCustomers
 // Description:
 //		Inserts list of customer into apikeys table
 // @param customer {Customer}
 // @returns Error
-/*=======================================*/
 func (self *Database) InsertCustomers(customers map[string]Customer) error {
 	// Connect to database
 	conn := self.connect()
@@ -221,14 +205,12 @@ func (self *Database) InsertCustomers(customers map[string]Customer) error {
 	return nil
 }
 
-/*=======================================*/
 // Method: Database.getCustomer
 // Description:
 //		Gets customer from database
 // @param apikey {string}
 // @returns Customer
 // @returns Error
-/*=======================================*/
 func (self *Database) GetCustomer(apikey string) (Customer, error) {
 	// Check apikey cache
 	if _, ok := self.Apikeys[apikey]; ok {
@@ -273,13 +255,11 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 	return customer, nil
 }
 
-/*=======================================*/
 // Method: Database.NewLayer
 // Description:
 //		Creates new datasource layer
 // @returns string - datasource id
 // @returns Error
-/*=======================================*/
 func (self *Database) NewLayer() (string, error) {
 	// create geojson
 	datasource, _ := NewUUID()
@@ -310,14 +290,12 @@ func (self *Database) NewLayer() (string, error) {
 	return datasource, err
 }
 
-/*=======================================*/
 // Method: Database.InsertLayer
 // Description:
 //		Inserts layer into database
 // @param datasource {string}
 // @param geojs {Geojson}
 // @returns Error
-/*=======================================*/
 func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureCollection) error {
 	// Caching layer
 	if v, ok := self.Cache[datasource]; ok {
@@ -356,14 +334,12 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 	return err
 }
 
-/*=======================================*/
 // Method: Database.InsertLayers
 // Description:
 //		Inserts a map of dayasource layers
 // 		into database
 // @param datasources map[string]*geojson.FeatureCollection
 // @returns Error
-/*=======================================*/
 func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollection) error {
 	// Connect to database
 	conn := self.connect()
@@ -393,14 +369,12 @@ func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollect
 	return nil
 }
 
-/*=======================================*/
 // Method: Database.getLayer
 // Description:
 //		Gets layer from database
 // @param datasource {string}
 // @returns Geojson
 // @returns Error
-/*=======================================*/
 func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, error) {
 	// Caching layer
 	if v, ok := self.Cache[datasource]; ok {
@@ -447,13 +421,11 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 	return geojs, nil
 }
 
-/*=======================================*/
 // Method: Database.deleteLayer
 // Description:
 //		Deletes layer from database
 // @param datasource {string}
 // @returns Error
-/*=======================================*/
 func (self *Database) DeleteLayer(datasource string) error {
 	// Connect to database
 	conn := self.connect()
@@ -483,7 +455,6 @@ func (self *Database) DeleteLayer(datasource string) error {
 	return err
 }
 
-/*=======================================*/
 // Method: Database.InsertFeature
 // Description:
 //		Adds feature to layer
@@ -491,7 +462,6 @@ func (self *Database) DeleteLayer(datasource string) error {
 // @param datasource {string}
 // @param feat {Geojson Feature}
 // @returns Error
-/*=======================================*/
 func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) error {
 	// Get layer from database
 	featCollection, err := self.GetLayer(datasource)
@@ -513,9 +483,7 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 
 }
 
-/*=======================================*/
 // Method: Dumps database
-/*=======================================*/
 func (self *Database) Dump() map[string]map[string]interface{} {
 	conn := self.connect()
 	defer conn.Close()
@@ -571,14 +539,12 @@ func (self *Database) Backup(filename ...string) {
 	ioutil.WriteFile(savename, b, 0644)
 }
 
-/*=======================================*/
 // Method: Database.CacheManager
 // Description:
 //		Database caching layer
 //		Unloads layers older than 90 sec
 //		When empty --> 60 sec timer
 //		When items in cache --> 15 sec timer
-/*=======================================*/
 func (self *Database) CacheManager() {
 	for {
 		n := float64(len(self.Cache))
@@ -600,13 +566,11 @@ func (self *Database) CacheManager() {
 	}
 }
 
-/*=======================================*/
 // Methods: Compression
 // Source: https://github.com/schollz/gofind/blob/master/utils.go#L146-L169
 //         https://github.com/schollz/gofind/blob/master/fingerprint.go#L43-L54
 // Description:
 //		Compress and Decompress bytes
-/*=======================================*/
 func (self *Database) compressByte(src []byte) []byte {
 	compressedData := new(bytes.Buffer)
 	compress(src, compressedData, 9)

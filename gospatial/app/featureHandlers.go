@@ -10,7 +10,6 @@ import (
 	"strconv"
 )
 
-/*=======================================*/
 // Method: NewFeatureHandler
 // Description:
 //		Adds a new feature to a layer
@@ -18,7 +17,6 @@ import (
 // @param apikey customer id
 // @oaram ds datasource uuid
 // @return json
-/*=======================================*/
 func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	network_logger_Info_In.Printf("%v\n", r)
 
@@ -104,14 +102,12 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-/*=======================================*/
 // Method: ViewFeatureHandler
 // Description:
 //		Finds feature from layer
 // @param apikey customer id
 // @oaram ds datasource uuid
 // @return feature geojson
-/*=======================================*/
 func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	network_logger_Info_In.Printf("%v\n", r)
 

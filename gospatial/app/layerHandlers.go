@@ -7,19 +7,17 @@ import (
 	"net/http"
 )
 
-/*=======================================*/
 // Method: ViewLayersHandler
 // Description:
 //		Returns customer layers
 // @param apikey customer id
 // @return json
-/*=======================================*/
 func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 	network_logger_Info_In.Printf("%v\n", r)
 	// Get params
 	apikey := r.FormValue("apikey")
 
-	/*=======================================*/
+
 	// Check for apikey in request
 	if apikey == "" {
 		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layers [401]")
@@ -34,7 +32,7 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	/*=======================================*/
+
 
 	// return results
 	js, err := json.Marshal(customer)
@@ -52,7 +50,6 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-/*=======================================*/
 // Method: NewLayerHandler
 // Description:
 //		Creates a new layer
@@ -60,7 +57,6 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 //		Layer uuid is added to customer list
 // @param apikey
 // @return json
-/*=======================================*/
 func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	network_logger_Info_In.Printf("%v\n", r)
 
@@ -116,7 +112,6 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-/*=======================================*/
 // Method: ViewLayerHandler
 // Description:
 //		Gets requested layer from database
@@ -125,7 +120,6 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 // @param ds
 // @param apikey
 // @return geojson
-/*=======================================*/
 func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	network_logger_Info_In.Printf("%v\n", r)
 
@@ -136,7 +130,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds := vars["ds"]
 
-	/*=======================================*/
+
 	// Check for apikey in request
 	if apikey == "" {
 		network_logger_Error.Println(r.RemoteAddr, "GET /api/v1/layer [401]")
@@ -158,7 +152,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-	/*=======================================*/
+
 
 	// Get layer from database
 	lyr, err := DB.GetLayer(ds)
@@ -186,7 +180,6 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-/*=======================================*/
 // Method: DeleteLayerHandler
 // Description:
 //		Checks apikey/customer permissions
@@ -195,7 +188,6 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 // @param ds
 // @param apikey
 // @return json
-/*=======================================*/
 func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	network_logger_Info_In.Printf("%v\n", r)
 
@@ -206,7 +198,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds := vars["ds"]
 
-	/*=======================================*/
+
 	// Check for apikey in request
 	if apikey == "" {
 		network_logger_Error.Println(r.RemoteAddr, "DELETE /api/v1/layer [401]")
@@ -228,7 +220,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-	/*=======================================*/
+
 
 	// Delete layer from database
 	err = DB.DeleteLayer(ds)

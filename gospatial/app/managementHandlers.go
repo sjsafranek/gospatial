@@ -133,14 +133,12 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-/*=======================================*/
 // Method: ShareLayerHandler
 // Description:
 //		Gives customer access to datasource
 // @param apikey - customer to give access
 // @param authkey
 // @return json
-/*=======================================*/
 func ShareLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get url params

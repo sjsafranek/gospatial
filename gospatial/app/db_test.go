@@ -18,9 +18,7 @@ const (
 	testDatasource      string = "testLayer"
 )
 
-/*=======================================*/
 // Benchmark Database.InsertCustomer
-/*=======================================*/
 func BenchmarkDbInsertCustomer(b *testing.B) {
 	test_logger_init()
 	testDb := Database{File: testDbFile}
@@ -33,9 +31,7 @@ func BenchmarkDbInsertCustomer(b *testing.B) {
 	}
 }
 
-/*=======================================*/
 // Benchmark Database.getCustomer
-/*=======================================*/
 func BenchmarkDbGetCustomerWithCache(b *testing.B) {
 	test_logger_init()
 	testDb := Database{File: testDbFile}
@@ -63,10 +59,8 @@ func BenchmarkDbGetCustomerWithOutCache(b *testing.B) {
 	}
 }
 
-/*=======================================*/
 // Unittest Database.GetCustomer
 // Unittest Database.InsertCustomer
-/*=======================================*/
 func TestDbCustomers(t *testing.T) {
 	test_logger_init()
 	testDb := Database{File: testDbFile}
@@ -86,9 +80,7 @@ func TestDbCustomers(t *testing.T) {
 	}
 }
 
-/*=======================================*/
 // Benchmark Database.NewLayer
-/*=======================================*/
 func BenchmarkDbNewLayer(b *testing.B) {
 	test_logger_init()
 	testDb := Database{File: testDbFile}
@@ -100,9 +92,7 @@ func BenchmarkDbNewLayer(b *testing.B) {
 	}
 }
 
-/*=======================================*/
 // Benchmark Database.InsertLayer
-/*=======================================*/
 func BenchmarkDbInsertLayer(b *testing.B) {
 	test_logger_init()
 	testDb := Database{File: testDbFile}
@@ -119,9 +109,7 @@ func BenchmarkDbInsertLayer(b *testing.B) {
 	}
 }
 
-/*=======================================*/
 // Benchmark Database.GetLayer
-/*=======================================*/
 func BenchmarkDbGetLayerWithCache(b *testing.B) {
 	test_logger_init()
 	testDb := Database{File: testDbFile}
@@ -139,9 +127,7 @@ func BenchmarkDbGetLayerWithCache(b *testing.B) {
 	}
 }
 
-/*=======================================*/
 // Benchmark Database.GetLayer
-/*=======================================*/
 func BenchmarkDbGetLayerWithoutCache(b *testing.B) {
 	test_logger_init()
 	testDb := Database{File: testDbFile}
@@ -160,10 +146,8 @@ func BenchmarkDbGetLayerWithoutCache(b *testing.B) {
 	}
 }
 
-/*=======================================*/
 // Unittest: Database.GetLayer
 // Unittest: Database.InsertLayer
-/*=======================================*/
 func TestDbLayers(t *testing.T) {
 	test_logger_init()
 	testDb := Database{File: testDbFile}

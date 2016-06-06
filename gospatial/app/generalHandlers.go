@@ -10,19 +10,17 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-/*=======================================*/
 // Method: MapHandler
 // Description:
 //		Returns map client for layer
 // @param apikey customer id
 // @return map template
-/*=======================================*/
 func MapHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get params
 	apikey := r.FormValue("apikey")
 
-	/*=======================================*/
+
 	// Check for apikey in request
 	if apikey == "" {
 		network_logger_Error.Println(r.RemoteAddr, "POST /map [401]")
@@ -38,7 +36,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/*=======================================*/
+
 
 	// Return results
 	htmlFile := "./templates/map.html"
@@ -53,7 +51,7 @@ func CustomerManagementHandler(w http.ResponseWriter, r *http.Request) {
 	// Get params
 	apikey := r.FormValue("apikey")
 
-	/*=======================================*/
+
 	// Check for apikey in request
 	if apikey == "" {
 		network_logger_Error.Println(r.RemoteAddr, "POST /map [401]")
@@ -69,7 +67,7 @@ func CustomerManagementHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/*=======================================*/
+
 
 	// Return results
 	htmlFile := "./templates/management.html"

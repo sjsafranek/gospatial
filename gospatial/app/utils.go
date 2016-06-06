@@ -16,10 +16,8 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-// NewUUID
+// NewUUID generates a url friendly uuid
 // Source: http://play.golang.org/p/4FkNSiUDMg
-// Description:
-//		Generates and returns a uuid
 // @returns string
 func NewUUID() (string, error) {
 	uuid := make([]byte, 16)
@@ -48,9 +46,7 @@ func NewUUID2() (string, error) {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:]), nil
 }
 
-// NewAPIKey
-// Description:
-//		Generates apikey of desired length
+// NewAPIKey generates apikey of desired length
 // @param int length of apikey
 // @returns string
 func NewAPIKey(n int) string {
@@ -61,11 +57,7 @@ func NewAPIKey(n int) string {
 	return s
 }
 
-// stringInSlice
-// Description:
-//		Loops through array of strings
-//		Checks each string in array for match
-//		If string match occurs returns true
+// stringInSlice loops through a []string and returns a bool if string is found
 // @param a {string} string to find
 // @param list {[]string} array of strings to search
 // @returns bool
@@ -78,7 +70,7 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-// sliceIndex
+// sliceIndex loops through a []string and returns the index of a string
 // Description:
 //		Loops through array of strings
 //		Checks each string in array for match

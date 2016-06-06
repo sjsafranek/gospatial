@@ -43,7 +43,7 @@ var routes = Routes{
 	Route{"DeleteLayer", "DELETE", "/api/v1/layer/{ds}", DeleteLayerHandler},
 	Route{"ShareLayerHandler", "PUT", "/api/v1/layer/{ds}", ShareLayerHandler},
 
-	// 
+	//
 	Route{"NewFeature", "POST", "/api/v1/layer/{ds}/feature", NewFeatureHandler},
 	Route{"ViewFeature", "GET", "/api/v1/layer/{ds}/feature/{k}", ViewFeatureHandler},
 

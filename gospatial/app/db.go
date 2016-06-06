@@ -48,7 +48,7 @@ func (self *Database) connect() *bolt.DB {
 	return conn
 }
 
-// Init creates bolt database if existing one not found. 
+// Init creates bolt database if existing one not found.
 // Creates layers and apikey tables. Starts database caching for layers
 // @returns Error
 func (self *Database) Init() error {
@@ -97,9 +97,7 @@ func (self *Database) Init() error {
 	return err
 }
 
-// Database.startLogger
-// Description:
-//		Starts database logger
+// Starts Database logger
 func (self *Database) startLogger() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
@@ -116,9 +114,7 @@ func (self *Database) startLogger() {
 	self.Logger = log.New(dbLog, "WRITE [DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
-// Method: Database.TestLogger
-// Description:
-//		Starts database logger
+// TestLogger starts Database logger for db_test.go
 func (self *Database) TestLogger() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
@@ -132,9 +128,7 @@ func (self *Database) TestLogger() {
 	self.Logger = log.New(dbLog, "WRITE [DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
-// Method: Database.insertCustomer
-// Description:
-//		Inserts customer into apikeys table
+// InsertCustomer inserts customer into apikeys table
 // @param customer {Customer}
 // @returns Error
 func (self *Database) InsertCustomer(customer Customer) error {
@@ -165,9 +159,7 @@ func (self *Database) InsertCustomer(customer Customer) error {
 	return err
 }
 
-// Method: Database.insertCustomers
-// Description:
-//		Inserts list of customer into apikeys table
+// InsertCustomers inserts list of customer into apikeys table
 // @param customer {Customer}
 // @returns Error
 func (self *Database) InsertCustomers(customers map[string]Customer) error {
@@ -200,9 +192,7 @@ func (self *Database) InsertCustomers(customers map[string]Customer) error {
 	return nil
 }
 
-// Method: Database.getCustomer
-// Description:
-//		Gets customer from database
+// GetCustomer returns customer from database
 // @param apikey {string}
 // @returns Customer
 // @returns Error
@@ -250,9 +240,7 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 	return customer, nil
 }
 
-// Method: Database.NewLayer
-// Description:
-//		Creates new datasource layer
+// NewLayer creates new datasource layer
 // @returns string - datasource id
 // @returns Error
 func (self *Database) NewLayer() (string, error) {
@@ -285,9 +273,7 @@ func (self *Database) NewLayer() (string, error) {
 	return datasource, err
 }
 
-// Method: Database.InsertLayer
-// Description:
-//		Inserts layer into database
+// InsertLayer inserts layer into database
 // @param datasource {string}
 // @param geojs {Geojson}
 // @returns Error
@@ -329,10 +315,7 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 	return err
 }
 
-// Method: Database.InsertLayers
-// Description:
-//		Inserts a map of dayasource layers
-// 		into database
+// InsertLayers inserts a map of datasource layers into Database.
 // @param datasources map[string]*geojson.FeatureCollection
 // @returns Error
 func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollection) error {
@@ -364,9 +347,7 @@ func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollect
 	return nil
 }
 
-// Method: Database.getLayer
-// Description:
-//		Gets layer from database
+// GetLayer returns layer from database
 // @param datasource {string}
 // @returns Geojson
 // @returns Error
@@ -416,9 +397,7 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 	return geojs, nil
 }
 
-// Method: Database.deleteLayer
-// Description:
-//		Deletes layer from database
+// DeleteLayer deletes layer from database
 // @param datasource {string}
 // @returns Error
 func (self *Database) DeleteLayer(datasource string) error {
@@ -450,10 +429,7 @@ func (self *Database) DeleteLayer(datasource string) error {
 	return err
 }
 
-// Method: Database.InsertFeature
-// Description:
-//		Adds feature to layer
-//		saves to database
+// InsertFeature adds feature to layer. Updates layer in Database
 // @param datasource {string}
 // @param feat {Geojson Feature}
 // @returns Error
@@ -478,7 +454,7 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 
 }
 
-// Method: Dumps database
+// Dumps returns Database apikeys and layers table data
 func (self *Database) Dump() map[string]map[string]interface{} {
 	conn := self.connect()
 	defer conn.Close()
@@ -519,6 +495,7 @@ func (self *Database) Dump() map[string]map[string]interface{} {
 	return data
 }
 
+// Backup dumps database contents to json file
 func (self *Database) Backup(filename ...string) {
 	// get data
 	data := self.Dump()
@@ -534,9 +511,7 @@ func (self *Database) Backup(filename ...string) {
 	ioutil.WriteFile(savename, b, 0644)
 }
 
-// Method: Database.CacheManager
-// Description:
-//		Database caching layer
+// CacheManager for Database. Stores layers in memory.
 //		Unloads layers older than 90 sec
 //		When empty --> 60 sec timer
 //		When items in cache --> 15 sec timer

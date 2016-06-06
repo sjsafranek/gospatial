@@ -454,7 +454,7 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 
 }
 
-// Dumps returns Database apikeys and layers table data
+// Dump returns Database apikeys and layers table data
 func (self *Database) Dump() map[string]map[string]interface{} {
 	conn := self.connect()
 	defer conn.Close()

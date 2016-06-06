@@ -10,10 +10,9 @@ import (
 	"strconv"
 )
 
-// Method: NewFeatureHandler
-// Description:
-//		Adds a new feature to a layer
-//		Saves layer to database
+// NewFeatureHandler creates a new feature and adds it to a layer.
+// Layer is then saved to database. All active clients viewing layer
+// are notified of update via websocket hub.
 // @param apikey customer id
 // @oaram ds datasource uuid
 // @return json
@@ -102,9 +101,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Method: ViewFeatureHandler
-// Description:
-//		Finds feature from layer
+// ViewFeatureHandler finds feature in layer via array index. Returns feature geojson.
 // @param apikey customer id
 // @oaram ds datasource uuid
 // @return feature geojson

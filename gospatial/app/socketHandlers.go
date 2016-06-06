@@ -58,6 +58,7 @@ func (self hub) broadcastAllDsViewers(update bool, ds string) {
 	}
 }
 
+// Hub contains active websockets for bidirectional communication
 var Hub = hub{
 	Sockets: make(map[string]map[int]*websocket.Conn),
 }
@@ -112,11 +113,9 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 	conn := connection{ws: ws, ds: ds, ip: ip, c: len(Hub.Sockets[ds])}
 	if _, ok := Hub.Sockets[ds]; ok {
 		Hub.Sockets[ds][len(Hub.Sockets[ds])] = ws
-		// Info.Println(r.RemoteAddr, "WS /ws/"+conn.ds+" [200]")
 	} else {
 		Hub.Sockets[ds] = make(map[int]*websocket.Conn)
 		Hub.Sockets[ds][conn.c] = ws
-		// Info.Println(r.RemoteAddr, "WS /ws/"+conn.ds+" [200]")
 	}
 	network_logger_Info.Println(r.RemoteAddr, "WS /ws/"+conn.ds+" [200]")
 	Hub.broadcastAllDsViewers(false, conn.ds)

@@ -123,7 +123,7 @@ func main() {
 	app.DB.Init()
 
 	// Attach Http Hanlders
-	router := app.NewRouter()
+	router := app.Router()
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
 
 	// Report available routes

@@ -16,7 +16,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-// Method: NewUUID
+// NewUUID
 // Source: http://play.golang.org/p/4FkNSiUDMg
 // Description:
 //		Generates and returns a uuid
@@ -48,7 +48,7 @@ func NewUUID2() (string, error) {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:]), nil
 }
 
-// Method: NewAPIKey
+// NewAPIKey
 // Description:
 //		Generates apikey of desired length
 // @param int length of apikey
@@ -61,7 +61,7 @@ func NewAPIKey(n int) string {
 	return s
 }
 
-// Method: stringInSlice
+// stringInSlice
 // Description:
 //		Loops through array of strings
 //		Checks each string in array for match
@@ -78,7 +78,7 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-// Method: sliceIndex
+// sliceIndex
 // Description:
 //		Loops through array of strings
 //		Checks each string in array for match
@@ -95,7 +95,7 @@ func sliceIndex(value string, slice []string) int {
 	return -1
 }
 
-// Methods: Compression
+// Compression
 // Source: https://github.com/schollz/gofind/blob/master/utils.go#L146-L169
 //         https://github.com/schollz/gofind/blob/master/fingerprint.go#L43-L54
 // Description:

@@ -18,11 +18,11 @@ func PingHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status": "ok", "message": "pong"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		network_logger_Error.Println(r.RemoteAddr, "GET /ping [500]")
+		networkLoggerError.Println(r.RemoteAddr, "GET /ping [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	network_logger_Info.Println(r.RemoteAddr, "GET /ping [200]")
+	networkLoggerInfo.Println(r.RemoteAddr, "GET /ping [200]")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
@@ -31,7 +31,7 @@ func PingHandler(w http.ResponseWriter, r *http.Request) {
 func UnloadLayer(w http.ResponseWriter, r *http.Request) {
 	// Check auth key
 	if SuperuserKey != r.FormValue("authkey") {
-		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
+		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -45,11 +45,11 @@ func UnloadLayer(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"ok","datasource":"` + ds + `", "result":"datasource unloaded"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		network_logger_Error.Println(r.RemoteAddr, "GET /management/unload/"+ds+" [500]")
+		networkLoggerError.Println(r.RemoteAddr, "GET /management/unload/"+ds+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	network_logger_Info.Println(r.RemoteAddr, "GET /management/unload/"+ds+" [200]")
+	networkLoggerInfo.Println(r.RemoteAddr, "GET /management/unload/"+ds+" [200]")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
@@ -58,7 +58,7 @@ func UnloadLayer(w http.ResponseWriter, r *http.Request) {
 func LoadedLayers(w http.ResponseWriter, r *http.Request) {
 	// Check auth key
 	if SuperuserKey != r.FormValue("authkey") {
-		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
+		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -75,11 +75,11 @@ func LoadedLayers(w http.ResponseWriter, r *http.Request) {
 	// marshal and send response
 	js, err := json.Marshal(data)
 	if err != nil {
-		network_logger_Error.Println(r.RemoteAddr, "GET /management/loaded [500]")
+		networkLoggerError.Println(r.RemoteAddr, "GET /management/loaded [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	network_logger_Info.Println(r.RemoteAddr, "GET /management/loaded [200]")
+	networkLoggerInfo.Println(r.RemoteAddr, "GET /management/loaded [200]")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
@@ -95,11 +95,11 @@ func ServerProfile(w http.ResponseWriter, r *http.Request) {
 	// data["free_mem"] = runtime.MemStats()
 	js, err := json.Marshal(data)
 	if err != nil {
-		network_logger_Error.Println(r.RemoteAddr, "GET /management/profile [500]")
+		networkLoggerError.Println(r.RemoteAddr, "GET /management/profile [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	network_logger_Info.Println(r.RemoteAddr, "GET /management/profile/ [200]")
+	networkLoggerInfo.Println(r.RemoteAddr, "GET /management/profile/ [200]")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
@@ -108,7 +108,7 @@ func ServerProfile(w http.ResponseWriter, r *http.Request) {
 func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	// Check auth key
 	if SuperuserKey != r.FormValue("authkey") {
-		network_logger_Error.Println(r.RemoteAddr, "POST /management/customer [401]")
+		networkLoggerError.Println(r.RemoteAddr, "POST /management/customer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -125,7 +125,7 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"ok","apikey":"` + apikey + `", "result":"customer created"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		network_logger_Error.Println(r.RemoteAddr, "POST /management/customer [500]")
+		networkLoggerError.Println(r.RemoteAddr, "POST /management/customer [500]")
 		Error.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -133,7 +133,7 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	network_logger_Info.Println(r.RemoteAddr, "POST /management/customer [200]")
+	networkLoggerInfo.Println(r.RemoteAddr, "POST /management/customer [200]")
 	w.Write(js)
 }
 
@@ -158,7 +158,7 @@ func ShareLayerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if apikey == "" {
-		network_logger_Error.Println(r.RemoteAddr, "PUT /api/v1/layer/{ds} [401]")
+		networkLoggerError.Println(r.RemoteAddr, "PUT /api/v1/layer/{ds} [401]")
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
@@ -166,7 +166,7 @@ func ShareLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		network_logger_Warning.Println(r.RemoteAddr, "PUT /api/v1/layer/{ds} [404]")
+		networkLoggerWarning.Println(r.RemoteAddr, "PUT /api/v1/layer/{ds} [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -179,13 +179,13 @@ func ShareLayerHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"ok","datasource":"` + ds + `"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		network_logger_Error.Println(r.RemoteAddr, "PUT /api/v1/layer [500]")
+		networkLoggerError.Println(r.RemoteAddr, "PUT /api/v1/layer [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Return results
-	network_logger_Info.Println(r.RemoteAddr, "PUT /api/v1/layer [200]")
+	networkLoggerInfo.Println(r.RemoteAddr, "PUT /api/v1/layer [200]")
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")

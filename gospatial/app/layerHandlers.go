@@ -11,13 +11,13 @@ import (
 // @param apikey customer id
 // @return json
 func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
-	network_logger_Info_In.Printf("%v\n", r)
+	networkLoggerInfoIn.Printf("%v\n", r)
 	// Get params
 	apikey := r.FormValue("apikey")
 
 	// Check for apikey in request
 	if apikey == "" {
-		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layers [401]")
+		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layers [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -25,7 +25,7 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		network_logger_Warning.Println(r.RemoteAddr, "POST /api/v1/layers [404]")
+		networkLoggerWarning.Println(r.RemoteAddr, "POST /api/v1/layers [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -33,15 +33,15 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 	// return results
 	js, err := json.Marshal(customer)
 	if err != nil {
-		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layers [500]")
+		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layers [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	network_logger_Info.Println(r.RemoteAddr, "POST /api/v1/layers [200]")
-	network_logger_Info_Out.Println(string(js))
+	networkLoggerInfo.Println(r.RemoteAddr, "POST /api/v1/layers [200]")
+	networkLoggerInfoOut.Println(string(js))
 	w.Write(js)
 
 }
@@ -50,14 +50,14 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 // @param apikey
 // @return json
 func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
-	network_logger_Info_In.Printf("%v\n", r)
+	networkLoggerInfoIn.Printf("%v\n", r)
 
 	// Get params
 	apikey := r.FormValue("apikey")
 
 	// Check for apikey in request
 	if apikey == "" {
-		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
+		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -65,7 +65,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		network_logger_Warning.Println(r.RemoteAddr, "POST /api/v1/layer/ [404]")
+		networkLoggerWarning.Println(r.RemoteAddr, "POST /api/v1/layer/ [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -76,7 +76,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// DB.InsertLayer(ds, featCollection)
 	ds, err := DB.NewLayer()
 	if err != nil {
-		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer [500]")
+		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layer [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -89,7 +89,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"ok","datasource":"` + ds + `"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		network_logger_Error.Println(r.RemoteAddr, "POST /api/v1/layer [500]")
+		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layer [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -98,8 +98,8 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	network_logger_Info.Println(r.RemoteAddr, "POST /api/v1/layer [200]")
-	network_logger_Info_Out.Println(string(js))
+	networkLoggerInfo.Println(r.RemoteAddr, "POST /api/v1/layer [200]")
+	networkLoggerInfoOut.Println(string(js))
 	w.Write(js)
 
 }
@@ -109,7 +109,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 // @param apikey
 // @return geojson
 func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
-	network_logger_Info_In.Printf("%v\n", r)
+	networkLoggerInfoIn.Printf("%v\n", r)
 
 	// Get params
 	apikey := r.FormValue("apikey")
@@ -120,7 +120,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check for apikey in request
 	if apikey == "" {
-		network_logger_Error.Println(r.RemoteAddr, "GET /api/v1/layer [401]")
+		networkLoggerError.Println(r.RemoteAddr, "GET /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -128,14 +128,14 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		network_logger_Warning.Println(r.RemoteAddr, "GET /api/v1/layer/ [404]")
+		networkLoggerWarning.Println(r.RemoteAddr, "GET /api/v1/layer/ [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	// Check customer datasource list
 	if !stringInSlice(ds, customer.Datasources) {
-		network_logger_Error.Println(r.RemoteAddr, "GET /api/v1/layer [401]")
+		networkLoggerError.Println(r.RemoteAddr, "GET /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -143,7 +143,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Get layer from database
 	lyr, err := DB.GetLayer(ds)
 	if err != nil {
-		network_logger_Warning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [404]")
+		networkLoggerWarning.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -151,7 +151,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Marshal datasource layer to json
 	rawJSON, err := lyr.MarshalJSON()
 	if err != nil {
-		network_logger_Error.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [500]")
+		networkLoggerError.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -160,8 +160,8 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	network_logger_Info.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [200]")
-	network_logger_Info_Out.Println(string(rawJSON))
+	networkLoggerInfo.Println(r.RemoteAddr, "GET /api/v1/layer/"+ds+" [200]")
+	networkLoggerInfoOut.Println(string(rawJSON))
 	w.Write(rawJSON)
 
 }
@@ -171,7 +171,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 // @param apikey
 // @return json
 func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
-	network_logger_Info_In.Printf("%v\n", r)
+	networkLoggerInfoIn.Printf("%v\n", r)
 
 	// Get params
 	apikey := r.FormValue("apikey")
@@ -182,7 +182,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check for apikey in request
 	if apikey == "" {
-		network_logger_Error.Println(r.RemoteAddr, "DELETE /api/v1/layer [401]")
+		networkLoggerError.Println(r.RemoteAddr, "DELETE /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -190,14 +190,14 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		network_logger_Warning.Println(r.RemoteAddr, "DELETE /api/v1/layer/ [404]")
+		networkLoggerWarning.Println(r.RemoteAddr, "DELETE /api/v1/layer/ [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	// Check customer datasource list
 	if !stringInSlice(ds, customer.Datasources) {
-		network_logger_Error.Println(r.RemoteAddr, "DELETE /api/v1/layer [401]")
+		networkLoggerError.Println(r.RemoteAddr, "DELETE /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -205,7 +205,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Delete layer from database
 	err = DB.DeleteLayer(ds)
 	if err != nil {
-		network_logger_Info.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [500]")
+		networkLoggerInfo.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -219,7 +219,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"ok","datasource":"` + ds + `", "result":"datasource deleted"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		network_logger_Info.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [500]")
+		networkLoggerInfo.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -228,8 +228,8 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	network_logger_Info.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [200]")
-	network_logger_Info_Out.Println(string(js))
+	networkLoggerInfo.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [200]")
+	networkLoggerInfoOut.Println(string(js))
 	w.Write(js)
 
 }

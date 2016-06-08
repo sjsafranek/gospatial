@@ -15,8 +15,10 @@
 
 ### Changed
  - goreport fixes
+ - Array of TileLayers added Customer model
 
 ### Added
+ - TileLayer model for storing http tile layer urls
  - Version & license shields to README.md
 
 

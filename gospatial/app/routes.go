@@ -19,9 +19,11 @@ var routes = apiRoutes{
 
 	// Layers
 	apiRoute{"ViewLayers", "GET", "/api/v1/layers", ViewLayersHandler},
+	apiRoute{"ViewCustomer", "GET", "/api/v1/customer", ViewLayersHandler}, //
 	apiRoute{"ViewLayer", "GET", "/api/v1/layer/{ds}", ViewLayerHandler},
 	apiRoute{"NewLayer", "POST", "/api/v1/layer", NewLayerHandler},
 	apiRoute{"DeleteLayer", "DELETE", "/api/v1/layer/{ds}", DeleteLayerHandler},
+	apiRoute{"NewTileLayer", "POST", "/api/v1/tilelayer", NewTileLayerHandler},
 	apiRoute{"ShareLayerHandler", "PUT", "/api/v1/layer/{ds}", ShareLayerHandler},
 
 	//

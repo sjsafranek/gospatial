@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"net/url"
 	"time"
 )
 
@@ -119,4 +120,19 @@ func decompress(src io.Reader, dest io.Writer) {
 	decompressor := flate.NewReader(src)
 	io.Copy(dest, decompressor)
 	decompressor.Close()
+}
+
+// isUrl
+// https://www.socketloop.com/tutorials/golang-how-to-validate-url-the-right-way
+func isUrl(str string) bool {
+	fmt.Println(str)
+	var validURL bool
+	_, err := url.Parse(str)
+	if err != nil {
+		fmt.Println(err)
+		validURL = false
+	} else {
+		validURL = true
+	}
+	return validURL
 }

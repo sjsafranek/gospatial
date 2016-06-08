@@ -202,13 +202,14 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// KEEP LAYER IN CASE OF RECOVERY
 	// Delete layer from database
-	err = DB.DeleteLayer(ds)
-	if err != nil {
-		networkLoggerInfo.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	// err = DB.DeleteLayer(ds)
+	// if err != nil {
+	// 	networkLoggerInfo.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [500]")
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
 
 	// Delete layer from customer
 	i := sliceIndex(ds, customer.Datasources)

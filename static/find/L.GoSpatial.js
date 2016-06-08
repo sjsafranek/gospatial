@@ -20,7 +20,9 @@ L.GoSpatial = L.Class.extend({
 		this._map = null;
 		this.apikey = apikey;
 		this.apiClient = new GoSpatialApi(apikey);
-		this.datasources = this.apiClient.getDatsources();
+		this.customer = this.apiClient.getCustomer();
+		this.datasources = this.customer.datasources;
+		// this.datasources = this.apiClient.getDatsources();
 		this.vectorLayers = {};
 		// this.ws = null;
 		this.drawnItems = null;
@@ -742,15 +744,15 @@ function GoSpatialApi(apikey, server) {
 	this.apikey = apikey;
 	this.server = server;
 
-	this.getDatsources = function() {
+	this.getCustomer = function() {
 		var self = this;
 		var data;
-		this.GET("/api/v1/layers" + "?apikey=" + self.apikey, function(error, result){
+		this.GET("/api/v1/customer" + "?apikey=" + self.apikey, function(error, result){
 			if (error) {
 				throw error;
 				self.errorMessage(error);
 			} else {
-				data = result.datasources;
+				data = result;
 			}
 		});
 		return data;

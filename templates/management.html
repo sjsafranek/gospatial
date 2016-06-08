@@ -316,21 +316,23 @@
 			var customer = GoSpatial.getCustomer();
 
 			var datasources = customer.datasources;
-			for (var i=0; i < datasources.length; i++) {
-				var elem = $("<li id='" + datasources[i] + "'>" + datasources[i] + " <i class='fa fa-trash layer'></i></li>");
-				elem.id = datasources[i];
-				console.log(datasources[i]);
-				$("#layers_list").append(elem);
+			if (datasources) {
+				for (var i=0; i < datasources.length; i++) {
+					var elem = $("<li id='" + datasources[i] + "'>" + datasources[i] + " <i class='fa fa-trash layer'></i></li>");
+					elem.id = datasources[i];
+					console.log(datasources[i]);
+					$("#layers_list").append(elem);
+				}
 			}
-
 			var tilelayers = customer.tilelayers;
-			for (var i=0; i < tilelayers.length; i++) {
-				var elem = $("<li>" + tilelayers[i].name + ": " + tilelayers[i].url + "</li>");
-				elem.id = tilelayers[i];
-				console.log(tilelayers[i]);
-				$("#tilelayers_list").append(elem);
+			if (tilelayers) {
+				for (var i=0; i < tilelayers.length; i++) {
+					var elem = $("<li>" + tilelayers[i].name + ": " + tilelayers[i].url + "</li>");
+					elem.id = tilelayers[i];
+					console.log(tilelayers[i]);
+					$("#tilelayers_list").append(elem);
+				}
 			}
-
 
 		</script>
 

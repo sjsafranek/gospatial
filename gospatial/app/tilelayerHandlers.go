@@ -18,11 +18,11 @@ func NewTileLayerHandler(w http.ResponseWriter, r *http.Request) {
 	tilelayer_name := r.FormValue("tilelayer_name")
 	tilelayer := TileLayer{Url: tilelayer_url, Name: tilelayer_name}
 
-	if isUrl(tilelayer.Url) != true {
-		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/tilelayer [400]")
-		http.Error(w, "not a valid url", http.StatusBadRequest)
-		return
-	}
+	// if isUrl(tilelayer.Url) != true {
+	// 	networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/tilelayer [400]")
+	// 	http.Error(w, "not a valid url", http.StatusBadRequest)
+	// 	return
+	// }
 
 	// Check for apikey in request
 	if apikey == "" {
@@ -45,7 +45,6 @@ func NewTileLayerHandler(w http.ResponseWriter, r *http.Request) {
 	DB.InsertCustomer(customer)
 
 	// Generate message
-	// data := `{"status": "success", "data": {"tilelayer": {"url": "` + tilelayer.Url + `", "name": "` + tilelayer.Name + `"}}}`
 	data := `{"status": "success", "data": {"tilelayer": {"url": "` + tilelayer_url + `", "name": "` + tilelayer_name + `"}}}`
 	js, err := json.Marshal(data)
 	if err != nil {

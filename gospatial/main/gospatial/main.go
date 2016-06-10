@@ -30,7 +30,7 @@ var (
 )
 
 const (
-	version       string = "1.9.3"
+	version       string = "1.10.1"
 	configDefault string = ""
 )
 
@@ -127,22 +127,23 @@ func main() {
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
 
 	// Report available routes
-	log.Println("Attaching HTTP handler for route: [GET] /ping")
-	log.Println("Attaching HTTP handler for route: [GET] /api/v1/layers")
-	log.Println("Attaching HTTP handler for route: [GET] /api/v1/layer/{ds}")
-	log.Println("Attaching HTTP handler for route: [POST] /api/v1/layer")
+	log.Println("Attaching HTTP handler for route: [GET]    /ping")
+	log.Println("Attaching HTTP handler for route: [GET]    /api/v1/layers")
+	log.Println("Attaching HTTP handler for route: [GET]    /api/v1/layer/{ds}")
+	log.Println("Attaching HTTP handler for route: [POST]   /api/v1/layer")
 	log.Println("Attaching HTTP handler for route: [DELETE] /api/v1/layer/{ds}")
-	log.Println("Attaching HTTP handler for route: [PUT] /api/v1/layer/{ds}")
-	log.Println("Attaching HTTP handler for route: [POST] /api/v1/layer/{ds}/feature")
-	log.Println("Attaching HTTP handler for route: [GET] /api/v1/layer/{ds}/feature/{k}")
-	log.Println("Attaching HTTP handler for route: [POST] /api/v1/customer")
-	log.Println("Attaching HTTP handler for route: [GET] /")
-	log.Println("Attaching HTTP handler for route: [GET] /map/{ds}")
-	log.Println("Attaching HTTP handler for route: [GET] /management")
-	log.Println("Attaching HTTP handler for route: [GET] /ws/{ds}")
-	log.Println("Attaching HTTP handler for route: [GET] /management/unload/{ds}")
-	log.Println("Attaching HTTP handler for route: [GET] /management/loaded")
-	log.Println("Attaching HTTP handler for route: [GET] /management/profile")
+	log.Println("Attaching HTTP handler for route: [PUT]    /api/v1/layer/{ds}")
+	log.Println("Attaching HTTP handler for route: [POST]   /api/v1/layer/{ds}/feature")
+	log.Println("Attaching HTTP handler for route: [GET]    /api/v1/layer/{ds}/feature/{k}")
+	log.Println("Attaching HTTP handler for route: [GET]    /api/v1/customer")
+	log.Println("Attaching HTTP handler for route: [POST]   /api/v1/customer")
+	log.Println("Attaching HTTP handler for route: [GET]    /")
+	log.Println("Attaching HTTP handler for route: [GET]    /map/{ds}")
+	log.Println("Attaching HTTP handler for route: [GET]    /management")
+	log.Println("Attaching HTTP handler for route: [GET]    /ws/{ds}")
+	log.Println("Attaching HTTP handler for route: [GET]    /management/unload/{ds}")
+	log.Println("Attaching HTTP handler for route: [GET]    /management/loaded")
+	log.Println("Attaching HTTP handler for route: [GET]    /management/profile")
 
 	// Start server
 	app.Info.Printf("Magic happens on port %v...\n", port)

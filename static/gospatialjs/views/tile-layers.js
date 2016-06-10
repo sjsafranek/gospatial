@@ -6,6 +6,7 @@
 	        // var lp = this.$(".rightpanel");
 	        _.bindAll(this, 'render', 'createTileLayer');
 	        this.apikey = apikey;
+	        this.gospatial = new GoSpatialApi(apikey);
 	        this.render();
 	    },
 
@@ -60,7 +61,7 @@
 
 	    render: function(e) {
 	    	$("#tilelayers_list").html("");
-			var customer = GoSpatial.getCustomer();
+			var customer = this.gospatial.getCustomer();
 			var tilelayers = customer.tilelayers;
 			if (tilelayers) {
 				for (var i=0; i < tilelayers.length; i++) {

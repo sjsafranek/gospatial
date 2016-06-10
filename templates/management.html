@@ -25,10 +25,10 @@
 	    <script src="/backbone/backbone-min.js"></script>
 
 		<!-- GoSpatia; -->
-		<script src="/gospatialjs/gospatial-api.js"></script>
-		<script src="/gospatialjs/models/vector-layer.js"></script>
-		<script src="/gospatialjs/views/vector-layers.js"></script>
-		<script src="/gospatialjs/views/tile-layers.js"></script>
+		<script src="/gospatialjs/gospatial-api.js?{{.Version}}"></script>
+		<script src="/gospatialjs/models/vector-layer.js?{{.Version}}"></script>
+		<script src="/gospatialjs/views/vector-layers.js?{{.Version}}"></script>
+		<script src="/gospatialjs/views/tile-layers.js?{{.Version}}"></script>
 
 		<style>
 
@@ -61,6 +61,22 @@
 				});
 			});
 		</script>
+
+
+		<style>
+		    .panel_controls {
+		    	display: inline-block;
+		    	float: right;
+		    	margin-top: -5px;
+		    }
+
+		    /*.closeChart, .openChart, .deleteChart {*/
+		    .toggleVectorLayerOptions {
+		    	/*margin-right: 2px;*/
+		    }
+		    }
+		</style>
+
 
 	</head>
 	<body>
@@ -117,26 +133,23 @@
 						</div>
 						<div class="panel-body">
 							<div class="row">
-								<div class="col-md-2 column">
-									<div class="panel-body">
-										<button class="btn btn-primary createLayer">Create Vector Layer</button>
+								<div class="col-md-3 column">
+									<div class="panel">
+									<button class="btn btn-primary createLayer">Create Vector Layer</button>
 									</div>
 								</div>
-								<div class="col-md-10 column">
-									<div class="panel-body">
-										<table class="table table-striped table-bordered">
-											<thead>
-												<tr>
-													<th>ID</th>
-													<th class="col-sm-1">View</th>
-													<th class="col-sm-1">Delete</th>
-												</tr>
-											</thead>
-											<tbody id="layers_list">
-											</tbody>
-										</table>
+								<div class="col-md-5 column">
+									<div class="panel-group" id="layers_list">
+										<!-- panels go here -->
 									</div>
 								</div>
+								<div class="col-md-4 column">
+									<div class="well">
+									<code id="raw-json">
+										<!-- JSON data -->
+									</code>
+									</div>
+								<div>
 							</div>
 						</div>
 					</div>
@@ -192,14 +205,15 @@
 
 		<script>
 
-			// var customer;
+			var app = {
+				tlv: new TileLayerView({{.Apikey}}),
+				vlv: new VectorLayerView({{.Apikey}})
+			}
 
-			var GoSpatial = new GoSpatialApi({{.Apikey}});
+			// var tlv = new TileLayerView({{.Apikey}});
+			// var vlv = new VectorLayerView({{.Apikey}});
 
-			// var VectorLayers = new VectorLayerCollection;
 
-			var tlv = new TileLayerView({{.Apikey}});
-			var vlv = new VectorLayerView({{.Apikey}});
 
 
 // view single datasource = <i class="fa fa-eye" aria-hidden="true"></i>
@@ -220,7 +234,6 @@
 		    	margin-right: 2px;
 		    }
 
-		    
 						viewHtml += '<div class="panel_controls">';
 						viewHtml += '<button type="button" title="close" class="btn btn-default btn-sm closeChart"><i class="fa fa-minus" aria-hidden="true"></i></button>';
 						viewHtml += '<button type="button" title="open" class="btn btn-default btn-sm openChart"><i class="fa fa-square" aria-hidden="true"></i></button>'

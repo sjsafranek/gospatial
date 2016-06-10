@@ -14,15 +14,21 @@
 		<link href="/bootstrap/2-col-portfolio.css" rel="stylesheet">
 
 		<!-- Font Awesome CSS -->
-		<link rel="stylesheet" href="/font-awesome-4.3.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="/font-awesome-4.6.3/css/font-awesome.min.css">
 
 		<!-- Sweet Alert for Bootstrap -->
-		<script src="/bootstrap-sweetalert/dist/sweetalert.min.js"></script>
-		<link rel="stylesheet" type="text/css" href="/bootstrap-sweetalert/dist/sweetalert.css">
+		<script src="/bootstrap-sweetalert/sweetalert.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="/bootstrap-sweetalert/sweetalert.css">
 
 		<!-- Backbone -->
-	    <script src="http://underscorejs.org/underscore-min.js"></script>
-	    <script src="http://backbonejs.org/backbone-min.js"></script>
+	    <script src="/underscore/underscore-min.js"></script>
+	    <script src="/backbone/backbone-min.js"></script>
+
+		<!-- GoSpatia; -->
+		<script src="/gospatialjs/gospatial-api.js"></script>
+		<script src="/gospatialjs/models/vector-layer.js"></script>
+		<script src="/gospatialjs/views/vector-layers.js"></script>
+		<script src="/gospatialjs/views/tile-layers.js"></script>
 
 		<style>
 
@@ -98,16 +104,16 @@
 			<!-- Page Header -->
 			<div class="row">
 				<div class="col-lg-12">
-					<h2 class="page-header">Management <small>Manage layers and basemaps</small></h2>
+					<h2 class="page-header">Management <small>Vector Layers and TileLayers</small></h2>
 				</div>
 			</div> 
 			<!-- /. Page Header -->
 
-			<div class="row">
+			<div class="row" id="vectorLayerView">
 				<div class="col-xs-12 column">
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<h3 class="panel-title">Layer Management</h3>
+							<h3 class="panel-title"><i class="fa fa-database" aria-hidden="true"></i> Vector Layers</h3>
 						</div>
 						<div class="panel-body">
 							<div class="row">
@@ -121,9 +127,9 @@
 										<table class="table table-striped table-bordered">
 											<thead>
 												<tr>
-													<th>#</th>
-													<th class="col-md-1">Delete</th>
-													<th>Datasource</th>
+													<th>ID</th>
+													<th class="col-sm-1">View</th>
+													<th class="col-sm-1">Delete</th>
 												</tr>
 											</thead>
 											<tbody id="layers_list">
@@ -137,11 +143,11 @@
 				</div>
 			</div>
 
-			<div class="row">
+			<div class="row" id="tileLayerView">
 				<div class="col-xs-12 column">
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<h3 class="panel-title">TileLayer Management</h3>
+							<h3 class="panel-title"><i class="fa fa-map" aria-hidden="true"></i> TileLayers</h3>
 						</div>
 						<div class="panel-body">
 							<div class="row">
@@ -186,325 +192,18 @@
 
 		<script>
 
-			var app,
-				customer,
-				GoSpatial;
+			// var customer;
+
+			var GoSpatial = new GoSpatialApi({{.Apikey}});
+
+			// var VectorLayers = new VectorLayerCollection;
+
+			var tlv = new TileLayerView({{.Apikey}});
+			var vlv = new VectorLayerView({{.Apikey}});
 
 
-
-			$(document).ready(function(){
-
-
-			});
-
-
-
-			function GoSpatialApi(apikey, server) {
-
-				this.apikey = apikey;
-				this.server = server || "";
-
-				this.getCustomer = function() {
-					var self = this;
-					var data;
-					this.GET("/api/v1/customer" + "?apikey=" + self.apikey, function(error, result){
-						if (error) {
-							throw error;
-						} else {
-							data = result;
-						}
-					});
-					return data;
-				}
-
-				this.getLayer = function(datasource, callback) {
-					var self = this;
-					this.GET("/api/v1/layer/" + datasource + "?apikey=" + self.apikey, function(error, result){
-						callback(error, result);
-					});
-				}
-
-				this.submitFeature = function(datasource, feature, callback) {
-					var self = this;
-					this.POST(
-						'/api/v1/layer/' + datasource + '/feature?apikey=' + self.apikey,
-						feature,
-						function(error, result) {
-							callback(error, result);
-						}
-					)
-				}
-
-				this.GET = function(route, callback) {
-					var self = this;
-					$.ajax({
-						crossDomain: true,
-						type: "GET",
-						async: false,
-						url: route,
-						dataType: 'JSON',
-						success: function (data) {
-							return callback(null, data);
-						},
-						error: function(xhr,errmsg,err) {
-							console.log(xhr.status,xhr.responseText,errmsg,err);
-							result = null;
-							var message = "status: " + xhr.status + "<br>";
-							message += "responseText: " + xhr.responseText + "<br>";
-							message += "errmsg: " + errmsg + "<br>";
-							message += "Error:" + err;
-							return callback(new Error(message));
-						}
-					});
-				}
-
-				this.POST = function(route, data, callback) {
-					var self = this;
-					$.ajax({
-						crossDomain: true,
-						type: "POST",
-						async: false,
-						data: data,
-						url: route,
-						dataType: 'JSON',
-						success: function (data) {
-							callback(null, data);
-						},
-						error: function(xhr,errmsg,err) {
-							console.log(xhr.status,xhr.responseText,errmsg,err);
-							result = null;
-							var message = "status: " + xhr.status + "<br>";
-							message += "responseText: " + xhr.responseText + "<br>";
-							message += "errmsg: " + errmsg + "<br>";
-							message += "Error:" + err;
-							callback(new Error(message));
-						}
-					});
-				}
-			}
-
-
-
-
-			function refreshDatasources() {
-				var customer = GoSpatial.getCustomer();
-				var datasources = customer.datasources;
-				if (datasources) {
-					for (var i=0; i < datasources.length; i++) {
-						var elem = $("<tr><td>" + i + "</td><td><button class='btn btn-sm btn-danger deleteLayer' ds_id=" + datasources[i] + "><i class='fa fa-trash layer'></i></button></li></td><td>" + datasources[i] + "</td></tr>");
-						elem.id = datasources[i];
-						console.log(datasources[i]);
-						$("#layers_list").append(elem);
-					}
-				}
-			}
-
-			function refreshTileLayers() {
-				var customer = GoSpatial.getCustomer();
-				var tilelayers = customer.tilelayers;
-				if (tilelayers) {
-					for (var i=0; i < tilelayers.length; i++) {
-						var elem = $("<tr><td>" + i + "</td><td>" + tilelayers[i].name + "</td><td>" + tilelayers[i].url + "</td></tr>");
-						elem.id = tilelayers[i];
-						console.log(tilelayers[i]);
-						$("#tilelayers_list").append(elem);
-					}
-				}
-			}
-
-
-
-
-
-
-
-
-
-
-
-
-
-			// Backbone viewer for creating new svg charts
-			var appview = Backbone.View.extend({
-			    el: "#app_view",
-
-			    initialize: function(){
-			        // var lp = this.$(".rightpanel");
-			        _.bindAll(this, 'render', 'deleteLayer', 'createLayer', 'createTileLayer');
-			        this.render();
-			    },
-
-			    events: {
-			        "click button.deleteLayer" : "deleteLayer",
-			        "click button.createTileLayer": "createTileLayer",
-			        "click button.createLayer": "createLayer"
-			    },
-
-			 //    addChart: function() {
-			 //    	// $(".addChart").prop("disabled",true);
-			 //    	// $(".addChart").html('<i class="fa fa-spinner fa-pulse fa-fw"></i> Loading...');
-			 //    	setTimeout(function(){},10);
-				// },
-
-				createLayer: function() {
-					swal({
-						title: "Create layer",
-						text: "Are you sure you want to create a new lyaer",
-						type: "info",
-						showCancelButton: true,
-						confirmButtonColor: "#DD6B55",
-						confirmButtonText: "Yes, pls!",
-						cancelButtonText: "No, cancel pls!",
-						closeOnConfirm: false,
-						closeOnCancel: true,
-						showLoaderOnConfirm: true
-					},
-					function(isConfirm){
-						if (isConfirm) {
-							$.ajax({
-								url: '/api/v1/layer?apikey={{.Apikey}}',
-								type: 'POST',
-								success: function(result) {
-									swal("Created!", result, "success");
-									$("#layers_list").html("");
-									refreshDatasources();
-								},
-								failure: function(result) {
-									console.log(result);
-									swal("Error", JSON.stringify(result), "error");
-									throw new Error(result);
-								},
-								error: function(result) {
-									console.log(result);
-									swal("Error", JSON.stringify(result), "error");
-									throw new Error(result);
-								}
-							});
-						} 
-					});
-				},
-
-				createTileLayer: function() {
-					var datasource_id = $(this).attr("ds_id");
-					swal({
-						title: "Create tile layer",
-						text: "Are you sure you want to create a new tile lyaer",
-						type: "info",
-						showCancelButton: true,
-						confirmButtonColor: "#DD6B55",
-						confirmButtonText: "Yes, pls!",
-						cancelButtonText: "No, cancel pls!",
-						closeOnConfirm: false,
-						closeOnCancel: true,
-						showLoaderOnConfirm: true
-					},
-					function(isConfirm){
-						if (isConfirm) {
-							$.ajax({
-								url: '/api/v1/tilelayer?apikey={{.Apikey}}',
-								data: {
-									tilelayer_name: $("#tilelayer_name").val(),
-									tilelayer_url: $("#tilelayer_url").val()
-								},
-								type: 'POST',
-								success: function(result) {
-									swal("Created!", result, "success");
-									$("#tilelayers_list").html("");
-									refreshTileLayers();
-								},
-								failure: function(result) {
-									console.log(result);
-									swal("Error", JSON.stringify(result), "error");
-									throw new Error(result);
-								},
-								error: function(result) {
-									console.log(result);
-									swal("Error", JSON.stringify(result), "error");
-									throw new Error(result);
-								}
-							});
-						} 
-					});
-				},
-
-				deleteLayer: function(event) {
-					var datasource_id = $(event.target).attr("ds_id");
-					swal({
-						title: "Delete layer",
-						text: "Are you sure you want to delete " + datasource_id,
-						type: "warning",	 
-						showCancelButton: true,	 
-						confirmButtonColor: "#DD6B55",	 
-						confirmButtonText: "Yes, delete it!",	 
-						cancelButtonText: "No, cancel pls!",	 
-						closeOnConfirm: false,	 
-						closeOnCancel: false,
-						showLoaderOnConfirm: true
-					},
-					function(isConfirm){
-						if (isConfirm) {
-							$.ajax({
-								url: '/api/v1/layer/'+ datasource_id +'?apikey={{.Apikey}}',
-								type: 'DELETE',
-								success: function(result) {
-									swal("Deleted!", result, "success");
-									$("#layers_list").html("");
-									refreshDatasources();
-								},
-								failure: function(result) {
-									console.log(result);
-									swal("Error", JSON.stringify(result), "error");
-									throw new Error(result);
-								},
-								error: function(result) {
-									console.log(result);
-									swal("Error", JSON.stringify(result), "error");
-									throw new Error(result);
-								}
-							});
-						} 
-						else {
-							swal("Cancelled", "Your data is safe :)", "error");
-						}
-					});
-				},
-
-			    render: function(e) {
-					GoSpatial = new GoSpatialApi({{.Apikey}});
-					customer = GoSpatial.getCustomer();
-
-					var datasources = customer.datasources;
-					if (datasources) {
-						for (var i=0; i < datasources.length; i++) {
-							var elem = $("<tr><td>" + i + "</td><td><button class='btn btn-sm btn-danger deleteLayer' ds_id=" + datasources[i] + "><i class='fa fa-trash layer'></i></button></li></td><td>" + datasources[i] + "</td></tr>");
-							elem.id = datasources[i];
-							console.log(datasources[i]);
-							$("#layers_list").append(elem);
-						}
-					}
-					var tilelayers = customer.tilelayers;
-					if (tilelayers) {
-						for (var i=0; i < tilelayers.length; i++) {
-							var elem = $("<tr><td>" + i + "</td><td>" + tilelayers[i].name + "</td><td>" + tilelayers[i].url + "</td></tr>");
-							elem.id = tilelayers[i];
-							console.log(tilelayers[i]);
-							$("#tilelayers_list").append(elem);
-						}
-					}
-			    	// Create charts container
-					// var viewHtml = ''; 
-					// Populate elements
-					// this.$el.empty().append(viewHtml);
-					// $(".app_container").append(viewHtml);
-				}
-			});
-
-			app = new appview();
-
-
-
-
-
+// view single datasource = <i class="fa fa-eye" aria-hidden="true"></i>
+// <i class="fa fa-globe" aria-hidden="true"></i>
 
 
 			// http://jsfiddle.net/didierg/SCN2Q/

@@ -107,24 +107,32 @@
 			// Open in new window
 			var self = this;
 			var datasource_id = $(event.target).attr("ds_id");
-			// var url = '/api/v1/layer/'+ datasource_id +'?apikey=' + self.apikey
-			// window.open(url);
 			self.gospatial.getLayer(datasource_id, function(error, data) {
 				console.log(data);
 				if (error) {
 					throw new Error(error);
 				} else {
-					$("#raw-json").html(JSON.stringify(data, null, 2));
+					$(".raw-json").html(JSON.stringify(data, null, 2));
 				}
 			});
 		},
 
 		toggleVectorLayerOptions: function(event) {
+			var self = this;
 			var datasource_id = $(event.target).attr("ds_id");
 			$(".vectorlayer").hide();
 			$(".vectorlayer").each(function() {
 				if ($(this).attr("ds_id") == datasource_id) {
 					$(this).show();
+					var container = this; 
+					self.gospatial.getLayer(datasource_id, function(error, data) {
+						if (error) {
+							throw new Error(error);
+						} else {
+							$(container).find(".raw-json").html(JSON.stringify(data, null, 2));
+						}
+					});
+
 				}
 			});
 		},
@@ -135,36 +143,30 @@
 			this.get_vector_layers();
 			self.vectorlayers.each(function(model) {
 				var ds = model.get("id");
-				console.log(model);
-				var html = '';
-				// html += "<tr>"; // row start
-				// html += "<td>" + ds + "</td>"; // cell
-				// html += '<td><button class="btn btn-sm btn-info viewLayer" title="view" ds_id=' + ds + '><i class="fa fa-file-text" aria-hidden="true"></i></button></li></td>'; // cell
-				// html += "<td><button class='btn btn-sm btn-danger deleteLayer' title='delete' ds_id=" + ds + "><i class='fa fa-trash'></i></button></li></td>"; // cell
-				// html += "</tr>" // row end
-
-				html += '<div class="panel panel-default">';
-				html += '<div class="panel-heading">' + ds;
-
-				html += '<div class="panel_controls">';
-				// html += '<button type="button" title="close" class="btn btn-default btn-sm closeChart"><i class="fa fa-minus" aria-hidden="true"></i></button>';
-				// html += '<button type="button" title="open" class="btn btn-default btn-sm openChart"><i class="fa fa-square" aria-hidden="true"></i></button>'
-				// html += '<button type="button" title="delete" class="btn btn-danger btn-sm deleteChart"><i class="fa fa-times" aria-hidden="true"></i></button>';
-				// <i class="fa fa-cogs" aria-hidden="true"></i>
-				html += '<button type="button" title="options" ds_id=' + ds + ' class="btn btn-default btn-sm toggleVectorLayerOptions"><i class="fa fa-cog" aria-hidden="true"></i></button>';
-
-				html += '</div>';
-
-				html += '</div>';
-				html += '<div class="panel-body vectorlayer" ds_id=' + ds + '>';
-
-				html += '<button class="btn btn-sm btn-info viewLayer" title="view" ds_id=' + ds + '><i class="fa fa-file-text" aria-hidden="true"></i></button>'; // cell
-				html += "<button class='btn btn-sm btn-danger deleteLayer' title='delete' ds_id=" + ds + "><i class='fa fa-trash'></i></button>"; // cell
-
-				html += '</div>';
-				html += '</div>';
-
-
+				var html =  '<div class="panel panel-default">' +
+								'<div class="panel-heading">' + ds +
+									'<div class="panel_controls">' +
+										'<button type="button" title="options" ds_id=' + ds + ' class="btn btn-default btn-sm toggleVectorLayerOptions">' + 
+											'<i class="fa fa-cog" aria-hidden="true"></i>' + 
+										'</button>' +
+									'</div>' +
+								'</div>' +
+								'<div class="panel-body vectorlayer" ds_id=' + ds + '>' + 
+									'<div class="col-md-11 column">' +
+										'<div class="well">' +
+											'<code class="raw-json"></code>' +
+										'</div>' +
+									'</div>' +
+									'<div class="col-md-1 column">' +
+									// '<button class="btn btn-sm btn-info viewLayer" title="view" ds_id=' + ds + '>' + 
+									// 	'<i class="fa fa-file-text" aria-hidden="true"></i>' + 
+									// '</button>' +
+										'<button class="btn btn-sm btn-danger deleteLayer" title="delete" ds_id=' + ds + '>' + 
+											'<i class="fa fa-trash"></i>' + 
+										'</button>' +
+									'</div>' +
+								'</div>' +
+							'</div>';
 				var elem = $(html);
 				elem.id = ds;
 				$("#layers_list").append(elem);

@@ -135,6 +135,7 @@ func main() {
 	log.Println("Attaching HTTP handler for route: [PUT]    /api/v1/layer/{ds}")
 	log.Println("Attaching HTTP handler for route: [POST]   /api/v1/layer/{ds}/feature")
 	log.Println("Attaching HTTP handler for route: [GET]    /api/v1/layer/{ds}/feature/{k}")
+	log.Println("Attaching HTTP handler for route: [POST]   /api/v1/tilelayer")
 	log.Println("Attaching HTTP handler for route: [GET]    /api/v1/customer")
 	log.Println("Attaching HTTP handler for route: [POST]   /api/v1/customer")
 	log.Println("Attaching HTTP handler for route: [GET]    /")

@@ -122,15 +122,35 @@
 			$(".vectorlayer").each(function() {
 				if ($(this).attr("ds_id") == datasource_id) {
 					$(this).show();
-					var container = this; 
-					self.gospatial.getLayer(datasource_id, function(error, data) {
-						if (error) {
-							throw new Error(error);
-						} else {
-							$(container).find(".raw-json").html(JSON.stringify(data, null, 2));
-						}
-					});
 
+					// download json file
+					var downloadFile = null;
+					var makeGeoJSONFile = function (text) {
+						// var data = new Blob([text], {type: 'text/plain'});
+						var data = new Blob([text], {type: 'json'});
+						// If we are replacing a previously generated file we need to
+						// manually revoke the object URL to avoid memory leaks.
+						if (downloadFile !== null) {
+							window.URL.revokeObjectURL(downloadFile);
+						}
+						downloadFile = window.URL.createObjectURL(data);
+						return downloadFile;
+					};
+
+					var container = this; 
+					// if code.raw-json is empty request for geojson
+					if ($(container).find(".raw-json").html() == "") {
+						self.gospatial.getLayer(datasource_id, function(error, data) {
+							if (error) {
+								throw new Error(error);
+							} else {
+								$(container).find(".raw-json").html(JSON.stringify(data, null, 2));
+								// download link for geojson file
+								var link = $(container).find("a");
+								link.href = makeGeoJSONFile(data);
+							}
+						});
+					}
 				}
 			});
 		},
@@ -190,9 +210,3 @@
 
 	});
 
-
-/*
-<a href="path/to/file.txt" download="example.json">
-    Download as JSON
-</a>
-*/

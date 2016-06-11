@@ -1,0 +1,136 @@
+
+body {
+	font: 14px/16px Arial, Helvetica, sans-serif;
+}
+
+h4, strong {
+	margin: 0 0 5px;
+	/*color: #777;*/
+}
+
+i#zoom {
+	padding-top: 3px;
+}
+
+#location strong {
+	color: black !important;
+}
+
+#map {
+	right: 0;
+	left: 0;
+	bottom: 0;
+	top: 0;
+	position: absolute !important;
+}
+
+#error {
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	width: 100%;
+	background-color: white;
+	position: absolute;
+	z-index: 10;
+}
+.err {
+	display: inline-block;
+}
+
+
+.legend {
+	line-height: 18px;
+}
+
+.legend i {
+	width: 18px;
+	height: 18px;
+	float: left;
+	margin-right: 8px;
+	opacity: 0.7;
+}
+
+.info {
+	padding: 6px 8px;
+	background: white;
+	background: rgba(255,255,255,0.8);
+	box-shadow: 0 0 15px rgba(0,0,0,0.2);
+	border-radius: 5px;
+}
+
+.info.legend.leaflet-control {
+	background: white;
+}
+
+.attr {
+	padding: 1px;
+}
+
+#choroplethField {
+	padding: 1px;
+}
+
+
+#legend {
+	max-height: 200px;
+	max-width: 200px;
+	overflow-y: scroll; 
+	overflow-x: hidden;
+}
+
+input.field, input.attr {
+	width: 100px;
+}
+
+div.featProps {
+	width: 100px;
+	display: inline;
+	text-align: center;
+}
+
+div.button:hover h4{
+	background-color: lightgrey;
+	color: black;
+}
+
+/* Logo */
+div.logo-compass {
+	pointer-events: none;
+	top: 7px;
+	position: absolute;
+	padding-left: 40px;
+}
+
+img.img-logo-compass {
+	width: 40px;
+	height: auto;
+}
+
+div.logo-hypercube {
+	pointer-events: none;
+	top: 5px;
+	position: absolute;
+	padding-left: 40px;
+}
+
+img.img-logo-hypercube {
+	width: 100px;
+	height: auto;
+}
+
+/* Feature Properties */
+table {
+	border-collapse: collapse;
+}
+th, td {
+	border: 1px solid #ddd;
+	padding: 4px;
+}
+th {
+	background-color: #4CAF50;
+	color: white;
+}
+tr:hover {background-color: #f5f5f5}
+tr:nth-child(even) {background-color: #f2f2f2}
+

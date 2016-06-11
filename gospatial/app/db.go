@@ -69,6 +69,8 @@ func (self *Database) Init() error {
 	if err != nil {
 		return err
 	}
+	// Add table for datasource owner
+	//
 	// permissions
 	err = conn.Update(func(tx *bolt.Tx) error {
 		table := []byte("apikeys")

@@ -1,7 +1,7 @@
 
 	var VectorLayer = Backbone.Model.extend({
 		initialize: function(){
-				console.log("VectorLayer created");
+			console.log("VectorLayer created");
 		}
 	});
 

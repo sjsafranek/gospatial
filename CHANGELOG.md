@@ -12,6 +12,7 @@
 ## [1.10.2] - 2016-06-06
 ### Added
  - /documentation added to app
+ - tcp listener
 
 
 

@@ -1,4 +1,4 @@
-package app
+package utils
 
 import (
 	"bytes"
@@ -66,7 +66,7 @@ func NewAPIKey(n int) string {
 // @param a {string} string to find
 // @param list {[]string} array of strings to search
 // @returns bool
-func stringInSlice(a string, list []string) bool {
+func StringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {
 			return true
@@ -83,7 +83,7 @@ func stringInSlice(a string, list []string) bool {
 // @param value {string} string to find
 // @param slice {[]string} array of strings to search
 // @returns int
-func sliceIndex(value string, slice []string) int {
+func SliceIndex(value string, slice []string) int {
 	for p, v := range slice {
 		if v == value {
 			return p
@@ -97,26 +97,26 @@ func sliceIndex(value string, slice []string) int {
 //         https://github.com/schollz/gofind/blob/master/fingerprint.go#L43-L54
 // Description:
 //		Compress and Decompress bytes
-func compressByte(src []byte) []byte {
+func CompressByte(src []byte) []byte {
 	compressedData := new(bytes.Buffer)
-	compress(src, compressedData, 9)
+	Compress(src, compressedData, 9)
 	return compressedData.Bytes()
 }
 
-func decompressByte(src []byte) []byte {
+func DecompressByte(src []byte) []byte {
 	compressedData := bytes.NewBuffer(src)
 	deCompressedData := new(bytes.Buffer)
-	decompress(compressedData, deCompressedData)
+	Decompress(compressedData, deCompressedData)
 	return deCompressedData.Bytes()
 }
 
-func compress(src []byte, dest io.Writer, level int) {
+func Compress(src []byte, dest io.Writer, level int) {
 	compressor, _ := flate.NewWriter(dest, level)
 	compressor.Write(src)
 	compressor.Close()
 }
 
-func decompress(src io.Reader, dest io.Writer) {
+func Decompress(src io.Reader, dest io.Writer) {
 	decompressor := flate.NewReader(src)
 	io.Copy(dest, decompressor)
 	decompressor.Close()
@@ -124,7 +124,7 @@ func decompress(src io.Reader, dest io.Writer) {
 
 // isUrl
 // https://www.socketloop.com/tutorials/golang-how-to-validate-url-the-right-way
-func isUrl(str string) bool {
+func IsUrl(str string) bool {
 	fmt.Println(str)
 	var validURL bool
 	_, err := url.Parse(str)

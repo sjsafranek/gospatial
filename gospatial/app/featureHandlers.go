@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"gospatial/utils"
 )
 
 // NewFeatureHandler creates a new feature and adds it to a layer.
@@ -54,7 +55,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check customer datasource list
-	if !stringInSlice(ds, customer.Datasources) {
+	if !utils.StringInSlice(ds, customer.Datasources) {
 		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
@@ -139,7 +140,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check customer datasource list
-	if !stringInSlice(ds, customer.Datasources) {
+	if !utils.StringInSlice(ds, customer.Datasources) {
 		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layer/"+ds+"/feature [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return

@@ -27,23 +27,6 @@ var (
 	networkLoggerInfoOut *log.Logger
 )
 
-// func networkLoggerInit() {
-// 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-// 	if err != nil {
-// 		Error.Fatal(err)
-// 	}
-// 	log_file := strings.Replace(dir, "bin", "log/network.log", -1)
-// 	networkLoggerWriter, err = os.OpenFile(log_file, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-// 	if err != nil {
-// 		Error.Fatal("Error opening file: %v", err)
-// 	}
-// 	networkLoggerInfoIn = log.New(networkLoggerWriter, "INFO  [NETWORK] [IN] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-// 	networkLoggerInfoOut = log.New(networkLoggerWriter, "INFO  [NETWORK] [OUT] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-// 	networkLoggerInfo = log.New(networkLoggerWriter, "INFO  [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-// 	networkLoggerWarning = log.New(networkLoggerWriter, "WARN  [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-// 	networkLoggerError = log.New(networkLoggerWriter, "ERROR [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-// }
-
 func init() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {

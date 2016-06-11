@@ -15,6 +15,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"gospatial/utils"
 )
 
 // DB application Database
@@ -55,7 +56,7 @@ func (self *Database) Init() error {
 	// Start db caching
 	m := make(map[string]*LayerCache)
 	self.Cache = m
-	go self.CacheManager()
+	go self.cacheManager()
 	self.startLogger()
 	// connect to db
 	conn := self.connect()
@@ -247,7 +248,7 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 // @returns Error
 func (self *Database) NewLayer() (string, error) {
 	// create geojson
-	datasource, _ := NewUUID()
+	datasource, _ := utils.NewUUID()
 	geojs := geojson.NewFeatureCollection()
 	// Connect to database
 	conn := self.connect()
@@ -456,14 +457,18 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 
 }
 
-// Dump returns Database apikeys and layers table data
-func (self *Database) Dump() map[string]map[string]interface{} {
+// Backup dumps database contents to json file
+func (self *Database) Backup(filename ...string) {
+	
+	// Connect to database
 	conn := self.connect()
 	defer conn.Close()
+
 	// Create struct to store db data
 	data := make(map[string]map[string]interface{})
 	data["apikeys"] = make(map[string]interface{})
 	data["layers"] = make(map[string]interface{})
+
 	// Get all layers
 	conn.View(func(tx *bolt.Tx) error {
 		// Assume bucket exists and has keys
@@ -479,7 +484,8 @@ func (self *Database) Dump() map[string]map[string]interface{} {
 		})
 		return nil
 	})
-	// apikey
+
+	// Get all apikeyss
 	conn.View(func(tx *bolt.Tx) error {
 		// Assume bucket exists and has keys
 		b := tx.Bucket([]byte("apikeys"))
@@ -494,13 +500,8 @@ func (self *Database) Dump() map[string]map[string]interface{} {
 		})
 		return nil
 	})
-	return data
-}
 
-// Backup dumps database contents to json file
-func (self *Database) Backup(filename ...string) {
-	// get data
-	data := self.Dump()
+	// Write data to json file
 	b, err := json.Marshal(data)
 	if err != nil {
 		panic(err)
@@ -513,11 +514,11 @@ func (self *Database) Backup(filename ...string) {
 	ioutil.WriteFile(savename, b, 0644)
 }
 
-// CacheManager for Database. Stores layers in memory.
+// cacheManager for Database. Stores layers in memory.
 //		Unloads layers older than 90 sec
 //		When empty --> 60 sec timer
 //		When items in cache --> 15 sec timer
-func (self *Database) CacheManager() {
+func (self *Database) cacheManager() {
 	for {
 		n := float64(len(self.Cache))
 		if n != 0 {
@@ -545,14 +546,14 @@ func (self *Database) CacheManager() {
 //		Compress and Decompress bytes
 func (self *Database) compressByte(src []byte) []byte {
 	compressedData := new(bytes.Buffer)
-	compress(src, compressedData, 9)
+	self.compress(src, compressedData, 9)
 	return compressedData.Bytes()
 }
 
 func (self *Database) decompressByte(src []byte) []byte {
 	compressedData := bytes.NewBuffer(src)
 	deCompressedData := new(bytes.Buffer)
-	decompress(compressedData, deCompressedData)
+	self.decompress(compressedData, deCompressedData)
 	return deCompressedData.Bytes()
 }
 

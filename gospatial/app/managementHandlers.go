@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"runtime"
 	"time"
+	"gospatial/utils"
 )
 
 var startTime = time.Now()
@@ -113,7 +114,7 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// new customer
-	apikey := NewAPIKey(12)
+	apikey := utils.NewAPIKey(12)
 	customer := Customer{Apikey: apikey}
 	err := DB.InsertCustomer(customer)
 	if err != nil {
@@ -141,54 +142,54 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 // @param apikey - customer to give access
 // @param authkey
 // @return json
-func ShareLayerHandler(w http.ResponseWriter, r *http.Request) {
+// func ShareLayerHandler(w http.ResponseWriter, r *http.Request) {
 
-	// Get url params
-	apikey := r.FormValue("apikey")
-	authkey := r.FormValue("authkey")
+// 	// Get url params
+// 	apikey := r.FormValue("apikey")
+// 	authkey := r.FormValue("authkey")
 
-	// Get ds from url path
-	vars := mux.Vars(r)
-	ds := vars["ds"]
+// 	// Get ds from url path
+// 	vars := mux.Vars(r)
+// 	ds := vars["ds"]
 
-	// superuser access
-	if SuperuserKey != authkey {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
+// 	// superuser access
+// 	if SuperuserKey != authkey {
+// 		http.Error(w, "unauthorized", http.StatusUnauthorized)
+// 		return
+// 	}
 
-	if apikey == "" {
-		networkLoggerError.Println(r.RemoteAddr, "PUT /api/v1/layer/{ds} [401]")
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
-	}
+// 	if apikey == "" {
+// 		networkLoggerError.Println(r.RemoteAddr, "PUT /api/v1/layer/{ds} [401]")
+// 		http.Error(w, "bad request", http.StatusBadRequest)
+// 		return
+// 	}
 
-	// Get customer from database
-	customer, err := DB.GetCustomer(apikey)
-	if err != nil {
-		networkLoggerWarning.Println(r.RemoteAddr, "PUT /api/v1/layer/{ds} [404]")
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
+// 	// Get customer from database
+// 	customer, err := DB.GetCustomer(apikey)
+// 	if err != nil {
+// 		networkLoggerWarning.Println(r.RemoteAddr, "PUT /api/v1/layer/{ds} [404]")
+// 		http.Error(w, err.Error(), http.StatusNotFound)
+// 		return
+// 	}
 
-	// Add datasource uuid to customer
-	customer.Datasources = append(customer.Datasources, ds)
-	DB.InsertCustomer(customer)
+// 	// Add datasource uuid to customer
+// 	customer.Datasources = append(customer.Datasources, ds)
+// 	DB.InsertCustomer(customer)
 
-	// Generate message
-	data := `{"status":"ok","datasource":"` + ds + `"}`
-	js, err := json.Marshal(data)
-	if err != nil {
-		networkLoggerError.Println(r.RemoteAddr, "PUT /api/v1/layer [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+// 	// Generate message
+// 	data := `{"status":"ok","datasource":"` + ds + `"}`
+// 	js, err := json.Marshal(data)
+// 	if err != nil {
+// 		networkLoggerError.Println(r.RemoteAddr, "PUT /api/v1/layer [500]")
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
 
-	// Return results
-	networkLoggerInfo.Println(r.RemoteAddr, "PUT /api/v1/layer [200]")
-	w.Header().Set("Content-Type", "application/json")
-	// allow cross domain AJAX requests
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Write(js)
+// 	// Return results
+// 	networkLoggerInfo.Println(r.RemoteAddr, "PUT /api/v1/layer [200]")
+// 	w.Header().Set("Content-Type", "application/json")
+// 	// allow cross domain AJAX requests
+// 	w.Header().Set("Access-Control-Allow-Origin", "*")
+// 	w.Write(js)
 
-}
+// }

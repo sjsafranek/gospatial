@@ -18,6 +18,7 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+	"gospatial/utils"
 )
 
 var (
@@ -126,7 +127,7 @@ func importDatasource(importFile string) {
 		os.Exit(1)
 	}
 	// Create datasource
-	ds, _ := app.NewUUID()
+	ds, _ := utils.NewUUID()
 	app.DB.InsertLayer(ds, geojs)
 	fmt.Println("Datasource created:", ds)
 	// Cleanup artifacts
@@ -192,7 +193,7 @@ func main() {
 		} else if requiredArgs[1] == "customer" {
 			fmt.Println("Creating customer")
 			setupDb()
-			apikey := app.NewAPIKey(12)
+			apikey := utils.NewAPIKey(12)
 			customer := app.Customer{Apikey: apikey}
 			err := app.DB.InsertCustomer(customer)
 			if err != nil {

@@ -5,6 +5,7 @@ import (
 	// "fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+	"gospatial/utils"
 )
 
 // ViewLayersHandler returns json containing customer layers
@@ -71,9 +72,6 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create datasource
-	// ds, _ := NewUUID()
-	// featCollection := geojson.NewFeatureCollection()
-	// DB.InsertLayer(ds, featCollection)
 	ds, err := DB.NewLayer()
 	if err != nil {
 		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layer [500]")
@@ -134,7 +132,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check customer datasource list
-	if !stringInSlice(ds, customer.Datasources) {
+	if !utils.StringInSlice(ds, customer.Datasources) {
 		networkLoggerError.Println(r.RemoteAddr, "GET /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
@@ -196,7 +194,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check customer datasource list
-	if !stringInSlice(ds, customer.Datasources) {
+	if !utils.StringInSlice(ds, customer.Datasources) {
 		networkLoggerError.Println(r.RemoteAddr, "DELETE /api/v1/layer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
@@ -212,7 +210,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	// Delete layer from customer
-	i := sliceIndex(ds, customer.Datasources)
+	i := utils.SliceIndex(ds, customer.Datasources)
 	customer.Datasources = append(customer.Datasources[:i], customer.Datasources[i+1:]...)
 	DB.InsertCustomer(customer)
 

@@ -31,11 +31,6 @@
 		<script src="/gospatialjs/views/tile-layers.js?{{.Version}}"></script>
 
 		<style>
-
-		    i.fa {
-    			pointer-events: none;
-    		}
-
 			/* "Back to Top" button */
 			#toTop{
 				position: fixed;
@@ -44,7 +39,6 @@
 				cursor: pointer;
 				display: none;
 			}
-
 		</style>
 
 		<script>
@@ -78,7 +72,22 @@
 		    .toggleVectorLayerOptions {
 		    	/*margin-right: 2px;*/
 		    }
-		    }
+
+			i.fa {
+    			pointer-events: none;
+    		}
+
+    		.downloadLayer a {
+    			/* remove default style */
+				color: inherit;
+				text-decoration: inherit; 
+    		}
+
+    		.deleteLayer, .downloadLayer {
+    			margin-bottom: 4px; 
+    			/*width: 32 !important;*/
+    		}
+
 		</style>
 
 
@@ -147,12 +156,6 @@
 										<!-- panels go here -->
 									</div>
 								</div>
-<!-- 								<div class="col-md-4 column">
-									<div class="well">
-									<code id="raw-json">
-									</code>
-									</div>
-								<div> -->
 							</div>
 						</div>
 					</div>

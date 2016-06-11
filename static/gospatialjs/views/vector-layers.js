@@ -4,7 +4,7 @@
 
 		initialize: function(apikey) {
 			console.log(apikey);
-			_.bindAll(this, 'render', 'createLayer', 'deleteLayer', 'viewLayer', 'toggleVectorLayerOptions');
+			_.bindAll(this, 'render', 'createLayer', 'deleteLayer', 'toggleVectorLayerOptions');
 			this.vectorlayers = new VectorLayerCollection;
 			this.apikey = apikey;
 			this.gospatial = new GoSpatialApi(apikey);
@@ -15,7 +15,6 @@
 	    events: {
 	        "click button.deleteLayer" : "deleteLayer",
 	        "click button.createLayer": "createLayer",
-	        "click button.viewLayer": "viewLayer",
 	        "click button.toggleVectorLayerOptions": "toggleVectorLayerOptions"
 	    },
 
@@ -104,7 +103,6 @@
 		},
 
 		viewLayer: function() {
-			// Open in new window
 			var self = this;
 			var datasource_id = $(event.target).attr("ds_id");
 			self.gospatial.getLayer(datasource_id, function(error, data) {
@@ -158,11 +156,13 @@
 										'</div>' +
 									'</div>' +
 									'<div class="col-md-1 column">' +
-									// '<button class="btn btn-sm btn-info viewLayer" title="view" ds_id=' + ds + '>' + 
-									// 	'<i class="fa fa-file-text" aria-hidden="true"></i>' + 
-									// '</button>' +
+										'<button class="btn btn-sm btn-info downloadLayer" title="view" ds_id=' + ds + '>' + 
+											'<a href="/api/v1/layer/'+ ds +'?apikey=' + self.apikey + '" download="' + ds + '.geojson">' +
+												'<i class="fa fa-cloud-download" aria-hidden="true"></i>' + 
+											'</a>' + 
+										'</button>' +
 										'<button class="btn btn-sm btn-danger deleteLayer" title="delete" ds_id=' + ds + '>' + 
-											'<i class="fa fa-trash"></i>' + 
+											'<i class="fa fa-trash"></i>' +
 										'</button>' +
 									'</div>' +
 								'</div>' +
@@ -189,3 +189,10 @@
 		}
 
 	});
+
+
+/*
+<a href="path/to/file.txt" download="example.json">
+    Download as JSON
+</a>
+*/

@@ -42,7 +42,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// CustomerManagementHandler returns customer management gui. 
+// CustomerManagementHandler returns customer management gui.
 // Allows customers to create and delete both geojson layers and tile baselayers.
 func CustomerManagementHandler(w http.ResponseWriter, r *http.Request) {
 

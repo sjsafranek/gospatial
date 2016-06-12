@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	// "fmt"
 	"github.com/gorilla/mux"
-	"net/http"
 	"gospatial/utils"
+	"net/http"
 )
 
 // ViewLayersHandler returns json containing customer layers

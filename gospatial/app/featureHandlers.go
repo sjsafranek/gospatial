@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/paulmach/go.geojson"
+	"gospatial/utils"
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	"gospatial/utils"
 )
 
 // NewFeatureHandler creates a new feature and adds it to a layer.

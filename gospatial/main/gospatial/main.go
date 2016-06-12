@@ -27,6 +27,7 @@ var (
 	bind          string
 	versionReport bool
 	configFile    string
+	debugMode bool
 )
 
 const (
@@ -52,6 +53,7 @@ func init() {
 	// flag.StringVar(&app.SuperuserKey, "s", "7q1qcqmsxnvw", "superuser key")
 	flag.StringVar(&app.SuperuserKey, "s", "su", "superuser key")
 	flag.BoolVar(&versionReport, "v", false, "App Version")
+	flag.BoolVar(&debugMode, "d", false, "Enable debug mode")
 	flag.Parse()
 	if versionReport {
 		fmt.Println("Version:", version)
@@ -109,15 +111,20 @@ func main() {
 	log.Println("Authkey:", app.SuperuserKey)
 	log.Println("Database:", database)
 
-	// https://golang.org/pkg/net/http/pprof/
-	go func() {
-		log.Printf("Profiling happens on port %v...\n", 6060)
-		app.Info.Println(http.ListenAndServe(":6060", nil))
-	}()
+	if debugMode {
+		// https://golang.org/pkg/net/http/pprof/
+		go func() {
+			log.Printf("Profiling happens on port %v...\n", 6060)
+			app.Info.Println(http.ListenAndServe(":6060", nil))
+		}()
+	}
 
 	// Initiate Database
 	app.DB = app.Database{File: database + ".db"}
-	app.DB.Init()
+	err := app.DB.Init()
+	if err != nil {
+		panic(err)
+	}
 
 	// start tcp server
 	tcpServer := app.TcpServer{Host: "localhost", Port: "3333"}

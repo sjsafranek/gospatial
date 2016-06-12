@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/paulmach/go.geojson"
+	"gospatial/utils"
 	"io"
 	"io/ioutil"
 	"log"
@@ -15,7 +16,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"gospatial/utils"
 )
 
 // DB application Database
@@ -81,21 +81,22 @@ func (self *Database) Init() error {
 	if err != nil {
 		return err
 	}
-	// put apikey into memory
+	// create apikey/customer cache
 	self.Apikeys = make(map[string]Customer)
-	conn.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("apikeys"))
-		b.ForEach(func(k, v []byte) error {
-			customer := Customer{}
-			err := json.Unmarshal(v, &customer)
-			if err != nil {
-				return err
-			}
-			self.Apikeys[string(k)] = customer
-			return nil
-		})
-		return nil
-	})
+	// put apikey into memory
+	// conn.View(func(tx *bolt.Tx) error {
+	// 	b := tx.Bucket([]byte("apikeys"))
+	// 	b.ForEach(func(k, v []byte) error {
+	// 		customer := Customer{}
+	// 		err := json.Unmarshal(v, &customer)
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 		self.Apikeys[string(k)] = customer
+	// 		return nil
+	// 	})
+	// 	return nil
+	// })
 	// close and return err
 	return err
 }
@@ -239,6 +240,8 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 		// panic(err)
 		return Customer{}, err
 	}
+	// Put apikey into cache
+	self.Apikeys[apikey] = customer
 	// Close database connection
 	return customer, nil
 }
@@ -459,7 +462,7 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 
 // Backup dumps database contents to json file
 func (self *Database) Backup(filename ...string) {
-	
+
 	// Connect to database
 	conn := self.connect()
 	defer conn.Close()

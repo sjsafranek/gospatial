@@ -2,11 +2,11 @@ package app
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
+	// "github.com/gorilla/mux"
+	"gospatial/utils"
 	"net/http"
 	"runtime"
 	"time"
-	"gospatial/utils"
 )
 
 var startTime = time.Now()
@@ -28,62 +28,62 @@ func PingHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-// UnloadLayer unloads layer from memory cache
-func UnloadLayer(w http.ResponseWriter, r *http.Request) {
-	// Check auth key
-	if SuperuserKey != r.FormValue("authkey") {
-		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-	// Parse url params
-	vars := mux.Vars(r)
-	ds := vars["ds"]
-	Debug.Printf("Unloading [%s]", ds)
-	// unload
-	delete(DB.Cache, ds)
-	// Response
-	data := `{"status":"ok","datasource":"` + ds + `", "result":"datasource unloaded"}`
-	js, err := json.Marshal(data)
-	if err != nil {
-		networkLoggerError.Println(r.RemoteAddr, "GET /management/unload/"+ds+" [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	networkLoggerInfo.Println(r.RemoteAddr, "GET /management/unload/"+ds+" [200]")
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
-}
+// // UnloadLayer unloads layer from memory cache
+// func UnloadLayer(w http.ResponseWriter, r *http.Request) {
+// 	// Check auth key
+// 	if SuperuserKey != r.FormValue("authkey") {
+// 		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
+// 		http.Error(w, "unauthorized", http.StatusUnauthorized)
+// 		return
+// 	}
+// 	// Parse url params
+// 	vars := mux.Vars(r)
+// 	ds := vars["ds"]
+// 	Debug.Printf("Unloading [%s]", ds)
+// 	// unload
+// 	delete(DB.Cache, ds)
+// 	// Response
+// 	data := `{"status":"ok","datasource":"` + ds + `", "result":"datasource unloaded"}`
+// 	js, err := json.Marshal(data)
+// 	if err != nil {
+// 		networkLoggerError.Println(r.RemoteAddr, "GET /management/unload/"+ds+" [500]")
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+// 	networkLoggerInfo.Println(r.RemoteAddr, "GET /management/unload/"+ds+" [200]")
+// 	w.Header().Set("Content-Type", "application/json")
+// 	w.Write(js)
+// }
 
-// LoadedLayers returns list of layers loaded in memory
-func LoadedLayers(w http.ResponseWriter, r *http.Request) {
-	// Check auth key
-	if SuperuserKey != r.FormValue("authkey") {
-		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-	Debug.Println("Checking loaded datasources...")
-	// collect datasource ids
-	i := 0
-	keys := make([]string, len(DB.Cache))
-	for k := range DB.Cache {
-		keys[i] = k
-		i++
-	}
-	data := make(map[string]interface{})
-	data["datasources"] = keys
-	// marshal and send response
-	js, err := json.Marshal(data)
-	if err != nil {
-		networkLoggerError.Println(r.RemoteAddr, "GET /management/loaded [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	networkLoggerInfo.Println(r.RemoteAddr, "GET /management/loaded [200]")
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
-}
+// // LoadedLayers returns list of layers loaded in memory
+// func LoadedLayers(w http.ResponseWriter, r *http.Request) {
+// 	// Check auth key
+// 	if SuperuserKey != r.FormValue("authkey") {
+// 		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/layer [401]")
+// 		http.Error(w, "unauthorized", http.StatusUnauthorized)
+// 		return
+// 	}
+// 	Debug.Println("Checking loaded datasources...")
+// 	// collect datasource ids
+// 	i := 0
+// 	keys := make([]string, len(DB.Cache))
+// 	for k := range DB.Cache {
+// 		keys[i] = k
+// 		i++
+// 	}
+// 	data := make(map[string]interface{})
+// 	data["datasources"] = keys
+// 	// marshal and send response
+// 	js, err := json.Marshal(data)
+// 	if err != nil {
+// 		networkLoggerError.Println(r.RemoteAddr, "GET /management/loaded [500]")
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+// 	networkLoggerInfo.Println(r.RemoteAddr, "GET /management/loaded [200]")
+// 	w.Header().Set("Content-Type", "application/json")
+// 	w.Write(js)
+// }
 
 // ServerProfile returns basic server stats
 func ServerProfile(w http.ResponseWriter, r *http.Request) {

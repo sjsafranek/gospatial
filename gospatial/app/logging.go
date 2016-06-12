@@ -37,7 +37,8 @@ func init() {
 	serverLogFile := strings.Replace(dir, "bin", "log/server.log", -1)
 	serverLoggerWriter, err := os.OpenFile(serverLogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		Error.Fatal("Error opening file: %v", err)
+		// Error.Fatal("Error opening file: %v", err)
+		serverLoggerWriter, err = os.OpenFile("test.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	}
 	// defer serverLoggerWriter.Close()
 	Info = log.New(serverLoggerWriter, "INFO  [SERVER] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
@@ -47,9 +48,10 @@ func init() {
 
 	// network logging
 	networkLogFile := strings.Replace(dir, "bin", "log/network.log", -1)
-	networkLoggerWriter, err = os.OpenFile(networkLogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	networkLoggerWriter, err := os.OpenFile(networkLogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		Error.Fatal("Error opening file: %v", err)
+		// Error.Fatal("Error opening file: %v", err)
+		networkLoggerWriter, err = os.OpenFile("test.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	}
 	networkLoggerInfoIn = log.New(networkLoggerWriter, "INFO  [NETWORK] [IN] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 	networkLoggerInfoOut = log.New(networkLoggerWriter, "INFO  [NETWORK] [OUT] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)

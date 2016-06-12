@@ -26,7 +26,13 @@ var (
 	tcpLoggerWriter io.Writer
 )
 
-func init() {
+
+type TcpServer struct {
+	Host string
+	Port string
+}
+
+func (self TcpServer) init() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		Error.Fatal(err)
@@ -44,12 +50,8 @@ func init() {
 	errorTcp = log.New(tcpLoggerWriter, "ERROR [TCP] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
-type TcpServer struct {
-	Host string
-	Port string
-}
-
 func (self TcpServer) Start() {
+	self.init()
 	go func() {
 		// Check settings and apply defaults
 		host := self.Host
@@ -63,16 +65,16 @@ func (self TcpServer) Start() {
 		}
 
 		// Listen for incoming connections.
-		l, err := net.Listen("tcp", host + ":" + port)
+		l, err := net.Listen("tcp", host+":"+port)
 		if err != nil {
 			log.Println("Error listening:", err.Error())
 			errorTcp.Println("Error listening:", err.Error())
-			os.Exit(1)
+			panic(err)
 		}
 
 		// Close the listener when the application closes.
 		defer l.Close()
-		log.Println("Tcp Listening on " + host  + ":" + port)
+		log.Println("Tcp Listening on " + host + ":" + port)
 		// infoTcp.Println("Error listening:", err.Error())
 		for {
 
@@ -92,17 +94,17 @@ func (self TcpServer) Start() {
 
 // Handles incoming requests.
 func (self TcpServer) tcpClientHandler(conn net.Conn) {
-	
+
 	defer conn.Close()
-	
+
 	for {
-		
+
 		// will listen for message to process ending in newline (\n)
 		message, _ := bufio.NewReader(conn).ReadString('\n')
-		
+
 		// output message received
-		infoTcp.Print("Message Received:", string(message))
-		
+		infoTcp.Println("Message Received: ", string(message))
+
 		// json parse message
 		req := make(map[string]interface{})
 		err := json.Unmarshal([]byte(message), &req)
@@ -119,23 +121,43 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 		// get method
 		success := false
 		switch {
-		    case req["method"] == "create_customer":
-				resp := `{"status": "success", "data": {}}`
-				conn.Write([]byte(resp + "\n"))
-				success = true
-		    case req["method"] == "create_layer":
-				resp := `{"status": "success", "data": {}}`
-				conn.Write([]byte(resp + "\n"))
-				success = true
-		    case req["method"] == "create_feature":
-				resp := `{"status": "success", "data": {}}`
-				conn.Write([]byte(resp + "\n"))
-				success = true
-	    }
-	    if !success {
-	    	resp := `{"status": "error", "error": "method not found"}`
-	    	conn.Write([]byte(resp + "\n"))
-	    }
+		case req["method"] == "clear_datasource_cache":
+			// {"method": "clear_datasource_cache"}
+			// Unload all layers in database cache
+			for key := range DB.Cache {
+				delete(DB.Cache, key)
+			}
+			resp := `{"status": "success", "data": {}}`
+			conn.Write([]byte(resp + "\n"))
+			success = true
+		case req["method"] == "loaded_datasources":
+			// {"method": "loaded_datasources"}
+			// result := make(map[string]interface{})
+			result, _ := json.Marshal(DB.Cache)
+			resp := `{"status": "success", "data": ` + string(result) + `}`
+			conn.Write([]byte(resp + "\n"))
+			success = true
+		case req["method"] == "clear_customer_cache":
+			// {"method": "clear_customer_cache"}
+			// Unload all apikeys in database cache
+			for key := range DB.Apikeys {
+				delete(DB.Apikeys, key)
+			}
+			resp := `{"status": "success", "data": {}}`
+			conn.Write([]byte(resp + "\n"))
+			success = true
+		case req["method"] == "share_datasource":
+			// req["data"]["datasource"]
+			// req["data"]["to"]
+			resp := `{"status": "success", "data": {}}`
+			conn.Write([]byte(resp + "\n"))
+			success = true
+		}
+
+		if !success {
+			resp := `{"status": "error", "error": "method not found"}`
+			conn.Write([]byte(resp + "\n"))
+		}
 
 	}
 }

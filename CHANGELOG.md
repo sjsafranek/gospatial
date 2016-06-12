@@ -9,7 +9,7 @@
 # Change Log
 
 ## [Unreleased]
-## [1.10.2] - 2016-06-06
+## [1.10.2] - 2016-06-12
 ### Added
  - /documentation added to app
  - tcp listener

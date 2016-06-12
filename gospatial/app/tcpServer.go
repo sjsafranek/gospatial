@@ -13,16 +13,16 @@ import (
 )
 
 const (
-	CONN_HOST = "localhost"
-	CONN_PORT = "3333"
-	CONN_TYPE = "tcp"
+	TCP_DEFAULT_CONN_HOST = "localhost"
+	TCP_DEFAULT_CONN_PORT = "3333"
+	// TCP_DEFAULT_CONN_TYPE = "tcp"
 )
 
 var (
-	InfoTcp         *log.Logger
-	DebugTcp        *log.Logger
-	WarningTcp      *log.Logger
-	ErrorTcp        *log.Logger
+	infoTcp         *log.Logger
+	debugTcp        *log.Logger
+	warningTcp      *log.Logger
+	errorTcp        *log.Logger
 	tcpLoggerWriter io.Writer
 )
 
@@ -38,40 +38,60 @@ func init() {
 		Error.Fatal("Error opening file: %v", err)
 	}
 	// defer tcpLoggerWriter.Close()
-	InfoTcp = log.New(tcpLoggerWriter, "INFO  [TCP] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	DebugTcp = log.New(tcpLoggerWriter, "DEBUG [TCP] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	WarningTcp = log.New(tcpLoggerWriter, "WARN  [TCP] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	ErrorTcp = log.New(tcpLoggerWriter, "ERROR [TCP] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	infoTcp = log.New(tcpLoggerWriter, "INFO  [TCP] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	debugTcp = log.New(tcpLoggerWriter, "DEBUG [TCP] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	warningTcp = log.New(tcpLoggerWriter, "WARN  [TCP] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	errorTcp = log.New(tcpLoggerWriter, "ERROR [TCP] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
-func TcpServer() {
+type TcpServer struct {
+	Host string
+	Port string
+}
+
+func (self TcpServer) Start() {
 	go func() {
+		// Check settings and apply defaults
+		host := self.Host
+		if host == "" {
+			host = TCP_DEFAULT_CONN_HOST
+		}
+
+		port := self.Port
+		if port == "" {
+			port = TCP_DEFAULT_CONN_PORT
+		}
+
 		// Listen for incoming connections.
-		l, err := net.Listen(CONN_TYPE, CONN_HOST+":"+CONN_PORT)
+		l, err := net.Listen("tcp", host + ":" + port)
 		if err != nil {
 			log.Println("Error listening:", err.Error())
+			errorTcp.Println("Error listening:", err.Error())
 			os.Exit(1)
 		}
+
 		// Close the listener when the application closes.
 		defer l.Close()
-		log.Println("Tcp Listening on " + CONN_HOST + ":" + CONN_PORT)
+		log.Println("Tcp Listening on " + host  + ":" + port)
+		// infoTcp.Println("Error listening:", err.Error())
 		for {
+
 			// Listen for an incoming connection.
 			conn, err := l.Accept()
 			if err != nil {
-				ErrorTcp.Println("Error accepting: ", err.Error())
-				// os.Exit(1)
+				errorTcp.Println("Error accepting: ", err.Error())
 				return
 			}
-			InfoTcp.Println("Connection open")
+			// infoTcp.Println("Connection open")
+
 			// Handle connections in a new goroutine.
-			go handleTcpClient(conn)
+			go self.tcpClientHandler(conn)
 		}
 	}()
 }
 
 // Handles incoming requests.
-func handleTcpClient(conn net.Conn) {
+func (self TcpServer) tcpClientHandler(conn net.Conn) {
 	
 	defer conn.Close()
 	
@@ -81,7 +101,7 @@ func handleTcpClient(conn net.Conn) {
 		message, _ := bufio.NewReader(conn).ReadString('\n')
 		
 		// output message received
-		InfoTcp.Print("Message Received:", string(message))
+		infoTcp.Print("Message Received:", string(message))
 		
 		// json parse message
 		req := make(map[string]interface{})
@@ -89,10 +109,10 @@ func handleTcpClient(conn net.Conn) {
 		if err != nil {
 			// invalid message
 			// close connection
-			WarningTcp.Println("error:", err)
+			warningTcp.Println("error:", err)
 			resp := `{"status": "error", "error": "` + fmt.Sprintf("%v", err) + `"}`
 			conn.Write([]byte(resp + "\n"))
-			InfoTcp.Println("Connection closed")
+			infoTcp.Println("Connection closed")
 			return
 		}
 

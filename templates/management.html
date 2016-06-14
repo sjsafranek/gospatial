@@ -6,7 +6,21 @@
 		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 	
 		<!-- JQuery -->
-		<script src="/jquery/jquery-1.11.0.js" ></script>
+		<!-- <script src="/jquery/jquery-1.11.0.js" ></script> -->
+
+<!-- Javascript Start -->
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<!-- Bootstrap Core JavaScript -->
+<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script> -->
+<!-- Plugin JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+<!-- Custom Theme JavaScript -->
+<!-- <script src="http://internalpositioning.com/js/grayscale.js"></script> -->
+<script src="https://www.internalpositioning.com/js/grayscale.js"></script>
+<!-- <script src="https://cdn.rawgit.com/BlackrockDigital/startbootstrap-grayscale/gh-pages/js/grayscale.js"></script> -->
+
+
 
 		<!-- Bootstrap -->
 		<script src="/bootstrap/bootstrap.js"></script>
@@ -24,7 +38,8 @@
 	    <script src="/underscore/underscore-min.js"></script>
 	    <script src="/backbone/backbone-min.js"></script>
 
-		<!-- GoSpatia; -->
+		<!-- GoSpatial -->
+		<link href="/gospatialjs/sidebar.css" rel="stylesheet">
 		<script src="/gospatialjs/gospatial-api.js?{{.Version}}"></script>
 		<script src="/gospatialjs/models/vector-layer.js?{{.Version}}"></script>
 		<script src="/gospatialjs/views/vector-layers.js?{{.Version}}"></script>
@@ -95,7 +110,8 @@
 	<body>
 		<!-- Navigation -->
 		<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-			<div class="container">
+			<!-- <div class="container"> -->
+			<div class="container-fluid">
 				<!-- Brand and toggle get grouped for better mobile display -->
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -128,82 +144,95 @@
 		</nav>
 
 		<!-- Page Content -->
-		<div class="container" id="app_view">
+		<div class="container-fluid" id="app_view">
 
-			<!-- Page Header -->
 			<div class="row">
-				<div class="col-lg-12">
-					<h2 class="page-header">Management <small>Vector Layers and TileLayers</small></h2>
+				<!-- Sidebar -->
+				<div class="col-sm-3 col-md-2 sidebar">
+					<ul class="nav nav-sidebar">
+						<li class="active"><a href="#vectorLayerView">VectorLayers <span class="sr-only">(current)</span></a></li>
+						<li><a href="#tileLayerView">TileLayers</a></li>
+					</ul>
 				</div>
-			</div> 
-			<!-- /. Page Header -->
+				<!-- /. Sidebar -->
+				<!-- Body Content -->
+				<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+					<!-- Page Header -->
+					<div class="row">
+						<div class="col-lg-12">
+							<h2 class="page-header">Management <small>Vector Layers and TileLayers</small></h2>
+						</div>
+					</div> 
+					<!-- /. Page Header -->
 
-			<div class="row" id="vectorLayerView">
-				<div class="col-xs-12 column">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<h3 class="panel-title"><i class="fa fa-database" aria-hidden="true"></i> Vector Layers</h3>
-						</div>
-						<div class="panel-body">
-							<div class="row">
-								<div class="col-md-3 column">
-									<div class="panel">
-									<button class="btn btn-primary createLayer">Create Vector Layer</button>
-									</div>
+					<div class="row" id="vectorLayerView">
+						<div class="col-xs-12 column">
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<h3 class="panel-title"><i class="fa fa-database" aria-hidden="true"></i> Vector Layers</h3>
 								</div>
-								<div class="col-md-9 column">
-									<div class="panel-group" id="layers_list">
-										<!-- panels go here -->
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="row" id="tileLayerView">
-				<div class="col-xs-12 column">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<h3 class="panel-title"><i class="fa fa-map" aria-hidden="true"></i> TileLayers</h3>
-						</div>
-						<div class="panel-body">
-							<div class="row">
-								<div class="col-md-4 column">
-									<div class="panel-body">
-										<div class="well">
-											<label for="name">Name:</label>
-											<input type="text" name="tilelayer_name" class="form-control" id="tilelayer_name">
-											<label for="name">Url:</label>
-											<input type="text" name="tilelayer_url" class="form-control" id="tilelayer_url">
-											<br>
-											<button class="btn btn-primary createTileLayer">Create TileLayer</button>
+								<div class="panel-body">
+									<div class="row">
+										<div class="col-md-3 column">
+											<div class="panel">
+											<button class="btn btn-primary createLayer">Create Vector Layer</button>
+											</div>
+										</div>
+										<div class="col-md-9 column">
+											<div class="panel-group" id="layers_list">
+												<!-- panels go here -->
+											</div>
 										</div>
 									</div>
 								</div>
-								<div class="col-md-8 column">
-									<div class="panel-body">
-										<table class="table table-striped table-bordered">
-											<thead>
-												<tr>
-													<th>#</th>
-													<th>Name</th>
-													<th>Url</th>
-												</tr>
-											</thead>
-											<tbody id="tilelayers_list">
-											</tbody>
-										</table>
+							</div>
+						</div>
+					</div>
+
+					<div class="row" id="tileLayerView">
+						<div class="col-xs-12 column">
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<h3 class="panel-title"><i class="fa fa-map" aria-hidden="true"></i> TileLayers</h3>
+								</div>
+								<div class="panel-body">
+									<div class="row">
+										<div class="col-md-4 column">
+											<div class="panel-body">
+												<div class="well">
+													<label for="name">Name:</label>
+													<input type="text" name="tilelayer_name" class="form-control" id="tilelayer_name">
+													<label for="name">Url:</label>
+													<input type="text" name="tilelayer_url" class="form-control" id="tilelayer_url">
+													<br>
+													<button class="btn btn-primary createTileLayer">Create TileLayer</button>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-8 column">
+											<div class="panel-body">
+												<table class="table table-striped table-bordered">
+													<thead>
+														<tr>
+															<th>#</th>
+															<th>Name</th>
+															<th>Url</th>
+														</tr>
+													</thead>
+													<tbody id="tilelayers_list">
+													</tbody>
+												</table>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
+
 				</div>
+				<!-- /. Body Content -->
 			</div>
-
-
 		</div>
 		<!-- /. Page Content -->
 
@@ -216,40 +245,9 @@
 				vlv: new VectorLayerView({{.Apikey}})
 			}
 
-			// var tlv = new TileLayerView({{.Apikey}});
-			// var vlv = new VectorLayerView({{.Apikey}});
-
-
-
-
-// view single datasource = <i class="fa fa-eye" aria-hidden="true"></i>
-// <i class="fa fa-globe" aria-hidden="true"></i>
-
-
-			// http://jsfiddle.net/didierg/SCN2Q/
-
-
-/*
-		    .panel_controls {
-		    	display: inline-block;
-		    	float: right;
-		    	margin-top: -2px;
-		    }
-
-		    .closeChart, .openChart, .deleteChart {
-		    	margin-right: 2px;
-		    }
-
-						viewHtml += '<div class="panel_controls">';
-						viewHtml += '<button type="button" title="close" class="btn btn-default btn-sm closeChart"><i class="fa fa-minus" aria-hidden="true"></i></button>';
-						viewHtml += '<button type="button" title="open" class="btn btn-default btn-sm openChart"><i class="fa fa-square" aria-hidden="true"></i></button>'
-						viewHtml += '<button type="button" title="delete" class="btn btn-danger btn-sm deleteChart"><i class="fa fa-times" aria-hidden="true"></i></button>';
-						viewHtml += '</div>';
-
-*/
-
-
 		</script>
+
+
 
 	</body>
 </html>

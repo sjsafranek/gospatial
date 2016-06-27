@@ -17,8 +17,8 @@ var routes = apiRoutes{
 
 	// Web Client apiRoutes
 	apiRoute{"Index", "GET", "/", IndexHandler},
-	apiRoute{"MapNew", "GET", "/map", MapHandler},
-	apiRoute{"CustomerManagement", "GET", "/management", CustomerManagementHandler},
+	apiRoute{"Map", "GET", "/map", MapHandler},
+	apiRoute{"Dashboard", "GET", "/dashboard", DashboardHandler},
 
 	// Health check
 	apiRoute{"Ping", "GET", "/ping", PingHandler},

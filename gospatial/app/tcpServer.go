@@ -84,10 +84,17 @@ func (self TcpServer) Start() {
 				errorTcp.Println("Error accepting: ", err.Error())
 				return
 			}
-			// infoTcp.Println("Connection open")
 
-			// Handle connections in a new goroutine.
-			go self.tcpClientHandler(conn)
+			infoTcp.Println("Connection open", conn.RemoteAddr().String())
+
+			// check for local connection
+			if strings.Contains(conn.RemoteAddr().String(), "127.0.0.1") {
+				// Handle connections in a new goroutine.
+				go self.tcpClientHandler(conn)
+			} else {
+				conn.Close()
+			}
+
 		}
 	}()
 }

@@ -144,8 +144,8 @@ func init() {
 		fmt.Printf("  ls\n\tList all datasources from database\n")
 		fmt.Printf("  export [datasource]\n\tExports datasource to GeoJSON file\n")
 		fmt.Printf("  import [<filename>.shp || <filename>.geojson]\n\tImports datasource from shapefile or GeoJSON\n")
-		fmt.Printf("  create [datasource || customer]\n\tCreates new datasource or customer\n")
-		fmt.Printf("  assign [datasource] [customer]\n\tAssigns datasource to customer\n")
+		// fmt.Printf("  create [datasource || customer]\n\tCreates new datasource or customer\n")
+		// fmt.Printf("  assign [datasource] [customer]\n\tAssigns datasource to customer\n")
 		fmt.Printf("\n")
 		fmt.Printf("Defaults:\n")
 		flag.PrintDefaults()
@@ -178,32 +178,32 @@ func main() {
 		}
 		importFile := requiredArgs[1]
 		importDatasource(importFile)
-	} else if method == "create" {
-		if len(requiredArgs) != 2 {
-			usageError("Please specify either 'datasource' or 'customer' to create")
-		} else if requiredArgs[1] == "datasource" {
-			fmt.Println("Creating datasource")
-			setupDb()
-			ds, err := app.DB.NewLayer()
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			fmt.Println("Datasource created:", ds)
-		} else if requiredArgs[1] == "customer" {
-			fmt.Println("Creating customer")
-			setupDb()
-			apikey := utils.NewAPIKey(12)
-			customer := app.Customer{Apikey: apikey}
-			err := app.DB.InsertCustomer(customer)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			fmt.Println("Customer created:", apikey)
-		} else {
-			usageError("Cannot create '" + requiredArgs[1] + "'")
-		}
+	// } else if method == "create" {
+	// 	if len(requiredArgs) != 2 {
+	// 		usageError("Please specify either 'datasource' or 'customer' to create")
+	// 	} else if requiredArgs[1] == "datasource" {
+	// 		fmt.Println("Creating datasource")
+	// 		setupDb()
+	// 		ds, err := app.DB.NewLayer()
+	// 		if err != nil {
+	// 			fmt.Println(err)
+	// 			os.Exit(1)
+	// 		}
+	// 		fmt.Println("Datasource created:", ds)
+	// 	} else if requiredArgs[1] == "customer" {
+	// 		fmt.Println("Creating customer")
+	// 		setupDb()
+	// 		apikey := utils.NewAPIKey(12)
+	// 		customer := app.Customer{Apikey: apikey}
+	// 		err := app.DB.InsertCustomer(customer)
+	// 		if err != nil {
+	// 			fmt.Println(err)
+	// 			os.Exit(1)
+	// 		}
+	// 		fmt.Println("Customer created:", apikey)
+	// 	} else {
+	// 		usageError("Cannot create '" + requiredArgs[1] + "'")
+	// 	}
 	} else if method == "backup" {
 		fmt.Println("Backing up database...")
 		setupDb()
@@ -238,22 +238,22 @@ func main() {
 			app.DB.InsertCustomers(data.Apikeys)
 			app.DB.InsertLayers(data.Layers)
 		}
-	} else if method == "assign" {
-		if len(requiredArgs) != 3 {
-			usageError("Please datasource and customer key")
-		} else {
-			setupDb()
-			customer, err := app.DB.GetCustomer(requiredArgs[2])
-			if err != nil {
-				fmt.Println("Customer key not found!")
-				os.Exit(1)
-			}
-			// CHECK IF DATASOURCE EXISTS
-			// CHECK IF DATASOURCE ALREADY ADDED TO CUSTOMER
-			// Add datasource uuid to customer
-			customer.Datasources = append(customer.Datasources, requiredArgs[1])
-			app.DB.InsertCustomer(customer)
-		}
+	// } else if method == "assign" {
+	// 	if len(requiredArgs) != 3 {
+	// 		usageError("Please datasource and customer key")
+	// 	} else {
+	// 		setupDb()
+	// 		customer, err := app.DB.GetCustomer(requiredArgs[2])
+	// 		if err != nil {
+	// 			fmt.Println("Customer key not found!")
+	// 			os.Exit(1)
+	// 		}
+	// 		// CHECK IF DATASOURCE EXISTS
+	// 		// CHECK IF DATASOURCE ALREADY ADDED TO CUSTOMER
+	// 		// Add datasource uuid to customer
+	// 		customer.Datasources = append(customer.Datasources, requiredArgs[1])
+	// 		app.DB.InsertCustomer(customer)
+	// 	}
 	} else {
 		usageError("Method not found")
 	}

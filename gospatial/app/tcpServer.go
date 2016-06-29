@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"gospatial/utils"
 )
 
 const (
@@ -113,7 +114,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 		infoTcp.Println("Message Received: ", string(message))
 
 		// json parse message
-		req := make(map[string]interface{})
+		req := make(map[string]string)
 		err := json.Unmarshal([]byte(message), &req)
 		if err != nil {
 			// invalid message
@@ -137,6 +138,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 			resp := `{"status": "success", "data": {}}`
 			conn.Write([]byte(resp + "\n"))
 			success = true
+
 		case req["method"] == "loaded_datasources":
 			// {"method": "loaded_datasources"}
 			// result := make(map[string]interface{})
@@ -144,6 +146,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 			resp := `{"status": "success", "data": ` + string(result) + `}`
 			conn.Write([]byte(resp + "\n"))
 			success = true
+
 		case req["method"] == "clear_customer_cache":
 			// {"method": "clear_customer_cache"}
 			// Unload all apikeys in database cache
@@ -153,12 +156,34 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 			resp := `{"status": "success", "data": {}}`
 			conn.Write([]byte(resp + "\n"))
 			success = true
-		case req["method"] == "share_datasource":
-			// req["data"]["datasource"]
-			// req["data"]["to"]
+
+		case req["method"] == "assign_datasource":
+			datasource_id := req["datasource_id"]
+			apikey := req["apikey"]
+			customer, err := DB.GetCustomer(apikey)
 			resp := `{"status": "success", "data": {}}`
+			if err != nil {
+				fmt.Println("Customer key not found!")
+				resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "Customer key not found!"}}`
+			}
+			// CHECK IF DATASOURCE EXISTS
+			customer.Datasources = append(customer.Datasources, datasource_id)
+			DB.InsertCustomer(customer)
 			conn.Write([]byte(resp + "\n"))
 			success = true
+
+		case req["method"] == "create_user":
+			apikey := utils.NewAPIKey(12)
+			customer := Customer{Apikey: apikey}
+			resp := `{"status": "success", "data": {"apikey": "` + apikey + `"}}`
+			err := DB.InsertCustomer(customer)
+			if err != nil {
+				fmt.Println(err)
+				resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "error creating customer"}}`
+			}
+			conn.Write([]byte(resp + "\n"))
+			success = true
+
 		}
 
 		if !success {

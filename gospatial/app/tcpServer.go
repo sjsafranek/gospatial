@@ -167,6 +167,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "Customer key not found!"}}`
 			}
 			// CHECK IF DATASOURCE EXISTS
+			// *****
 			customer.Datasources = append(customer.Datasources, datasource_id)
 			DB.InsertCustomer(customer)
 			conn.Write([]byte(resp + "\n"))

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8 />
+		<title>GoSpatial Gatekeeper</title>
+		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+	
+		<!-- JQuery -->
+		<!-- <script src="/jquery/jquery-1.11.0.js" ></script> -->
+
+<!-- Javascript Start -->
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<!-- Bootstrap Core JavaScript -->
+<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script> -->
+<!-- Plugin JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+<!-- Custom Theme JavaScript -->
+<!-- <script src="http://internalpositioning.com/js/grayscale.js"></script> -->
+<script src="https://www.internalpositioning.com/js/grayscale.js"></script>
+<!-- <script src="https://cdn.rawgit.com/BlackrockDigital/startbootstrap-grayscale/gh-pages/js/grayscale.js"></script> -->
+
+
+
+
+		<script src="/bootstrap/bootstrap.js"></script>
+		<link href="/bootstrap/bootstrap.min.css" rel="stylesheet">
+		<link href="/bootstrap/2-col-portfolio.css" rel="stylesheet">
+
+		<!-- Font Awesome CSS -->
+		<link rel="stylesheet" href="/font-awesome-4.6.3/css/font-awesome.min.css">
+
+		<!-- Sweet Alert for Bootstrap -->
+		<script src="/bootstrap-sweetalert/sweetalert.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="/bootstrap-sweetalert/sweetalert.css">
+
+		<!-- Backbone -->
+	    <script src="/underscore/underscore-min.js"></script>
+	    <script src="/backbone/backbone-min.js"></script>
+
+		<!-- GoSpatial -->
+		<script src="/gospatialjs/gospatial-api.js?{{.Version}}"></script>
+		<script src="/gospatialjs/models/vector-layer.js?{{.Version}}"></script>
+		<script src="/gospatialjs/views/vector-layers.js?{{.Version}}"></script>
+		<script src="/gospatialjs/views/tile-layers.js?{{.Version}}"></script>
+
+		<style>
+			/* "Back to Top" button */
+			#toTop{
+				position: fixed;
+				bottom: 20px;
+				right: 40px;
+				cursor: pointer;
+				display: none;
+			}
+		</style>
+
+		<script>
+			// "Back to Top" button
+			// http://cotswoldphoto.co.uk/bootstrap-float-to-top-button/
+			$(document).ready(function(){
+				$('body').append('<div id="toTop" class="btn btn-default"><i class="fa fa-chevron-up" aria-hidden="true"></i></div>');
+					$(window).scroll(function () {
+						if ($(this).scrollTop() != 0) {
+							$('#toTop').fadeIn();
+						} else {
+							$('#toTop').fadeOut();
+						}
+					}); 
+				$('#toTop').click(function(){
+					$("html, body").animate({ scrollTop: 0 }, 600);
+					return false;
+				});
+			});
+		</script>
+
+
+		<style>
+		    .panel_controls {
+		    	display: inline-block;
+		    	float: right;
+		    	margin-top: -5px;
+		    }
+
+		    /*.closeChart, .openChart, .deleteChart {*/
+		    .toggleVectorLayerOptions {
+		    	/*margin-right: 2px;*/
+		    }
+
+			i.fa {
+    			pointer-events: none;
+    		}
+
+    		.downloadLayer a {
+    			/* remove default style */
+				color: inherit;
+				text-decoration: inherit; 
+    		}
+
+    		.deleteLayer, .downloadLayer {
+    			margin-bottom: 4px; 
+    			/*width: 32 !important;*/
+    		}
+
+		</style>
+
+
+	</head>
+	<!-- <body> -->
+	<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+		<!-- Navigation -->
+		<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<div class="container">
+			<!-- <div class="container-fluid"> -->
+				<!-- Brand and toggle get grouped for better mobile display -->
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="../management?apikey={{.Apikey}}">
+						 GoSpatial
+					</a>
+				</div>
+				<!-- Collect the nav links, forms, and other content for toggling -->
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li>
+							<a href="../management?apikey={{.Apikey}}"><i class="fa fa-users"></i> Management</a>
+						</li>
+						<li>
+							<a href="../map?apikey={{.Apikey}}"><i class="fa fa-compass"></i> Map</a>
+						</li> 
+						<li>
+							<a href="http://sjsafranek.github.io/gospatial/"><i class="fa fa-question-circle"></i> Docs</a>
+						</li>
+					</ul>
+				</div>
+				<!-- /.navbar-collapse -->
+			</div>
+			<!-- /.container -->
+		</nav>
+
+		<!-- Page Content -->
+		<!-- <div class="container-fluid" id="app_view"> -->
+		<div class="container" id="app_view">
+
+			<div class="row">
+				<!-- Sidebar -->
+				<!-- <div class="col-sm-3 col-md-2 sidebar">
+					<ul class="nav nav-sidebar">
+						<li class="active"><a href="#vectorLayerView">VectorLayers <span class="sr-only">(current)</span></a></li>
+						<li><a href="#tileLayerView">TileLayers</a></li>
+					</ul>
+				</div> -->
+				<!-- /. Sidebar -->
+				<!-- Body Content -->
+				<div class="col-sm-9 col-md-10 main">
+				<!-- <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"> -->
+					<!-- Page Header -->
+					<div class="row">
+						<div class="col-lg-12">
+							<h2 class="page-header">Management <small>Vector Layers and TileLayers</small></h2>
+						</div>
+					</div> 
+					<!-- /. Page Header -->
+
+					<div class="row" id="vectorLayerView">
+						<div class="col-xs-12 column">
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<h3 class="panel-title"><i class="fa fa-database" aria-hidden="true"></i> Vector Layers</h3>
+								</div>
+								<div class="panel-body">
+									<div class="row">
+										<div class="col-md-3 column">
+											<div class="panel">
+											<button class="btn btn-primary createLayer">Create Vector Layer</button>
+											</div>
+										</div>
+										<div class="col-md-9 column">
+											<div class="panel-group" id="layers_list">
+												<!-- panels go here -->
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row" id="tileLayerView">
+						<div class="col-xs-12 column">
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<h3 class="panel-title"><i class="fa fa-map" aria-hidden="true"></i> TileLayers</h3>
+								</div>
+								<div class="panel-body">
+									<div class="row">
+										<div class="col-md-4 column">
+											<div class="panel-body">
+												<div class="well">
+													<label for="name">Name:</label>
+													<input type="text" name="tilelayer_name" class="form-control" id="tilelayer_name">
+													<label for="name">Url:</label>
+													<input type="text" name="tilelayer_url" class="form-control" id="tilelayer_url">
+													<br>
+													<button class="btn btn-primary createTileLayer">Create TileLayer</button>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-8 column">
+											<div class="panel-body">
+												<table class="table table-striped table-bordered">
+													<thead>
+														<tr>
+															<th>#</th>
+															<th>Name</th>
+															<th>Url</th>
+														</tr>
+													</thead>
+													<tbody id="tilelayers_list">
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+				<!-- /. Body Content -->
+			</div>
+		</div>
+		<!-- /. Page Content -->
+
+
+
+		<script>
+
+			var app = {
+				tlv: new TileLayerView({{.Apikey}}),
+				vlv: new VectorLayerView({{.Apikey}})
+			}
+
+		</script>
+
+
+
+	</body>
+</html>

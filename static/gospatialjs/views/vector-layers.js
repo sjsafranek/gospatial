@@ -22,7 +22,7 @@
 			var self = this;
 			swal({
 				title: "Create layer",
-				text: "Are you sure you want to create a new lyaer",
+				text: "Are you sure you want to create a new layer",
 				type: "info",
 				showCancelButton: true,
 				confirmButtonColor: "#DD6B55",

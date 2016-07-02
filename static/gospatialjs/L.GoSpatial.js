@@ -497,6 +497,7 @@ L.GoSpatial = L.Class.extend({
 			div.innerHTML =  "<h4>Legend</h4>";
 			div.innerHTML += "<select id='choroplethField'></select>";
 			div.innerHTML += "<div id='legend'></div>";
+			div.innerHTML += "<div id='filters'></div>";
 			return div;
 		};
 		featureAttributesControl.addTo(this._map);
@@ -540,10 +541,37 @@ L.GoSpatial = L.Class.extend({
 
 // COLOR ISSUES
 	generateChoroplethColors: function() {
+		$("#filters").html("");
+		$('#choroplethField').html("");
 		fields = this.getUniqueFeatureProperties();
 		this.choroplethColors = {};
 		for (var field in fields) {
 			if (!this.choroplethColors.hasOwnProperty(field)) {
+
+				// selectors!!
+				var field_selector = $("<div>").append(
+					$("<strong>").text(field)
+				);
+				var table = $("<table>").addClass("table").addClass("table-bordered").append(
+					$("<thead>").append(
+						$("<tr>").append(
+							$("<th>").append(
+								$("<i>").addClass("fa").addClass("fa-sort")
+							),
+							$("<th>").append(
+								$("<i>").addClass("fa").addClass("fa-sort")
+							),
+							$("<th>").append(
+								$("<i>").addClass("fa").addClass("fa-sort")
+							),
+							$("<th>").append(
+								$("<i>").addClass("fa").addClass("fa-sort")
+							)
+						)
+					)
+				);
+				var tbody = $("<tbody>");
+
 				if (typeof(fields[field][0]) == "number") {
 					this.choroplethColors[field] = { 
 						type: "number",
@@ -551,7 +579,9 @@ L.GoSpatial = L.Class.extend({
 							.domain([fields[field][0], fields[field][fields[field].length-1]])
 							.range(["yellow", "darkred"])
 					};
+
 				} else {
+
 					this.choroplethColors[field] = { 
 						type: "string",
 						// color: d3.scale.category20b(),
@@ -560,12 +590,35 @@ L.GoSpatial = L.Class.extend({
 					var color = d3.scale.category20b();
 					for (var i=0; i < fields[field].length; i++) {
 						this.choroplethColors[field].colors[fields[field][i]] = color(i);
+						
+						// field_selector.append(
+						// 	$("<div>").addClass("attr").append(
+						// 		$("<i>").css("background", color(i)),
+						// 		$("<input>", {type:"checkbox"}),
+						// 		$("<label>").text(fields[field][i]),
+						// 		$("<label>").text("0")
+						// 	)
+						// );
+						table.append(
+							$("<tr>").append(
+								$("<td>").addClass("cell-color").append(
+									$("<i>").addClass("attr-color").css("background", color(i))
+								),
+								$("<td>").append($("<input>", {type:"checkbox"})),
+								$("<td>").text(fields[field][i]),
+								$("<td>").text("0")
+							)
+						);
 					}
 				}
 				var obj = document.createElement('option');
 				obj.value = field;
 				obj.text = field;
 				$('#choroplethField').append(obj);
+				//
+				table.append(tbody);
+				field_selector.append(table);
+				$("#filters").append(field_selector);
 			}
 		}
 	},
@@ -590,16 +643,16 @@ L.GoSpatial = L.Class.extend({
 			}
 		});
 		// Create color legend
-		$("#legend").html("");
-		if (self.choroplethColors[field].type != "number") {
-			console.log(self.choroplethColors[field]);
-			for (var attr in self.choroplethColors[field].colors) {
-				obj = '<div class="attr"><i style="background:' + self.choroplethColors[field].colors[attr] + '"></i> ' + attr + '</div>';
-				$("#legend").append(obj);
-			}
-		} else {
-			// Display color gradient
-		}
+		// $("#legend").html("");
+		// if (self.choroplethColors[field].type != "number") {
+		// 	console.log(self.choroplethColors[field]);
+		// 	for (var attr in self.choroplethColors[field].colors) {
+		// 		obj = '<div class="attr"><i style="background:' + self.choroplethColors[field].colors[attr] + '"></i> ' + attr + '</div>';
+		// 		$("#legend").append(obj);
+		// 	}
+		// } else {
+		// 	// Display color gradient
+		// }
 	},
 
 	/** 

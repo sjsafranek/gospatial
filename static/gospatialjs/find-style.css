@@ -39,8 +39,36 @@ i#zoom {
 }
 
 
+
+th {
+	padding: 2px !important;
+}
+
+i.fa.fa-sort {
+	margin: 0px !important;
+}
+
+i.attr-color {
+	margin: 0px !important;
+}
+
+td.cell-color {
+	padding-bottom: 1px !important;
+	padding-top: 1px !important;
+	padding-left: 2px !important;
+	padding-right: 2px !important;
+}
+
+div#filters {
+	height: 350px;
+	width: 250px;
+	overflow: scroll;
+}
+
+
+
 .legend {
-	line-height: 18px;
+	line-height: 18px;;
 }
 
 .legend i {
@@ -63,9 +91,9 @@ i#zoom {
 	background: white;
 }
 
-.attr {
-	padding: 1px;
-}
+/*.attr {*/
+	/*padding: 1px;*/
+/*}*/
 
 #choroplethField {
 	padding: 1px;

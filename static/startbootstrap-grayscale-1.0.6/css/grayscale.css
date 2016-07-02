@@ -347,6 +347,14 @@ footer p {
     padding-top: 100px;
 }
 
+.tilelayer-section {
+    width: 100%;
+}
+
+.tilelayer-section .panel-body {
+    color: black !important;
+}
+
 ::-moz-selection {
     text-shadow: none;
     background: #fcfcfc;

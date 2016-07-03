@@ -3,11 +3,12 @@
 
 		this.apikey = apikey;
 		this.server = server || "";
+		// this.url = new URL("http://localhost:8888/map?apikey=iNx1xvBPDrZb#");
 
 		this.getCustomer = function() {
 			var self = this;
 			var data;
-			this.GET("/api/v1/customer" + "?apikey=" + self.apikey, function(error, result){
+			this.GET(this.server + "/api/v1/customer" + "?apikey=" + self.apikey, function(error, result){
 				if (error) {
 					throw error;
 				} else {
@@ -19,7 +20,7 @@
 
 		this.getLayer = function(datasource, callback) {
 			var self = this;
-			this.GET("/api/v1/layer/" + datasource + "?apikey=" + self.apikey, function(error, result){
+			this.GET(this.server + "/api/v1/layer/" + datasource + "?apikey=" + self.apikey, function(error, result){
 				callback(error, result);
 			});
 		}
@@ -27,7 +28,7 @@
 		this.submitFeature = function(datasource, feature, callback) {
 			var self = this;
 			this.POST(
-				'/api/v1/layer/' + datasource + '/feature?apikey=' + self.apikey,
+				this.server + '/api/v1/layer/' + datasource + '/feature?apikey=' + self.apikey,
 				feature,
 				function(error, result) {
 					callback(error, result);

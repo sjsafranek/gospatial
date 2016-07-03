@@ -1,15 +1,8 @@
 /**
- * FIND Client
+ * GoSpatial Map Client
  * Author: Stefan Safranek
  * Email:  sjsafranek@gmail.com
  */
-
-//
-// TODO
-// utils class
-// updateFeatureLayers refactor
-// createFeatureLayer refactor
-// 
 
 L.GoSpatial = L.Class.extend({
 
@@ -22,7 +15,6 @@ L.GoSpatial = L.Class.extend({
 		this.apiClient = new GoSpatialApi(apikey);
 		this.customer = this.apiClient.getCustomer();
 		this.datasources = this.customer.datasources;
-		// this.datasources = this.apiClient.getDatsources();
 		this.vectorLayers = {};
 		// this.ws = null;
 		this.drawnItems = null;
@@ -37,7 +29,6 @@ L.GoSpatial = L.Class.extend({
 		this._addLogoControl();
 		this._addLayerControl();
 		this._addMouseControl();
-		// this._addFeatureAttributesControl(); 
 		// Drawing
 		this._addMeasureControl();
 		this._addLocateControl();
@@ -71,70 +62,34 @@ L.GoSpatial = L.Class.extend({
 	 * object:     utils{}
 	 * desciption: contains general methods
 	 */
-	utils: {
+	// utils: {
 
-		// color: d3.scale.category20b(),
+	// 	/** 
+	// 	 * method:     randomColor()
+	// 	 * desciption: Generates and returns random hex color
+	// 	 * @returns    hex color code
+	// 	 */
+	// 	randomColor: function() {
+	// 		return '#'+Math.floor(Math.random()*16777215).toString(16);
+	// 	},
 
-		// colorGradient: d3.scale.linear()
-		//     .domain([-1, 0, 1])
-		//     .range(["yellow", "darkred"]),
+	// 	* 
+	// 	 * method:     uuid()
+	// 	 * desciption: Generates and returns randomly generated uuid string
+	// 	 * @returns    uuid string
+		 
+	// 	uuid: function() {
+	// 		function s4() {
+	// 			return Math.floor((1 + Math.random()) * 0x10000)
+	// 				.toString(16)
+	// 				.substring(1);
+	// 		}
+	// 		return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+	// 	}
 
-		/** 
-		 * method:     parseURL()
-		 * source:     http://www.abeautifulsite.net/parsing-urls-in-javascript/
-		 * desciption: parses url into pieces
-		 * @param url {str} url to parse
-		 * @returns    map containing parsed url
-		 */
-		parseURL: function(url) {
-			// http://www.abeautifulsite.net/parsing-urls-in-javascript/
-			var parser = document.createElement('a'),
-				searchObject = {},
-				queries, split, i;
-			// Let the browser do the work
-			parser.href = url;
-			// Convert query string to object
-			queries = parser.search.replace(/^\?/, '').split('&');
-			for( i = 0; i < queries.length; i++ ) {
-				split = queries[i].split('=');
-				searchObject[split[0]] = split[1];
-			}
-			return {
-				protocol: parser.protocol,
-				host: parser.host,
-				hostname: parser.hostname,
-				port: parser.port,
-				pathname: parser.pathname,
-				search: parser.search,
-				searchObject: searchObject,
-				hash: parser.hash
-			};
-		},
+	// },
 
-		/** 
-		 * method:     randomColor()
-		 * desciption: Generates and returns random hex color
-		 * @returns    hex color code
-		 */
-		randomColor: function() {
-			return '#'+Math.floor(Math.random()*16777215).toString(16);
-		},
-
-		/** 
-		 * method:     uuid()
-		 * desciption: Generates and returns randomly generated uuid string
-		 * @returns    uuid string
-		 */
-		uuid: function() {
-			function s4() {
-				return Math.floor((1 + Math.random()) * 0x10000)
-					.toString(16)
-					.substring(1);
-			}
-			return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-		}
-
-	},
+	utils: new Utils(),
 
 	/** 
 	 * method:     _preventPropogation()
@@ -241,22 +196,6 @@ L.GoSpatial = L.Class.extend({
 			$("#location")[0].innerHTML = "<strong>Lat, Lon : " + e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4) + "</strong>";
 		});
 	},
-
-	// /** 
-	//  * method:     _addFeatureAttributesControl()
-	//  * desciption: Creates L.control for displaying feature attributes
-	//  */
-	// _addFeatureAttributesControl: function() {
-	// 	// Create UI control element
-	// 	featureAttributesControl = L.control({position: 'bottomright'});
-	// 	featureAttributesControl.onAdd = function () {
-	// 		var div = L.DomUtil.create('div', 'info legend');
-	// 		div.innerHTML = "<div id='attributes'>Hover over features</div>";
-	// 		return div;
-	// 	};
-	// 	featureAttributesControl.addTo(this._map);
-	// 	this._preventPropogation(featureAttributesControl);
-	// },
 
 	/** 
 	 * method:     _addMeasureControl()

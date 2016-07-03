@@ -144,7 +144,12 @@
 							if (error) {
 								throw new Error(error);
 							} else {
-								$(container).find(".raw-json").html(JSON.stringify(data, null, 2));
+								// $(container).find(".raw-json").html(JSON.stringify(data, null, 2));
+								var metadata = {
+									size: JSON.stringify(data).length,
+									features: data.features.length
+								};
+								$(container).find(".raw-json").html(JSON.stringify(metadata, null, 2));
 								// download link for geojson file
 								var link = $(container).find("a");
 								link.href = makeGeoJSONFile(data);
@@ -178,7 +183,8 @@
 									'<div class="col-md-1 column">' +
 										'<button class="btn btn-sm btn-info downloadLayer" title="view" ds_id=' + ds + '>' + 
 											'<a href="/api/v1/layer/'+ ds +'?apikey=' + self.apikey + '" download="' + ds + '.geojson">' +
-												'<i class="fa fa-cloud-download" aria-hidden="true"></i>' + 
+												// '<i class="fa fa-cloud-download" aria-hidden="true"></i>' + 
+												'<i class="fa fa-download" aria-hidden="true"></i>' + 
 											'</a>' + 
 										'</button>' +
 										'<button class="btn btn-sm btn-danger deleteLayer" title="delete" ds_id=' + ds + '>' + 

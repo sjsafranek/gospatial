@@ -31,7 +31,7 @@ var (
 )
 
 const (
-	version       string = "1.10.1"
+	version       string = "1.10.2"
 	configDefault string = ""
 )
 

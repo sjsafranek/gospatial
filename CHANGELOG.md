@@ -1,19 +1,20 @@
 # TODO
 - add apikey to request headers
-- django control layer schema
 - jsend complient messages https://labs.omniti.com/labs/jsend
-- fix gospatial_cmd assign
 
 
 
 # Change Log
 
 ## [Unreleased]
-## [1.10.2] - 2016-06-12
+
+## [1.10.2] - 2016-07-03
 ### Added
  - /documentation added to app
  - tcp listener
-
+ - assign datasource via tcp connection
+ - choropleth refactor, support number types
+ - side panel for filters
 
 
 ## [1.10.1] - 2016-06-08

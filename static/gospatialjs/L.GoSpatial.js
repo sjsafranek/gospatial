@@ -148,10 +148,14 @@ L.GoSpatial = L.Class.extend({
 		// Disable dragging when user's cursor enters the element
 		obj.getContainer().addEventListener('mouseover', function () {
 			map.dragging.disable();
+			map.scrollWheelZoom.disable();
+			map.doubleClickZoom.disable();
 		});
 		// Re-enable dragging when user's cursor leaves the element
 		obj.getContainer().addEventListener('mouseout', function () {
 			map.dragging.enable();
+			map.scrollWheelZoom.enable();
+			map.doubleClickZoom.enable();
 		});
 	},
 
@@ -328,7 +332,12 @@ L.GoSpatial = L.Class.extend({
 		var fields = $("#properties .field");
 		var attrs = $("#properties .attr");
 		for (var _i=0; _i < fields.length; _i++) {
-			properties[fields[_i].value] = attrs[_i].value;
+			try {
+				properties[fields[_i].value] = parseFloat(attrs[_i].value);
+			}
+			catch(err) {
+				properties[fields[_i].value] = attrs[_i].value;
+			}
 		}
 		return properties;
 	},
@@ -410,6 +419,10 @@ L.GoSpatial = L.Class.extend({
 	createFeatureLayer: function(data) {
 		map = this._map;
 		var featureLayer = L.geoJson(data, {
+			filter: function(feature, layer) {
+				return true;
+                // return feature.properties.BusType == "Cafe";
+            },
 			style: {
 				weight: 2, 
 				color: "#000", 
@@ -435,45 +448,34 @@ L.GoSpatial = L.Class.extend({
 					layer.bindPopup(results);
 				}
 
-				function highlightFeature(e) {
-					var layer = e.target;
-					layer.setStyle({
-						// weight: 3,
-						// opacity: 1,
-						// color: '#000'
-						weight: 4,
-						radius: 6
-					});
-					if (!L.Browser.ie && !L.Browser.opera) {
-						layer.bringToFront();
-					}
-				}
-
-				function resetHighlight(e) {
-					// featureLayer.resetStyle(e.target);
-					var layer = e.target;
-					layer.setStyle({
-						weight: 1,
-						radius: 4
-					});
-				}
-
-				function zoomToFeature(e) {
-					map.fitBounds(e.target.getBounds(), {maxZoom:12});
-				}
-
 				layer.on({
-					mouseover: function(feature){
-						highlightFeature(feature);
+					mouseover: function(e) {
+						// highlight feature
+						e.target.setStyle({
+							weight: 4,
+							radius: 6
+						});
+						if (!L.Browser.ie && !L.Browser.opera) {
+							e.target.bringToFront();
+						}
 					},
-					mouseout: function(feature){
-						resetHighlight(feature);
+					mouseout: function(e){
+						// reset style
+						e.target.setStyle({
+							weight: 1,
+							radius: 4
+						});
 					},
-					dblclick: function(feature) {
-						zoomToFeature(feature);
+					dblclick: function(e) {
+						// center map on feature
+						map.setView(e.target.getBounds().getCenter());
 					},
-					click: function(feature) {
-						zoomToFeature(feature);
+					click: function(e) {
+						// center map on feature
+						map.setView(e.target.getBounds().getCenter());
+					},
+					contextmenu: function(e) { 
+						map.fitBounds(e.target.getBounds(), {maxZoom:12});
 					}
 				});
 			}
@@ -494,22 +496,11 @@ L.GoSpatial = L.Class.extend({
 		featureAttributesControl = L.control({position: 'bottomright'});
 		featureAttributesControl.onAdd = function () {
 			var div = L.DomUtil.create('div', 'info legend');
-			div.innerHTML =  "<h4>Legend</h4>";
-			div.innerHTML += "<select id='choroplethField'></select>";
-			div.innerHTML += "<div id='legend'></div>";
 			div.innerHTML += "<div id='filters'></div>";
 			return div;
 		};
 		featureAttributesControl.addTo(this._map);
 		this._preventPropogation(featureAttributesControl);
-		// Choropleth attribute switcher
-		var obj = document.createElement('option');
-		obj.value = "off";
-		obj.text = "off";
-		$('#choroplethField').append(obj);
-		$('#choroplethField').on("change", function() {
-			self.choropleth($('#choroplethField').val());
-		});
 	},
 
 	choroplethColors: {},
@@ -541,83 +532,99 @@ L.GoSpatial = L.Class.extend({
 
 // COLOR ISSUES
 	generateChoroplethColors: function() {
+		var self = this;
 		$("#filters").html("");
-		$('#choroplethField').html("");
 		fields = this.getUniqueFeatureProperties();
 		this.choroplethColors = {};
 		for (var field in fields) {
 			if (!this.choroplethColors.hasOwnProperty(field)) {
+				// field section
+				var field_selector = $("<div>", {
+					title: field
+				}).append(
+					$("<i>", {name: field}).addClass("fa").addClass("fa-paint-brush").on("click", function(){
+						$("i.fa.fa-paint-brush").css("color", "black");
+						$(this).css("color", "red");
+						self.choropleth($(this).attr("name"));
+					}),
 
-				// selectors!!
-				var field_selector = $("<div>").append(
-					$("<strong>").text(field)
+					$("<strong>").text(field).on("click", function() {
+						// selector filters
+						var vis = $(this).parent().find("table").is(':visible');
+						if (vis) {
+							$(this).parent().find("table").hide();
+						} else {
+							$(this).parent().find("table").show();
+						}
+						// range filters
+						var vis = $(this).parent().find(".range-selector").is(':visible');
+						if (vis) {
+							$(this).parent().find(".range-selector").hide();
+						} else {
+							$(this).parent().find(".range-selector").show();
+						}
+					})
 				);
-				var table = $("<table>").addClass("table").addClass("table-bordered").append(
-					$("<thead>").append(
-						$("<tr>").append(
-							$("<th>").append(
-								$("<i>").addClass("fa").addClass("fa-sort")
-							),
-							$("<th>").append(
-								$("<i>").addClass("fa").addClass("fa-sort")
-							),
-							$("<th>").append(
-								$("<i>").addClass("fa").addClass("fa-sort")
-							),
-							$("<th>").append(
-								$("<i>").addClass("fa").addClass("fa-sort")
-							)
-						)
-					)
-				);
-				var tbody = $("<tbody>");
-
 				if (typeof(fields[field][0]) == "number") {
+					// range filter
 					this.choroplethColors[field] = { 
 						type: "number",
 						color: d3.scale.linear()
 							.domain([fields[field][0], fields[field][fields[field].length-1]])
 							.range(["yellow", "darkred"])
 					};
-
+					var rangeSelector = $("<div>").addClass("range-selector").text(fields[field][0] + " - " + fields[field][fields[field].length-1]);
+					rangeSelector.hide();
+					field_selector.append(rangeSelector);
 				} else {
-
+					// selectors filter
+					var table = $("<table>").addClass("table").addClass("table-bordered").append(
+						$("<thead>").append(
+							$("<tr>").append(
+								$("<th>").append(
+									$("<i>").addClass("fa").addClass("fa-sort")
+								),
+								$("<th>").append(
+									$("<i>").addClass("fa").addClass("fa-sort")
+								),
+								$("<th>").append(
+									$("<i>").addClass("fa").addClass("fa-sort")
+								),
+								$("<th>").append(
+									$("<i>").addClass("fa").addClass("fa-sort")
+								)
+							)
+						)
+					);
+					var tbody = $("<tbody>");
+					// fill table body with checkbox filters
 					this.choroplethColors[field] = { 
 						type: "string",
-						// color: d3.scale.category20b(),
 						colors: {}
 					};
 					var color = d3.scale.category20b();
 					for (var i=0; i < fields[field].length; i++) {
 						this.choroplethColors[field].colors[fields[field][i]] = color(i);
-						
-						// field_selector.append(
-						// 	$("<div>").addClass("attr").append(
-						// 		$("<i>").css("background", color(i)),
-						// 		$("<input>", {type:"checkbox"}),
-						// 		$("<label>").text(fields[field][i]),
-						// 		$("<label>").text("0")
-						// 	)
-						// );
-						table.append(
+						tbody.append(
 							$("<tr>").append(
 								$("<td>").addClass("cell-color").append(
 									$("<i>").addClass("attr-color").css("background", color(i))
 								),
-								$("<td>").append($("<input>", {type:"checkbox"})),
+								$("<td>").append(
+									$("<input>", {
+										type:"checkbox", 
+										name:fields[field][i]
+									})
+								),
 								$("<td>").text(fields[field][i]),
 								$("<td>").text("0")
 							)
 						);
 					}
+					table.append(tbody);
+					table.hide();
+					field_selector.append(table);
 				}
-				var obj = document.createElement('option');
-				obj.value = field;
-				obj.text = field;
-				$('#choroplethField').append(obj);
-				//
-				table.append(tbody);
-				field_selector.append(table);
 				$("#filters").append(field_selector);
 			}
 		}
@@ -642,17 +649,6 @@ L.GoSpatial = L.Class.extend({
 				});
 			}
 		});
-		// Create color legend
-		// $("#legend").html("");
-		// if (self.choroplethColors[field].type != "number") {
-		// 	console.log(self.choroplethColors[field]);
-		// 	for (var attr in self.choroplethColors[field].colors) {
-		// 		obj = '<div class="attr"><i style="background:' + self.choroplethColors[field].colors[attr] + '"></i> ' + attr + '</div>';
-		// 		$("#legend").append(obj);
-		// 	}
-		// } else {
-		// 	// Display color gradient
-		// }
 	},
 
 	/** 

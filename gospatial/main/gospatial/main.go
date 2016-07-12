@@ -19,6 +19,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"runtime/pprof"
 )
 
 var (
@@ -40,6 +41,8 @@ type serverConfig struct {
 	Db      string `json:"db"`
 	Authkey string `json:"authkey"`
 }
+
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 func init() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -78,6 +81,16 @@ func init() {
 }
 
 func main() {
+
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+
 
 	// source: http://patorjk.com/software/taag/#p=display&f=Slant&t=Gospatial
 	// HyperCube Platforms

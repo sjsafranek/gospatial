@@ -34,6 +34,7 @@ type TcpServer struct {
 }
 
 func (self TcpServer) init() {
+
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		Error.Fatal(err)
@@ -76,9 +77,8 @@ func (self TcpServer) Start() {
 		// Close the listener when the application closes.
 		defer l.Close()
 		log.Println("Tcp Listening on " + host + ":" + port)
-		// infoTcp.Println("Error listening:", err.Error())
-		for {
 
+		for {
 			// Listen for an incoming connection.
 			conn, err := l.Accept()
 			if err != nil {
@@ -105,6 +105,8 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 
 	defer conn.Close()
 
+	authenticated := false
+
 	for {
 
 		// will listen for message to process ending in newline (\n)
@@ -127,69 +129,90 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 		}
 
 		// get method
-		success := false
-		switch {
-		case req["method"] == "clear_datasource_cache":
-			// {"method": "clear_datasource_cache"}
-			// Unload all layers in database cache
-			for key := range DB.Cache {
-				delete(DB.Cache, key)
+		if !authenticated {
+			if req["method"] == "authenticate" {
+				// {"method":"authenticate", "authkey": "QS8fB3Pv452D"}
+				authenticated = SuperuserKey == req["authkey"]
+				if authenticated {
+					resp := `{"status": "success", "data": {}}`
+					conn.Write([]byte(resp + "\n"))
+				} else {
+					warningTcp.Println("error: incorrect authkey")
+					resp := `{"status": "error", "error": "incorrect authkey"}`
+					conn.Write([]byte(resp + "\n"))
+				}
+			} else {
+				resp := `{"status": "error", "error": "connection not authenticated"}`
+				conn.Write([]byte(resp + "\n"))
 			}
-			resp := `{"status": "success", "data": {}}`
-			conn.Write([]byte(resp + "\n"))
-			success = true
+		} else {
 
-		case req["method"] == "loaded_datasources":
-			// {"method": "loaded_datasources"}
-			// result := make(map[string]interface{})
-			result, _ := json.Marshal(DB.Cache)
-			resp := `{"status": "success", "data": ` + string(result) + `}`
-			conn.Write([]byte(resp + "\n"))
-			success = true
+			success := false
+			switch {
+			case req["method"] == "clear_datasource_cache" && authenticated:
+				// {"method": "clear_datasource_cache"}
+				// Unload all layers in database cache
+				for key := range DB.Cache {
+					delete(DB.Cache, key)
+				}
+				resp := `{"status": "success", "data": {}}`
+				conn.Write([]byte(resp + "\n"))
+				success = true
 
-		case req["method"] == "clear_customer_cache":
-			// {"method": "clear_customer_cache"}
-			// Unload all apikeys in database cache
-			for key := range DB.Apikeys {
-				delete(DB.Apikeys, key)
+			case req["method"] == "loaded_datasources" && authenticated:
+				// {"method": "loaded_datasources"}
+				result, _ := json.Marshal(DB.Cache)
+				resp := `{"status": "success", "data": ` + string(result) + `}`
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
+			case req["method"] == "clear_customer_cache" && authenticated:
+				// {"method": "clear_customer_cache"}
+				// Unload all apikeys in database cache
+				for key := range DB.Apikeys {
+					delete(DB.Apikeys, key)
+				}
+				resp := `{"status": "success", "data": {}}`
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
+			case req["method"] == "assign_datasource" && authenticated:
+				datasource_id := req["datasource_id"]
+				apikey := req["apikey"]
+				customer, err := DB.GetCustomer(apikey)
+				resp := `{"status": "success", "data": {}}`
+				if err != nil {
+					fmt.Println("Customer key not found!")
+					resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "Customer key not found!"}}`
+				}
+				// CHECK IF DATASOURCE EXISTS
+				// *****
+				fmt.Println(DB.GetLayer(datasource_id))
+
+				customer.Datasources = append(customer.Datasources, datasource_id)
+				DB.InsertCustomer(customer)
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
+			case req["method"] == "create_user" && authenticated:
+				apikey := utils.NewAPIKey(12)
+				customer := Customer{Apikey: apikey}
+				resp := `{"status": "success", "data": {"apikey": "` + apikey + `"}}`
+				err := DB.InsertCustomer(customer)
+				if err != nil {
+					fmt.Println(err)
+					resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "error creating customer"}}`
+				}
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
 			}
-			resp := `{"status": "success", "data": {}}`
-			conn.Write([]byte(resp + "\n"))
-			success = true
 
-		case req["method"] == "assign_datasource":
-			datasource_id := req["datasource_id"]
-			apikey := req["apikey"]
-			customer, err := DB.GetCustomer(apikey)
-			resp := `{"status": "success", "data": {}}`
-			if err != nil {
-				fmt.Println("Customer key not found!")
-				resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "Customer key not found!"}}`
+			if !success {
+				resp := `{"status": "error", "error": "method not found"}`
+				conn.Write([]byte(resp + "\n"))
 			}
-			// CHECK IF DATASOURCE EXISTS
-			// *****
-			customer.Datasources = append(customer.Datasources, datasource_id)
-			DB.InsertCustomer(customer)
-			conn.Write([]byte(resp + "\n"))
-			success = true
 
-		case req["method"] == "create_user":
-			apikey := utils.NewAPIKey(12)
-			customer := Customer{Apikey: apikey}
-			resp := `{"status": "success", "data": {"apikey": "` + apikey + `"}}`
-			err := DB.InsertCustomer(customer)
-			if err != nil {
-				fmt.Println(err)
-				resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "error creating customer"}}`
-			}
-			conn.Write([]byte(resp + "\n"))
-			success = true
-
-		}
-
-		if !success {
-			resp := `{"status": "error", "error": "method not found"}`
-			conn.Write([]byte(resp + "\n"))
 		}
 
 	}

@@ -285,6 +285,7 @@ func (self *Database) NewLayer() (string, error) {
 // @returns Error
 func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureCollection) error {
 	// Caching layer
+	// self.guard.Lock()
 	if v, ok := self.Cache[datasource]; ok {
 		self.guard.Lock()
 		v.Geojson = geojs
@@ -294,6 +295,8 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 		pgc := &LayerCache{Geojson: geojs, Time: time.Now()}
 		self.Cache[datasource] = pgc
 	}
+	// self.guard.Unlock()
+
 	// Connect to database
 	conn := self.connect()
 	defer conn.Close()

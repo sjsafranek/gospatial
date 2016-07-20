@@ -6,9 +6,18 @@
 
 # Change Log
 
+
 ## [Unreleased]
 
+
+## [1.10.3] - 2016-07-19
+### Added
+ - authentication for tcp connection
+
+
+
 ## [1.10.2] - 2016-07-03
+
 ### Added
  - /documentation added to app
  - tcp listener

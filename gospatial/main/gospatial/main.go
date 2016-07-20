@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 	"strings"
 	"runtime/pprof"
+	"gospatial/utils"
 )
 
 var (
@@ -32,8 +33,8 @@ var (
 )
 
 const (
-	version       string = "1.10.2"
-	configDefault string = ""
+	VERSION       string = "1.10.3"
+	DEFAULT_CONFIG string = "config.json"
 )
 
 type serverConfig struct {
@@ -50,7 +51,7 @@ func init() {
 		app.Error.Fatal(err)
 	}
 	db := strings.Replace(dir, "bin", "bolt", -1)
-	flag.StringVar(&configFile, "c", configDefault, "server config file")
+	flag.StringVar(&configFile, "c", DEFAULT_CONFIG, "server config file")
 	flag.IntVar(&port, "p", 8080, "server port")
 	flag.StringVar(&database, "db", db, "app database")
 	// flag.StringVar(&app.SuperuserKey, "s", "7q1qcqmsxnvw", "superuser key")
@@ -59,10 +60,13 @@ func init() {
 	flag.BoolVar(&debugMode, "d", false, "Enable debug mode")
 	flag.Parse()
 	if versionReport {
-		fmt.Println("Version:", version)
+		fmt.Println("Version:", VERSION)
 		os.Exit(0)
 	}
-	if configFile != "" {
+	
+	// check if file exists!!!
+	if _, err := os.Stat(configFile); err == nil {
+		fmt.Println(configFile)
 		file, err := ioutil.ReadFile(configFile)
 		if err != nil {
 			panic(err)
@@ -77,7 +81,17 @@ func init() {
 		database = configuration.Db
 		database = strings.Replace(database, ".db", "", -1)
 		app.SuperuserKey = configuration.Authkey
+	} else {
+		// create config file
+		configuration := serverConfig{}
+		configuration.Port = port
+		configuration.Db = database
+		authkey := utils.NewAPIKey(12)
+		configuration.Authkey = authkey
+		app.SuperuserKey = authkey
+		app.Info.Printf("%v\n", configuration)
 	}
+
 }
 
 func main() {

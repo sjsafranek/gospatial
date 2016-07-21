@@ -262,7 +262,7 @@ func (self *Database) NewLayer() (string, error) {
 	if err != nil {
 		return "", nil
 	}
-	self.Logger.Println(`{"method": "new_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
+	self.Logger.Println(`{"method": "new_layer", "data": { "datasource": "` + datasource + `", "layer": ` + string(value) + `}}`)
 	// Insert layer into database
 	err = conn.Update(func(tx *bolt.Tx) error {
 		table := []byte("layers")
@@ -415,7 +415,7 @@ func (self *Database) DeleteLayer(datasource string) error {
 	defer conn.Close()
 	key := []byte(datasource)
 	//
-	self.Logger.Println(string(`{"method: "delete_layer", "data": ` + datasource + `}`))
+	self.Logger.Println(string(`{"method": "delete_layer", "data": { "datasource": "` + datasource + `"}}`))
 	// Insert layer into database
 	err := conn.Update(func(tx *bolt.Tx) error {
 		table := []byte("layers")
@@ -453,7 +453,7 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 	if err != nil {
 		return err
 	}
-	self.Logger.Println(`{"method": "insert_feature", "data": { "datasource": ` + datasource + `, "feature": ` + string(value) + `}}`)
+	self.Logger.Println(`{"method": "insert_feature", "data": { "datasource": "` + datasource + `", "feature": ` + string(value) + `}}`)
 	featCollection.AddFeature(feat)
 	err = self.InsertLayer(datasource, featCollection)
 	if err != nil {

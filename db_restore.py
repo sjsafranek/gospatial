@@ -11,7 +11,7 @@ logFile = os.path.join("log", "db.log")
 TCP_IP = '127.0.0.1'
 TCP_PORT = 3333
 BUFFER_SIZE = 1024
-MESSAGE = '{"method":"authenticate", "authkey": "A2irkm1r61FV"}\n'
+MESSAGE = '{"method":"authenticate", "authkey": "nPWWflCAhfPk"}\n'
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TCP_IP, TCP_PORT))
@@ -88,22 +88,19 @@ def recv_size(the_socket):
 
 
 with open(logFile, "r") as fileHandler:
-    array = []
+    queries = []
+    print("collecting queries")
     for line in fileHandler:
-    	line = line.replace("\n", "")
+        line = line.replace("\n", "")
         matches = re.findall(r"WRITE.*db.go:\d{1,3}: ", line)
         for match in matches:
-        	line = line.replace(match, "")
-        array.append(line)
+            line = line.replace(match, "")
+        queries.append(line)
         print(line)
-        s.send(line)
-        # data = s.recv(BUFFER_SIZE)
-        # data = s.recv(131072)
-        # print(recv_basic(s))
-        print(recv_timeout(s))
-        # # print(recv_end(s))
-        # print(recv_size(s))
-        # print(data)
+    print("sending queries")
+    for query in queries:
+        s.send(query + "\n")
+        print(recv_timeout(s,.15))
 
 s.close()
 

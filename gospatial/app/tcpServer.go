@@ -116,7 +116,8 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 		infoTcp.Println("Message Received: ", string(message))
 
 		// json parse message
-		req := make(map[string]string)
+		// req := make(map[string]string)
+		req := TcpMessage{}
 		err := json.Unmarshal([]byte(message), &req)
 		if err != nil {
 			// invalid message
@@ -130,9 +131,9 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 
 		// get method
 		if !authenticated {
-			if req["method"] == "authenticate" {
-				// {"method":"authenticate", "authkey": "QS8fB3Pv452D"}
-				authenticated = SuperuserKey == req["authkey"]
+			if req.Method == "authenticate" {
+				// {"method":"authenticate", "authkey": "O1p9dLhsryIn"}
+				authenticated = SuperuserKey == req.Authkey
 				if authenticated {
 					resp := `{"status": "success", "data": {}}`
 					conn.Write([]byte(resp + "\n"))
@@ -149,7 +150,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 
 			success := false
 			switch {
-			case req["method"] == "clear_datasource_cache" && authenticated:
+			case req.Method == "clear_datasource_cache" && authenticated:
 				// {"method": "clear_datasource_cache"}
 				// Unload all layers in database cache
 				for key := range DB.Cache {
@@ -159,14 +160,14 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
-			case req["method"] == "loaded_datasources" && authenticated:
+			case req.Method == "loaded_datasources" && authenticated:
 				// {"method": "loaded_datasources"}
 				result, _ := json.Marshal(DB.Cache)
 				resp := `{"status": "success", "data": ` + string(result) + `}`
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
-			case req["method"] == "clear_customer_cache" && authenticated:
+			case req.Method == "clear_customer_cache" && authenticated:
 				// {"method": "clear_customer_cache"}
 				// Unload all apikeys in database cache
 				for key := range DB.Apikeys {
@@ -176,9 +177,9 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
-			case req["method"] == "assign_datasource" && authenticated:
-				datasource_id := req["datasource_id"]
-				apikey := req["apikey"]
+			case req.Method == "assign_datasource" && authenticated:
+				datasource_id := req.Datasource //["datasource_id"]
+				apikey := req.Apikey //["apikey"]
 				customer, err := DB.GetCustomer(apikey)
 				resp := `{"status": "success", "data": {}}`
 				if err != nil {
@@ -194,7 +195,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
-			case req["method"] == "create_user" && authenticated:
+			case req.Method == "create_user" && authenticated:
 				apikey := utils.NewAPIKey(12)
 				customer := Customer{Apikey: apikey}
 				resp := `{"status": "success", "data": {"apikey": "` + apikey + `"}}`
@@ -205,6 +206,41 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				}
 				conn.Write([]byte(resp + "\n"))
 				success = true
+
+			//  Replay database
+			case req.Method == "insert_apikey" && authenticated:
+				customer := Customer{Apikey: req.Data.Apikey, Datasources: req.Data.Datasources}
+				resp := `{"status": "success", "data": {"apikey": "` + req.Data.Apikey + `"}}`
+				err := DB.InsertCustomer(customer)
+				if err != nil {
+					fmt.Println(err)
+					resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "error creating customer"}}`
+				}
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
+			case req.Method == "insert_feature" && authenticated:
+				err = DB.InsertFeature(req.Data.Datasource, req.Data.Feature)
+				if err != nil {
+					fmt.Println(err)
+				}
+				resp := `{"status":"ok","datasource":"` + req.Data.Datasource + `", "message":"feature added"}`
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
+			case req.Method == "new_layer" && authenticated:
+				err = DB.InsertLayer(req.Data.Datasource, req.Data.Layer)
+				if err != nil {
+					fmt.Println(err)
+				}
+				resp := `{"status":"ok","datasource":"` + req.Data.Datasource + `"}`
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
+		/*
+			case req.Metho == "delete_layer" && authenticated:
+				req.Data.Datasource
+		*/
 
 			}
 

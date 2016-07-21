@@ -244,13 +244,32 @@ L.GoSpatial = L.Class.extend({
 		var fields = $("#properties .field");
 		var attrs = $("#properties .attr");
 		for (var _i=0; _i < fields.length; _i++) {
-			try {
-				properties[fields[_i].value] = parseFloat(attrs[_i].value);
+			var word = false;
+			// v = attrs[_i].value;
+			for (var _j=0; attrs[_i].value.length > _j; _j++) {
+				if (".0123456789".indexOf(attrs[_i].value[_j]) == -1) {
+					// console.log("letter");
+					word = true;
+					break;
+				};
 			}
-			catch(err) {
+			if (word) {
 				properties[fields[_i].value] = attrs[_i].value;
 			}
+			else {
+				properties[fields[_i].value] = parseFloat(attrs[_i].value);
+			}
+			// try {
+			// 	properties[fields[_i].value] = parseFloat(attrs[_i].value);
+			// }
+			// catch(err) {
+			// 	properties[fields[_i].value] = attrs[_i].value;
+			// }
+			// if (properties[fields[_i].value] == NaN) {
+			// 	properties[fields[_i].value] = attrs.val();
+			// }
 		}
+		debugger;
 		return properties;
 	},
 

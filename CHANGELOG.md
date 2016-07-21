@@ -11,9 +11,13 @@
 
 
 ## [1.10.3] - 2016-07-19
+
 ### Added
  - authentication for tcp connection
+ - python script to parse database log and restore database via tcp connection
 
+### Fixed
+ - bug with map client attribute string values not passed in REST api call
 
 
 ## [1.10.2] - 2016-07-03

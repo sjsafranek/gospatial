@@ -23,6 +23,9 @@ import (
 	"gospatial/utils"
 )
 
+// testing
+import mylogger "gospatial/logs"
+
 var (
 	port          int
 	database      string
@@ -66,7 +69,7 @@ func init() {
 	
 	// check if file exists!!!
 	if _, err := os.Stat(configFile); err == nil {
-		fmt.Println(configFile)
+		// fmt.Println(configFile)
 		file, err := ioutil.ReadFile(configFile)
 		if err != nil {
 			panic(err)
@@ -95,6 +98,9 @@ func init() {
 }
 
 func main() {
+
+	mylogger.Logger.Info("Hello from Seelog!")
+	mylogger.Logger.Critical("Test message")
 
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)

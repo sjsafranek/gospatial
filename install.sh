@@ -45,4 +45,8 @@ if [ ! -d "`pwd`/src/github.com/paulmach/go.geojson" ]; then
     echo "downloading go.geojson..."
     go get github.com/paulmach/go.geojson
 fi
+if [ ! -d "`pwd`/src/github.com/cihub/seelog" ]; then
+    echo "downloading seelog..."
+    go get github.com/cihub/seelog
+fi
 echo "done!"

@@ -99,8 +99,12 @@ func init() {
 
 func main() {
 
-	mylogger.Logger.Info("Hello from Seelog!")
-	mylogger.Logger.Critical("Test message")
+	mylogger.Logger.Trace("setting to default value")
+	mylogger.Logger.Debug("page request. url + params")
+	mylogger.Logger.Info("Server started")
+	mylogger.Logger.Warn("Cannot talk to database, using backup")
+	mylogger.Logger.Error("Cannot process request!")
+	mylogger.Logger.Critical("Shit BROKE. Shutting down...")
 
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)

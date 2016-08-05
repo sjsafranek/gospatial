@@ -10,44 +10,47 @@ import (
 var Logger seelog.LoggerInterface
 
 func loadAppConfig() {
+    // https://github.com/cihub/seelog/wiki/Log-levels
     appConfig := `
-<seelog minlevel="warn">
+<seelog minlevel="info">
     <outputs formatid="common">
-        <rollingfile type="size" filename="logs/test_roll.log" maxsize="100000" maxrolls="5"/>
+        <rollingfile type="size" filename="log/test_roll.log" maxsize="100000" maxrolls="5"/>
         <filter levels="critical">
-            <file path="logs/test_critical.log" formatid="critical"/>
+            <console formatid="stdout"/>
+            <file path="log/test_critical.log" formatid="common"/>
+        </filter>
+        <filter levels="error">
+            <console formatid="stdout"/>
+            <file path="log/test_error.log" formatid="common"/>
+        </filter>
+        <filter levels="warn">
+            <console formatid="stdout"/> 
+            <file path="log/test_warn.log" formatid="common"/>
         </filter>
         <filter levels="info">
-            <file path="logs/test_info.log" formatid="info"/>
+            <console formatid="stdout"/>
+            <file path="log/test_info.log" formatid="common"/>
+        </filter>
+        <filter levels="debug">
+            <console formatid="stdout"/>
+            <file path="log/test_debug.log" formatid="common"/>
+        </filter>
+        <filter levels="trace">
+            <console formatid="stdout"/>
+            <file path="log/test_trace.log" formatid="common"/>
         </filter>
     </outputs>
     <formats>
-        <format id="common" format="%Date/%Time [%LEV] %Msg%n" />
-        <format id="critical" format="%File %FullPath %Func %Msg%n" />
-        <format id="criticalemail" format="Critical error on our server!\n    %Time %Date %RelFile %Func %Msg \nSent by Seelog"/>
+        <format id="common"   format="%Date %Time [%LEVEL] %File %Func %Msg%n" />
+        <format id="stdout" format="%Date %Time %EscM(49)[%LEVEL]%EscM(49) %File %Func %Msg%n%EscM(0)" />
     </formats>
 </seelog>
 `
-/*
-    appConfig := `
-<seelog minlevel="warn">
-    <outputs formatid="common">
-        <rollingfile type="size" filename="logs/test_roll.log" maxsize="100000" maxrolls="5"/>
-        <filter levels="critical">
-            <file path="logs/test_critical.log" formatid="critical"/>
-            <smtp formatid="criticalemail" senderaddress="*****@gmail.com" sendername="ShortUrl API" hostname="smtp.gmail.com" hostport="587" username="*****" password="*****">
-                <recipient address="xiemengjun@gmail.com"/>
-            </smtp>
-        </filter>
-    </outputs>
-    <formats>
-        <format id="common" format="%Date/%Time [%LEV] %Msg%n" />
-        <format id="critical" format="%File %FullPath %Func %Msg%n" />
-        <format id="criticalemail" format="Critical error on our server!\n    %Time %Date %RelFile %Func %Msg \nSent by Seelog"/>
-    </formats>
-</seelog>
-`
-*/
+
+//         <format id="common" format="%Date %Time [%LEVEL] %File %Func %Msg%n%EscM(0)" />
+        // <format id="critical" format="%Date %Time [%LEVEL] %File %Func %Msg%n" />
+// <format id="criticalemail" format="Critical error on our server!\n    %Time %Date %RelFile %Func %Msg \nSent by Seelog"/>
+
     logger, err := seelog.LoggerFromConfigAsBytes([]byte(appConfig))
     if err != nil {
         fmt.Println(err)

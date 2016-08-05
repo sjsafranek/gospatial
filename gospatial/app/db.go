@@ -529,6 +529,7 @@ func (self *Database) cacheManager() {
 		n := float64(len(self.Cache))
 		if n != 0 {
 			for key := range self.Cache {
+				// CHECK AVAILABLE SYSTEM MEMORY
 				f := float64(len(self.Cache[key].Geojson.Features))
 				limit := (300.0 - (f * (f * 0.25))) - (n * 2.0)
 				if limit < 0.0 {

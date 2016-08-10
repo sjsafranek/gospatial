@@ -9,12 +9,28 @@ L.GoSpatial = L.Class.extend({
 	options: {},
 
 	initialize: function(apikey, options) {
+		var self = this;
 		L.setOptions(this, options || {});
 		this._map = null;
 		this.apikey = apikey;
 		this.apiClient = new GoSpatialApi(apikey);
-		this.customer = this.apiClient.getCustomer();
-		this.datasources = this.customer.datasources;
+
+		// Get customer details
+		this.apiClient.getCustomer(function(error,result){
+			if (error) {
+				 swal("Error!", error, "error");
+			} else {
+				self.customer = result;
+				self.datasources = self.customer.datasources;
+				for (var _i=0; _i < self.datasources.length; _i++) {
+					var obj = document.createElement('option');
+					obj.value = self.datasources[_i];
+					obj.text = self.datasources[_i];
+					$('#layers').append(obj);
+				}
+			}
+		});
+
 		this.vectorLayers = {};
 		// this.ws = null;
 		this.drawnItems = null;
@@ -23,7 +39,6 @@ L.GoSpatial = L.Class.extend({
 	},
 
 	addTo: function(map) {
-		var self = this;
 		this._map = map;
 		// Reading
 		this._addLogoControl();
@@ -37,23 +52,6 @@ L.GoSpatial = L.Class.extend({
 		this._addDrawEventHandlers();
 		this._addFeaturePropertiesControl();
 		this._addChoroplethOptions();
-		//
-		this.apiClient.getLayer($('#layers').val(), function(error, result){
-			if (error) {
-				throw error;
-				self.errorMessage(error);
-			} else {
-				self.updateFeatureLayers(result);
-			}
-		});
-		try {
-			this._map.fitBounds(
-				self.vectorLayers[$('#layers').val()].getBounds()
-			);
-		}
-		catch (err) {
-			this._map.fitWorld();
-		}
 		// this.ws = this.getWebSocket();
 		return this;
 	},
@@ -125,24 +123,45 @@ L.GoSpatial = L.Class.extend({
 		// 	newTiles.addTo(self._map);
 		// });
 		// this._preventPropogation(geojsonLayerControl);
-		// Fill drop down options
-		for (var _i=0; _i < this.datasources.length; _i++) {
-			var obj = document.createElement('option');
-			obj.value = this.datasources[_i];
-			obj.text = this.datasources[_i];
-			$('#layers').append(obj);
+		var attempt = 0;
+		function loadFirstLayer() {
+			console.log("loading...");
+			var lyr = $('#layers').val();
+			if (lyr) {
+				self.apiClient.getLayer(lyr, function(error, result){
+					if (error) {
+						swal("Error!", error, "error");
+					} else {
+						self.updateFeatureLayers(result);
+						try {
+							self._map.fitBounds(self.vectorLayers[lyr].getBounds());
+						}
+						catch (err) {
+							self._map.fitWorld();
+						}
+					}
+				});
+			} else {
+				if (attempt < 50) {
+					setTimeout(loadFirstLayer, 10);
+					attempt++;
+				} else {
+					swal("Error!", "Failed to load datasource layer: " + lyr, "error");
+				}
+			}
 		}
-		// UI Events listeners
+		setTimeout(loadFirstLayer, 10);
+
 		$('#layers').on('change', function(){ 
 			self.apiClient.getLayer($('#layers').val(), function(error, result){
 				if (error) {
-					throw error;
-					self.errorMessage(error);
+					swal("Error!", error, "error");
 				} else {
 					self.updateFeatureLayers(result);
 				}
 			});
 		});
+
 		$('#zoom').on('click', function(){ 
 			self._map.fitBounds(
 				self.vectorLayers[$('#layers').val()].getBounds()
@@ -245,10 +264,8 @@ L.GoSpatial = L.Class.extend({
 		var attrs = $("#properties .attr");
 		for (var _i=0; _i < fields.length; _i++) {
 			var word = false;
-			// v = attrs[_i].value;
 			for (var _j=0; attrs[_i].value.length > _j; _j++) {
 				if (".0123456789".indexOf(attrs[_i].value[_j]) == -1) {
-					// console.log("letter");
 					word = true;
 					break;
 				};
@@ -259,17 +276,7 @@ L.GoSpatial = L.Class.extend({
 			else {
 				properties[fields[_i].value] = parseFloat(attrs[_i].value);
 			}
-			// try {
-			// 	properties[fields[_i].value] = parseFloat(attrs[_i].value);
-			// }
-			// catch(err) {
-			// 	properties[fields[_i].value] = attrs[_i].value;
-			// }
-			// if (properties[fields[_i].value] == NaN) {
-			// 	properties[fields[_i].value] = attrs.val();
-			// }
 		}
-		debugger;
 		return properties;
 	},
 
@@ -286,7 +293,8 @@ L.GoSpatial = L.Class.extend({
 			else {
 				popup
 					.setLatLng(e.latlng)
-					.setContent("<div class='button' value='Submit Feature' onClick='GoSpatial.sendFeature(" + e.target._leaflet_id + ")'><h4>Submit Feature</h4><div>")
+					// .setContent("<div class='button' value='Submit Feature' onClick='GoSpatial.sendFeature(" + e.target._leaflet_id + ")'><h4>Submit Feature</h4><div>")
+					.setContent("<button class='btn btn-sm btn-default' value='Submit Feature' onClick='GoSpatial.sendFeature(" + e.target._leaflet_id + ")'>Submit Feature</button>")
 					.openOn(map);
 			}
 		}
@@ -587,12 +595,12 @@ L.GoSpatial = L.Class.extend({
 	 * desciption: handler for error messages
 	 * @param message {string} error message to display
 	 */
-	_errorMessage: function(message) {
-		console.log(message)
-		$(".err span").html(message);
-		$("#error").show();
-		$("#map").hide();
-	},
+	// _errorMessage: function(message) {
+	// 	console.log(message)
+	// 	$(".err span").html(message);
+	// 	$("#error").show();
+	// 	$("#map").hide();
+	// },
 
 /*************************************************************************
  * SUBMIT FEATURES
@@ -631,13 +639,12 @@ L.GoSpatial = L.Class.extend({
 			JSON.stringify(payload),
 			function(error, results) {
 				if (error) {
-					self._errorMessage(err);
-					throw err;
+					swal("Error!", error, "error");
 				} else {
+					swal("Success", "Feature has been submitted.", "success");
 					self.apiClient.getLayer($('#layers').val(), function(error, result){
 						if (error) {
-							throw error;
-							self.errorMessage(error);
+							swal("Error!", error, "error");
 						} else {
 							self.updateFeatureLayers(result);
 						}
@@ -714,97 +721,6 @@ L.GoSpatial = L.Class.extend({
 L.gospatial = function(apikey, options) {
 	return new L.GoSpatial(apikey, options);
 };
-
-
-
-
-
-// function GoSpatialApi(apikey, server) {
-
-// 	this.apikey = apikey;
-// 	this.server = server;
-
-// 	this.getCustomer = function() {
-// 		var self = this;
-// 		var data;
-// 		this.GET("/api/v1/customer" + "?apikey=" + self.apikey, function(error, result){
-// 			if (error) {
-// 				throw error;
-// 				self.errorMessage(error);
-// 			} else {
-// 				data = result;
-// 			}
-// 		});
-// 		return data;
-// 	}
-
-// 	this.getLayer = function(datasource, callback) {
-// 		var self = this;
-// 		this.GET("/api/v1/layer/" + datasource + "?apikey=" + self.apikey, function(error, result){
-// 			callback(error, result);
-// 		});
-// 	}
-
-// 	this.submitFeature = function(datasource, feature, callback) {
-// 		var self = this;
-// 		this.POST(
-// 			'/api/v1/layer/' + datasource + '/feature?apikey=' + self.apikey,
-// 			feature,
-// 			function(error, result) {
-// 				callback(error, result);
-// 			}
-// 		)
-// 	}
-
-// 	this.GET = function(route, callback) {
-// 		var self = this;
-// 		$.ajax({
-// 			crossDomain: true,
-// 			type: "GET",
-// 			async: false,
-// 			url: route,
-// 			dataType: 'JSON',
-// 			success: function (data) {
-// 				return callback(null, data);
-// 			},
-// 			error: function(xhr,errmsg,err) {
-// 				console.log(xhr.status,xhr.responseText,errmsg,err);
-// 				result = null;
-// 				var message = "status: " + xhr.status + "<br>";
-// 				message += "responseText: " + xhr.responseText + "<br>";
-// 				message += "errmsg: " + errmsg + "<br>";
-// 				message += "Error:" + err;
-// 				return callback(new Error(message));
-// 			}
-// 		});
-// 	}
-
-// 	this.POST = function(route, data, callback) {
-// 		var self = this;
-// 		$.ajax({
-// 			crossDomain: true,
-// 			type: "POST",
-// 			async: false,
-// 			data: data,
-// 			url: route,
-// 			dataType: 'JSON',
-// 			success: function (data) {
-// 				callback(null, data);
-// 			},
-// 			error: function(xhr,errmsg,err) {
-// 				console.log(xhr.status,xhr.responseText,errmsg,err);
-// 				result = null;
-// 				var message = "status: " + xhr.status + "<br>";
-// 				message += "responseText: " + xhr.responseText + "<br>";
-// 				message += "errmsg: " + errmsg + "<br>";
-// 				message += "Error:" + err;
-// 				callback(new Error(message));
-// 			}
-// 		});
-// 	}
-
-
-// }
 
 
 

@@ -5,17 +5,11 @@
 		this.server = server || "";
 		// this.url = new URL("http://localhost:8888/map?apikey=iNx1xvBPDrZb#");
 
-		this.getCustomer = function() {
+		this.getCustomer = function(callback) {
 			var self = this;
-			var data;
 			this.GET(this.server + "/api/v1/customer" + "?apikey=" + self.apikey, function(error, result){
-				if (error) {
-					throw error;
-				} else {
-					data = result;
-				}
+				callback(error, result);
 			});
-			return data;
 		}
 
 		this.getLayer = function(datasource, callback) {
@@ -41,7 +35,7 @@
 			$.ajax({
 				crossDomain: true,
 				type: "GET",
-				async: false,
+				// async: false,
 				url: route,
 				dataType: 'JSON',
 				success: function (data) {
@@ -49,11 +43,12 @@
 				},
 				error: function(xhr,errmsg,err) {
 					console.log(xhr.status,xhr.responseText,errmsg,err);
-					result = null;
-					var message = "status: " + xhr.status + "<br>";
-					message += "responseText: " + xhr.responseText + "<br>";
-					message += "errmsg: " + errmsg + "<br>";
-					message += "Error:" + err;
+					console.log(xhr);
+					// var message = "status: " + xhr.status + "<br>";
+					// message += "responseText: " + xhr.responseText + "<br>";
+					// message += "errmsg: " + errmsg + "<br>";
+					// message += "Error:" + err;
+					var message = xhr.status + " " + xhr.responseText;
 					return callback(new Error(message));
 				}
 			});
@@ -64,7 +59,7 @@
 			$.ajax({
 				crossDomain: true,
 				type: "POST",
-				async: false,
+				// async: false,
 				data: data,
 				url: route,
 				dataType: 'JSON',
@@ -73,11 +68,12 @@
 				},
 				error: function(xhr,errmsg,err) {
 					console.log(xhr.status,xhr.responseText,errmsg,err);
-					result = null;
-					var message = "status: " + xhr.status + "<br>";
-					message += "responseText: " + xhr.responseText + "<br>";
-					message += "errmsg: " + errmsg + "<br>";
-					message += "Error:" + err;
+					console.log(xhr);
+					// var message = "status: " + xhr.status + "<br>";
+					// message += "responseText: " + xhr.responseText + "<br>";
+					// message += "errmsg: " + errmsg + "<br>";
+					// message += "Error:" + err;
+					var message = xhr.status + " " + xhr.responseText;
 					callback(new Error(message));
 				}
 			});

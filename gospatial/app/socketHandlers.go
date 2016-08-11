@@ -7,6 +7,8 @@ import (
 	"sync"
 )
 
+import mylogger "gospatial/logs"
+
 type connection struct {
 	ws *websocket.Conn
 	ds string
@@ -106,7 +108,8 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 	ip := r.RemoteAddr
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		networkLoggerError.Println(r.RemoteAddr, "WS /ws/"+ds+" [500]")
+		// networkLoggerError.Println(r.RemoteAddr, "WS /ws/"+ds+" [500]")
+		mylogger.Network.Critical(r.RemoteAddr, " WS /ws/"+ds+" [500]")
 		Error.Println(err)
 		return
 	}
@@ -117,7 +120,8 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 		Hub.Sockets[ds] = make(map[int]*websocket.Conn)
 		Hub.Sockets[ds][conn.c] = ws
 	}
-	networkLoggerInfo.Println(r.RemoteAddr, "WS /ws/"+conn.ds+" [200]")
+	// networkLoggerInfo.Println(r.RemoteAddr, "WS /ws/"+conn.ds+" [200]")
+	mylogger.Network.Info(r.RemoteAddr, " WS /ws/"+ds+" [200]")
 	Hub.broadcastAllDsViewers(false, conn.ds)
 	go messageListener(&conn)
 }

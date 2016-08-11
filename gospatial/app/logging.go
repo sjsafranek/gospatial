@@ -1,64 +1,57 @@
 package app
 
 import (
-	"io"
+	// "io"
 	// "io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
+	// "path/filepath"
+	// "strings"
 )
 
 var (
-	// Info log handler
 	Info *log.Logger
-	// Debug log handler
 	Debug *log.Logger
-	// Warning log handler
 	Warning *log.Logger
-	// Error log handler
 	Error                *log.Logger
-	serverLoggerWriter   io.Writer
-	networkLoggerWriter  io.Writer
-	networkLoggerInfo    *log.Logger
-	networkLoggerWarning *log.Logger
-	networkLoggerError   *log.Logger
-	networkLoggerInfoIn  *log.Logger
-	networkLoggerInfoOut *log.Logger
+	// serverLoggerWriter   io.Writer
+	// networkLoggerWriter  io.Writer
+	// networkLoggerInfo    *log.Logger
+	// networkLoggerWarning *log.Logger
+	// networkLoggerError   *log.Logger
+	// networkLoggerInfoIn  *log.Logger
+	// networkLoggerInfoOut *log.Logger
 	Verbose bool = false
 )
 
 func init() {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		Error.Fatal(err)
-	}
+	// dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	// if err != nil {
+	// 	Error.Fatal(err)
+	// }
 
 	// server logging
-	serverLogFile := strings.Replace(dir, "bin", "log/server.log", -1)
-	serverLoggerWriter, err := os.OpenFile(serverLogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		// Error.Fatal("Error opening file: %v", err)
-		serverLoggerWriter, err = os.OpenFile("test.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-	}
-	// defer serverLoggerWriter.Close()
-	Info = log.New(serverLoggerWriter, "INFO  [SERVER] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	Debug = log.New(serverLoggerWriter, "DEBUG [SERVER] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	Warning = log.New(serverLoggerWriter, "WARN  [SERVER] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	Error = log.New(serverLoggerWriter, "ERROR [SERVER] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	// serverLogFile := strings.Replace(dir, "bin", "log/server.log", -1)
+	// serverLoggerWriter, err := os.OpenFile(serverLogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	// if err != nil {
+	// 	serverLoggerWriter, err = os.OpenFile("test.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	// }
+	// Info = log.New(serverLoggerWriter, "INFO  [SERVER] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	// Debug = log.New(serverLoggerWriter, "DEBUG [SERVER] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	// Warning = log.New(serverLoggerWriter, "WARN  [SERVER] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	// Error = log.New(serverLoggerWriter, "ERROR [SERVER] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 
 	// network logging
-	networkLogFile := strings.Replace(dir, "bin", "log/network.log", -1)
-	networkLoggerWriter, err := os.OpenFile(networkLogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		// Error.Fatal("Error opening file: %v", err)
-		networkLoggerWriter, err = os.OpenFile("test.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-	}
-	networkLoggerInfoIn = log.New(networkLoggerWriter, "INFO  [NETWORK] [IN] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	networkLoggerInfoOut = log.New(networkLoggerWriter, "INFO  [NETWORK] [OUT] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	networkLoggerInfo = log.New(networkLoggerWriter, "INFO  [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	networkLoggerWarning = log.New(networkLoggerWriter, "WARN  [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	networkLoggerError = log.New(networkLoggerWriter, "ERROR [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	// networkLogFile := strings.Replace(dir, "bin", "log/network.log", -1)
+	// networkLoggerWriter, err := os.OpenFile(networkLogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	// if err != nil {
+	// 	networkLoggerWriter, err = os.OpenFile("test.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	// }
+	// networkLoggerInfoIn = log.New(networkLoggerWriter, "INFO  [NETWORK] [IN] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	// networkLoggerInfoOut = log.New(networkLoggerWriter, "INFO  [NETWORK] [OUT] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	// networkLoggerInfo = log.New(networkLoggerWriter, "INFO  [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	// networkLoggerWarning = log.New(networkLoggerWriter, "WARN  [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	// networkLoggerError = log.New(networkLoggerWriter, "ERROR [NETWORK] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
 }
 
 func testLoggerInit() {

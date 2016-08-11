@@ -5,11 +5,14 @@ import (
 	"net/http"
 )
 
+import mylogger "gospatial/logs"
+
 // NewLayerHandler creates a new geojson layer. Saves layer to database and adds layer to customer
 // @param apikey
 // @return json
 func NewTileLayerHandler(w http.ResponseWriter, r *http.Request) {
-	networkLoggerInfoIn.Printf("%v\n", r)
+	// networkLoggerInfoIn.Printf("%v\n", r)
+	mylogger.Network.Debug(r)
 
 	// Get params
 	apikey := r.FormValue("apikey")
@@ -26,7 +29,8 @@ func NewTileLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check for apikey in request
 	if apikey == "" {
-		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/tilelayer [401]")
+		// networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/tilelayer [401]")
+		mylogger.Network.Error(r.RemoteAddr,  " POST /api/v1/tilelayer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -34,7 +38,8 @@ func NewTileLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		networkLoggerWarning.Println(r.RemoteAddr, "POST /api/v1/tilelayer [404]")
+		// networkLoggerWarning.Println(r.RemoteAddr, "POST /api/v1/tilelayer [404]")
+		mylogger.Network.Error(r.RemoteAddr,  " POST /api/v1/tilelayer [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -48,7 +53,8 @@ func NewTileLayerHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status": "success", "data": {"tilelayer": {"url": "` + tilelayer_url + `", "name": "` + tilelayer_name + `"}}}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/tilelayer [500]")
+		// networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/tilelayer [500]")
+		mylogger.Network.Critical(r.RemoteAddr,  " POST /api/v1/tilelayer [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -57,8 +63,10 @@ func NewTileLayerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	networkLoggerInfo.Println(r.RemoteAddr, "POST /api/v1/layer [200]")
-	networkLoggerInfoOut.Println(string(js))
+	// networkLoggerInfo.Println(r.RemoteAddr, "POST /api/v1/layer [200]")
+	mylogger.Network.Info(r.RemoteAddr,  " POST /api/v1/tilelayer [200]")
+	// networkLoggerInfoOut.Println(string(js))
+	mylogger.Network.Debug(js)
 	w.Write(js)
 
 }

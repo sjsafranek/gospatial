@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+import mylogger "gospatial/logs"
+
 var startTime = time.Now()
 
 // SuperuserKey api servers superuser key
@@ -16,20 +18,23 @@ var SuperuserKey string = "su"
 
 // PingHandler provides an api route for server health check
 func PingHandler(w http.ResponseWriter, r *http.Request) {
+	mylogger.Network.Debug("[In] ",r)
 	data := `{"status": "ok", "message": "pong"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		networkLoggerError.Println(r.RemoteAddr, "GET /ping [500]")
+		mylogger.Network.Critical(r.RemoteAddr, " GET /ping [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	networkLoggerInfo.Println(r.RemoteAddr, "GET /ping [200]")
+	mylogger.Network.Info(r.RemoteAddr, " GET /ping [200]")
 	w.Header().Set("Content-Type", "application/json")
+	mylogger.Network.Debug("[Out] ",string(js))
 	w.Write(js)
 }
 
 // ServerProfile returns basic server stats
 func ServerProfile(w http.ResponseWriter, r *http.Request) {
+	mylogger.Network.Debug("[In] ",r)
 	var data map[string]interface{}
 	data = make(map[string]interface{})
 	data["registered"] = startTime.UTC()
@@ -39,20 +44,22 @@ func ServerProfile(w http.ResponseWriter, r *http.Request) {
 	// data["free_mem"] = runtime.MemStats()
 	js, err := json.Marshal(data)
 	if err != nil {
-		networkLoggerError.Println(r.RemoteAddr, "GET /management/profile [500]")
+		mylogger.Network.Critical(r.RemoteAddr, " GET /management/profile [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	networkLoggerInfo.Println(r.RemoteAddr, "GET /management/profile/ [200]")
+	mylogger.Network.Info(r.RemoteAddr, " GET /management/profile [200]")
 	w.Header().Set("Content-Type", "application/json")
+	mylogger.Network.Debug("[Out] ",string(js))
 	w.Write(js)
 }
 
 // NewCustomerHandler superuser route to create new api customers/apikeys
 func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
+	mylogger.Network.Debug("[In] ",r)
 	// Check auth key
 	if SuperuserKey != r.FormValue("authkey") {
-		networkLoggerError.Println(r.RemoteAddr, "POST /management/customer [401]")
+		mylogger.Network.Error(r.RemoteAddr, " POST /management/customer [401]")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -69,7 +76,7 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"ok","apikey":"` + apikey + `", "result":"customer created"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		networkLoggerError.Println(r.RemoteAddr, "POST /management/customer [500]")
+		mylogger.Network.Critical(r.RemoteAddr, " POST /management/customer [500]")
 		Error.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -77,7 +84,8 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	networkLoggerInfo.Println(r.RemoteAddr, "POST /management/customer [200]")
+	mylogger.Network.Info(r.RemoteAddr, " POST /management/customer [200]")
+	mylogger.Network.Debug("[Out] ",string(js))
 	w.Write(js)
 }
 

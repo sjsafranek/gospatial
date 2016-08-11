@@ -25,6 +25,7 @@ var (
 	networkLoggerError   *log.Logger
 	networkLoggerInfoIn  *log.Logger
 	networkLoggerInfoOut *log.Logger
+	Verbose bool = false
 )
 
 func init() {

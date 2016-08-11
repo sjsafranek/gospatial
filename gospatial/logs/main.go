@@ -8,6 +8,7 @@ import (
 )
 
 var Logger seelog.LoggerInterface
+var Network seelog.LoggerInterface
 
 func loadAppConfig() {
     // https://github.com/cihub/seelog/wiki/Log-levels
@@ -42,14 +43,10 @@ func loadAppConfig() {
     </outputs>
     <formats>
         <format id="common"   format="%Date %Time [%LEVEL] %File %Func %Msg%n" />
-        <format id="stdout" format="%Date %Time %EscM(49)[%LEVEL]%EscM(49) %File %Func %Msg%n%EscM(0)" />
+        <format id="stdout"   format="%Date %Time [%LEVEL] %File %Func %Msg%n" />
     </formats>
 </seelog>
 `
-
-//         <format id="common" format="%Date %Time [%LEVEL] %File %Func %Msg%n%EscM(0)" />
-        // <format id="critical" format="%Date %Time [%LEVEL] %File %Func %Msg%n" />
-// <format id="criticalemail" format="Critical error on our server!\n    %Time %Date %RelFile %Func %Msg \nSent by Seelog"/>
 
     logger, err := seelog.LoggerFromConfigAsBytes([]byte(appConfig))
     if err != nil {

@@ -11,6 +11,8 @@ import (
 	"strconv"
 )
 
+// import mylogger "gospatial/logs"
+
 // NewFeatureHandler creates a new feature and adds it to a layer.
 // Layer is then saved to database. All active clients viewing layer
 // are notified of update via websocket hub.

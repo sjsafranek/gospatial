@@ -13,6 +13,8 @@ import (
 	"gospatial/utils"
 )
 
+import mylogger "gospatial/logs"
+
 const (
 	TCP_DEFAULT_CONN_HOST = "localhost"
 	TCP_DEFAULT_CONN_PORT = "3333"
@@ -76,7 +78,8 @@ func (self TcpServer) Start() {
 
 		// Close the listener when the application closes.
 		defer l.Close()
-		log.Println("Tcp Listening on " + host + ":" + port)
+		// log.Println("Tcp Listening on " + host + ":" + port)
+		mylogger.Logger.Info("Tcp Listening on " + host + ":" + port)
 
 		for {
 			// Listen for an incoming connection.

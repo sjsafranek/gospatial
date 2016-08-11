@@ -31,7 +31,7 @@ func NewTileLayerHandler(w http.ResponseWriter, r *http.Request) {
 	if apikey == "" {
 		// networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/tilelayer [401]")
 		mylogger.Network.Error(r.RemoteAddr,  " POST /api/v1/tilelayer [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "fail", "result": "unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 

@@ -21,7 +21,7 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 	// Check for apikey in request
 	if apikey == "" {
 		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layers [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -61,7 +61,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Check for apikey in request
 	if apikey == "" {
 		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layer [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -86,7 +86,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	DB.InsertCustomer(customer)
 
 	// Generate message
-	data := `{"status":"ok","datasource":"` + ds + `"}`
+	data := `{"status":"success","datasource":"` + ds + `"}`
 	js, err := json.Marshal(data)
 	if err != nil {
 		mylogger.Network.Critical(r.RemoteAddr, " POST /api/v1/layer [500]")
@@ -121,7 +121,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Check for apikey in request
 	if apikey == "" {
 		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -136,7 +136,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Check customer datasource list
 	if !utils.StringInSlice(ds, customer.Datasources) {
 		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -183,7 +183,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Check for apikey in request
 	if apikey == "" {
 		mylogger.Network.Error(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "error", "result": "unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -198,7 +198,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Check customer datasource list
 	if !utils.StringInSlice(ds, customer.Datasources) {
 		mylogger.Network.Error(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "error", "result": "unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 

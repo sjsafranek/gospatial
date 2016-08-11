@@ -44,7 +44,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Check for apikey in request
 	if apikey == "" {
 		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -59,7 +59,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Check customer datasource list
 	if !utils.StringInSlice(ds, customer.Datasources) {
 		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -82,7 +82,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate message
-	data := `{"status":"ok","datasource":"` + ds + `", "message":"feature added"}`
+	data := `{"status":"success","datasource":"` + ds + `", "message":"feature added"}`
 	js, err := json.Marshal(data)
 	if err != nil {
 		mylogger.Network.Critical(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [500]")
@@ -129,7 +129,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Check for apikey in request
 	if apikey == "" {
 		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -144,7 +144,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Check customer datasource list
 	if !utils.StringInSlice(ds, customer.Datasources) {
 		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 	/*=======================================*/

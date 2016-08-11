@@ -19,7 +19,7 @@ var SuperuserKey string = "su"
 // PingHandler provides an api route for server health check
 func PingHandler(w http.ResponseWriter, r *http.Request) {
 	mylogger.Network.Debug("[In] ",r)
-	data := `{"status": "ok", "message": "pong"}`
+	data := `{"status": "success", "data": {"result": "pong"}}`
 	js, err := json.Marshal(data)
 	if err != nil {
 		mylogger.Network.Critical(r.RemoteAddr, " GET /ping [500]")
@@ -60,7 +60,7 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	// Check auth key
 	if SuperuserKey != r.FormValue("authkey") {
 		mylogger.Network.Error(r.RemoteAddr, " POST /management/customer [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 	// new customer
@@ -73,7 +73,7 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// return results
-	data := `{"status":"ok","apikey":"` + apikey + `", "result":"customer created"}`
+	data := `{"status":"success","apikey":"` + apikey + `", "result":"customer created"}`
 	js, err := json.Marshal(data)
 	if err != nil {
 		mylogger.Network.Critical(r.RemoteAddr, " POST /management/customer [500]")

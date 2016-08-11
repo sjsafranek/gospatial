@@ -24,7 +24,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	// Check for apikey in request
 	if apikey == "" {
 		mylogger.Network.Error(r.RemoteAddr, " POST /map [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -54,7 +54,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	// Check for apikey in request
 	if apikey == "" {
 		mylogger.Network.Error(r.RemoteAddr, " POST /management [401]")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 

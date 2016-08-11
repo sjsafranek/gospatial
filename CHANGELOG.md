@@ -10,6 +10,7 @@
 ## [Unreleased]
 ## [1.10.4] - 2016-08-05
  - seelog
+ - jsend complient messages https://labs.omniti.com/labs/jsend for errors
 
  
 

@@ -83,11 +83,12 @@ func init() {
 		if err != nil {
 			fmt.Println("error:", err)
 		}
-		app.Info.Printf("%v\n", configuration)
+		// app.Info.Printf("%v\n", configuration)
 		port = configuration.Port
 		database = configuration.Db
 		database = strings.Replace(database, ".db", "", -1)
 		app.SuperuserKey = configuration.Authkey
+		mylogger.Logger.Info(configuration)
 	} else {
 		// create config file
 		configuration := serverConfig{}

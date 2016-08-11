@@ -7,6 +7,7 @@ import (
 
 var Logger seelog.LoggerInterface
 var Network seelog.LoggerInterface
+// var Server seelog.LoggerInterface
 
 var LogDirectory string = "log"
 var LogLevel string = "trace"

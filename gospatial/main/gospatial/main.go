@@ -139,10 +139,11 @@ func main() {
 	go func() {
 		for sig := range sigs {
 			// sig is a ^C, handle it
-			fmt.Printf("%s \n", sig)
+			// fmt.Printf("%s \n", sig)
+			mylogger.Logger.Info("Recieved ", sig)
 			// app.Info.Println("Gracefulling shutting down")
 			// app.Info.Println("Waiting for sockets to close...")
-			mylogger.Logger.Info("Gracefulling shutting down")
+			mylogger.Logger.Info("Gracefully shutting down")
 			mylogger.Logger.Info("Waiting for sockets to close...")
 			for {
 				if len(app.Hub.Sockets) == 0 {

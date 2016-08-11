@@ -43,8 +43,8 @@ func loadAppConfig() {
         </filter>
     </outputs>
     <formats>
-        <format id="common"   format="%Date %Time [%LEVEL] %File %Func %Msg%n" />
-        <format id="stdout"   format="%Date %Time [%LEVEL] %File %Func %Msg%n" />
+        <format id="common"   format="%Date %Time [%LEVEL] %File %FuncShort:%Line %Msg %n" />
+        <format id="stdout"   format="%Date %Time [%LEVEL] %File %FuncShort:%Line %Msg %n" />
     </formats>
 </seelog>
 `
@@ -68,8 +68,8 @@ func loadNetworkConfig() {
         </filter>
     </outputs>
     <formats>
-        <format id="common"   format="%Date %Time [%LEVEL] %File %Func %Msg%n" />
-        <format id="stdout"   format="%Date %Time [%LEVEL] %File %Func %Msg%n" />
+        <format id="common"   format="%Date %Time [%LEVEL] %File %FuncShort:%Line %Msg %n" />
+        <format id="stdout"   format="%Date %Time [%LEVEL] %File %FuncShort:%Line %Msg %n" />
     </formats>
 </seelog>
 `

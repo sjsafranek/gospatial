@@ -6,8 +6,6 @@ import (
 	"net/http"
 )
 
-import mylogger "gospatial/logs"
-
 const HTTP_DEFAULT_PORT = 8080
 
 type HttpServer struct {
@@ -20,9 +18,7 @@ func (self HttpServer) Start() {
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
 
 	// Start server
-	// log.Printf("Magic happens on port %v...\n", self.Port)
-	// Info.Printf("Magic happens on port %v...\n", self.Port)
-	mylogger.Logger.Info("Magic happens on port ", self.Port)
+	ServerLogger.Info("Magic happens on port ", self.Port)
 
 	bind := fmt.Sprintf(":%v", self.Port)
 	// bind := fmt.Sprintf("0.0.0.0:%v", port)

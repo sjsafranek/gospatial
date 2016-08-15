@@ -49,4 +49,8 @@ if [ ! -d "`pwd`/src/github.com/cihub/seelog" ]; then
     echo "downloading seelog..."
     go get github.com/cihub/seelog
 fi
+
+# run make install
+make install
+
 echo "done!"

@@ -23,7 +23,7 @@ import (
 	"gospatial/utils"
 )
 
-import mylogger "gospatial/logs"
+// import "gospatial/logs"
 
 var (
 	port          int
@@ -35,7 +35,7 @@ var (
 )
 
 const (
-	VERSION       string = "1.10.4"
+	VERSION       string = "1.10.5"
 	DEFAULT_CONFIG string = "config.json"
 )
 
@@ -50,7 +50,7 @@ var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 func init() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
-		app.Error.Fatal(err)
+		app.ServerLogger.Error(err)
 	}
 	db := strings.Replace(dir, "bin", "bolt", -1)
 	flag.StringVar(&configFile, "c", DEFAULT_CONFIG, "server config file")
@@ -64,6 +64,8 @@ func init() {
 	// TODO:
 	// 		log directory
 	// 		log level
+	// flag.StringVar(&app.LogDirectory, "L", "logging directory", "logging directory") // check if directory exists
+	flag.StringVar(&app.LogLevel, "l", "trace", "logging level")
 	// 
 	flag.Parse()
 	if versionReport {
@@ -88,7 +90,7 @@ func init() {
 		database = configuration.Db
 		database = strings.Replace(database, ".db", "", -1)
 		app.SuperuserKey = configuration.Authkey
-		mylogger.Logger.Info(configuration)
+		app.ServerLogger.Info(configuration)
 	} else {
 		// create config file
 		configuration := serverConfig{}
@@ -98,19 +100,19 @@ func init() {
 		configuration.Authkey = authkey
 		app.SuperuserKey = authkey
 		// app.Info.Printf("%v\n", configuration)
-		mylogger.Logger.Info(configuration)
+		app.ServerLogger.Info(configuration)
 	}
 
 }
 
 func main() {
 
-	// mylogger.Logger.Trace("setting to default value")
-	// mylogger.Logger.Debug("page request. url + params")
-	// mylogger.Logger.Info("Server started")
-	// mylogger.Logger.Warn("Cannot talk to database, using backup")
-	// mylogger.Logger.Error("Cannot process request!")
-	// mylogger.Logger.Critical("Shit BROKE. Shutting down...")
+	// app.ServerLogger.Trace("setting to default value")
+	// app.ServerLogger.Debug("page request. url + params")
+	// app.ServerLogger.Info("Server started")
+	// app.ServerLogger.Warn("Cannot talk to database, using backup")
+	// app.ServerLogger.Error("Cannot process request!")
+	// app.ServerLogger.Critical("Shit BROKE. Shutting down...")
 
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
@@ -140,15 +142,15 @@ func main() {
 		for sig := range sigs {
 			// sig is a ^C, handle it
 			// fmt.Printf("%s \n", sig)
-			mylogger.Logger.Info("Recieved ", sig)
+			app.ServerLogger.Info("Recieved ", sig)
 			// app.Info.Println("Gracefulling shutting down")
 			// app.Info.Println("Waiting for sockets to close...")
-			mylogger.Logger.Info("Gracefully shutting down")
-			mylogger.Logger.Info("Waiting for sockets to close...")
+			app.ServerLogger.Info("Gracefully shutting down")
+			app.ServerLogger.Info("Waiting for sockets to close...")
 			for {
 				if len(app.Hub.Sockets) == 0 {
 					// app.Info.Println("Shutting down...")
-					mylogger.Logger.Info("Shutting down...")
+					app.ServerLogger.Info("Shutting down...")
 					os.Exit(0)
 				}
 			}
@@ -157,15 +159,15 @@ func main() {
 
 	// log.Println("Authkey:", app.SuperuserKey)
 	// log.Println("Database:", database)
-	mylogger.Logger.Info("Authkey:", app.SuperuserKey)
-	mylogger.Logger.Info("Database:", database)
+	app.ServerLogger.Info("Authkey:", app.SuperuserKey)
+	app.ServerLogger.Info("Database:", database)
 
 	if debugMode {
 		// https://golang.org/pkg/net/http/pprof/
 		go func() {
 			// log.Printf("Profiling happens on port %v...\n", 6060)
-			mylogger.Logger.Info("Profiling happens on port %v...\n", 6060)
-			app.Info.Println(http.ListenAndServe(":6060", nil))
+			app.ServerLogger.Info("Profiling happens on port %v...\n", 6060)
+			app.ServerLogger.Info(http.ListenAndServe(":6060", nil))
 		}()
 	}
 

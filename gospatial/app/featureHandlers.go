@@ -11,8 +11,6 @@ import (
 	"strconv"
 )
 
-import mylogger "gospatial/logs"
-
 // NewFeatureHandler creates a new feature and adds it to a layer.
 // Layer is then saved to database. All active clients viewing layer
 // are notified of update via websocket hub.
@@ -20,14 +18,14 @@ import mylogger "gospatial/logs"
 // @oaram ds datasource uuid
 // @return json
 func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
-	mylogger.Network.Debug("[In] ", r)
+	NetworkLogger.Debug("[In] ", r)
 
 	// Get request body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		vars := mux.Vars(r)
 		ds := vars["ds"]
-		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [500]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -43,7 +41,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	/*=======================================*/
 	// Check for apikey in request
 	if apikey == "" {
-		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [401]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [401]")
 		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
@@ -51,14 +49,14 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [404]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	// Check customer datasource list
 	if !utils.StringInSlice(ds, customer.Datasources) {
-		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [401]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [401]")
 		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
@@ -66,7 +64,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Unmarshal feature
 	feat, err := geojson.UnmarshalFeature(body)
 	if err != nil {
-		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [400]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [400]")
 		// Error.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -75,7 +73,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Save feature to database
 	err = DB.InsertFeature(ds, feat)
 	if err != nil {
-		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [500]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [500]")
 		// Error.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -85,7 +83,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"success","datasource":"` + ds + `", "message":"feature added"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		mylogger.Network.Critical(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [500]")
+		NetworkLogger.Critical(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -98,8 +96,8 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	mylogger.Network.Info(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [200]")
-	mylogger.Network.Debug("[Out] ", string(js))
+	NetworkLogger.Info(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [200]")
+	NetworkLogger.Debug("[Out] ", string(js))
 	w.Write(js)
 
 }
@@ -109,7 +107,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 // @oaram ds datasource uuid
 // @return feature geojson
 func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
-	mylogger.Network.Debug("[In] ", r)
+	NetworkLogger.Debug("[In] ", r)
 
 	// Get params
 	apikey := r.FormValue("apikey")
@@ -120,7 +118,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 
 	k, err := strconv.Atoi(vars["k"])
 	if err != nil {
-		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [400]")
+		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [400]")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -128,7 +126,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	/*=======================================*/
 	// Check for apikey in request
 	if apikey == "" {
-		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [401]")
+		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [401]")
 		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
@@ -136,14 +134,14 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
+		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	// Check customer datasource list
 	if !utils.StringInSlice(ds, customer.Datasources) {
-		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [401]")
+		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [401]")
 		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
@@ -152,14 +150,14 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Get layer from database
 	data, err := DB.GetLayer(ds)
 	if err != nil {
-		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
+		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	// Check for feature
 	if k > len(data.Features) {
-		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
+		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
 		err := fmt.Errorf("Not found")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -168,7 +166,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Marshal feature to json
 	js, err := data.Features[k].MarshalJSON()
 	if err != nil {
-		mylogger.Network.Critical(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [500]")
+		NetworkLogger.Critical(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -178,8 +176,8 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//
-	mylogger.Network.Info(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [200]")
-	mylogger.Network.Debug("[Out] ", string(js))
+	NetworkLogger.Info(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [200]")
+	NetworkLogger.Debug("[Out] ", string(js))
 	w.Write(js)
 
 }

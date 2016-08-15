@@ -8,14 +8,14 @@
 		this.getCustomer = function(callback) {
 			var self = this;
 			this.GET(this.server + "/api/v1/customer" + "?apikey=" + self.apikey, function(error, result){
-				callback(error, result);
+				return callback(error, result);
 			});
 		}
 
 		this.getLayer = function(datasource, callback) {
 			var self = this;
 			this.GET(this.server + "/api/v1/layer/" + datasource + "?apikey=" + self.apikey, function(error, result){
-				callback(error, result);
+				return callback(error, result);
 			});
 		}
 

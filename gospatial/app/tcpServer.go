@@ -4,29 +4,15 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io"
-	"log"
 	"net"
-	"os"
-	"path/filepath"
 	"strings"
 	"gospatial/utils"
 )
-
-import mylogger "gospatial/logs"
 
 const (
 	TCP_DEFAULT_CONN_HOST = "localhost"
 	TCP_DEFAULT_CONN_PORT = "3333"
 	// TCP_DEFAULT_CONN_TYPE = "tcp"
-)
-
-var (
-	infoTcp         *log.Logger
-	debugTcp        *log.Logger
-	warningTcp      *log.Logger
-	errorTcp        *log.Logger
-	tcpLoggerWriter io.Writer
 )
 
 
@@ -35,27 +21,7 @@ type TcpServer struct {
 	Port string
 }
 
-func (self TcpServer) init() {
-
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		Error.Fatal(err)
-	}
-	// server logging
-	tcpLogFile := strings.Replace(dir, "bin", "log/socket.log", -1)
-	tcpLoggerWriter, err := os.OpenFile(tcpLogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		Error.Fatal("Error opening file: %v", err)
-	}
-	// defer tcpLoggerWriter.Close()
-	infoTcp = log.New(tcpLoggerWriter, "INFO  [TCP] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	debugTcp = log.New(tcpLoggerWriter, "DEBUG [TCP] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	warningTcp = log.New(tcpLoggerWriter, "WARN  [TCP] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-	errorTcp = log.New(tcpLoggerWriter, "ERROR [TCP] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-}
-
 func (self TcpServer) Start() {
-	self.init()
 	go func() {
 		// Check settings and apply defaults
 		host := self.Host
@@ -71,25 +37,24 @@ func (self TcpServer) Start() {
 		// Listen for incoming connections.
 		l, err := net.Listen("tcp", host+":"+port)
 		if err != nil {
-			log.Println("Error listening:", err.Error())
-			errorTcp.Println("Error listening:", err.Error())
+			ServerLogger.Error("Error listening:", err.Error())
 			panic(err)
 		}
 
 		// Close the listener when the application closes.
 		defer l.Close()
 		// log.Println("Tcp Listening on " + host + ":" + port)
-		mylogger.Logger.Info("Tcp Listening on " + host + ":" + port)
+		ServerLogger.Info("Tcp Listening on " + host + ":" + port)
 
 		for {
 			// Listen for an incoming connection.
 			conn, err := l.Accept()
 			if err != nil {
-				errorTcp.Println("Error accepting: ", err.Error())
+				NetworkLogger.Error("Error accepting: ", err.Error())
 				return
 			}
 
-			infoTcp.Println("Connection open", conn.RemoteAddr().String())
+			NetworkLogger.Info("Connection open ", conn.RemoteAddr().String(), " [TCP]")
 
 			// check for local connection
 			if strings.Contains(conn.RemoteAddr().String(), "127.0.0.1") {
@@ -116,7 +81,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 		message, _ := bufio.NewReader(conn).ReadString('\n')
 
 		// output message received
-		infoTcp.Println("Message Received: ", string(message))
+		NetworkLogger.Info("Message Received: ", string(message), " [TCP]")
 
 		// json parse message
 		// req := make(map[string]string)
@@ -125,10 +90,10 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 		if err != nil {
 			// invalid message
 			// close connection
-			warningTcp.Println("error:", err)
+			NetworkLogger.Warn("error:", err)
 			resp := `{"status": "error", "error": "` + fmt.Sprintf("%v", err) + `"}`
 			conn.Write([]byte(resp + "\n"))
-			infoTcp.Println("Connection closed")
+			NetworkLogger.Info("Connection closed"," [TCP]")
 			return
 		}
 
@@ -141,7 +106,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 					resp := `{"status": "success", "data": {}}`
 					conn.Write([]byte(resp + "\n"))
 				} else {
-					warningTcp.Println("error: incorrect authkey")
+					NetworkLogger.Warn("error: incorrect authkey", " [TCP]")
 					resp := `{"status": "error", "error": "incorrect authkey"}`
 					conn.Write([]byte(resp + "\n"))
 				}

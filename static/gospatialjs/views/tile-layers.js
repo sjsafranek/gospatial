@@ -7,6 +7,7 @@
 	        _.bindAll(this, 'render', 'createTileLayer');
 	        this.apikey = apikey;
 	        this.gospatial = new GoSpatialApi(apikey);
+	        this.customer;
 	        this.render();
 	    },
 
@@ -60,17 +61,29 @@
 		},
 
 	    render: function(e) {
+	    	var self = this;
 	    	$("#tilelayers_list").html("");
-			var customer = this.gospatial.getCustomer();
-			var tilelayers = customer.tilelayers;
-			if (tilelayers) {
-				for (var i=0; i < tilelayers.length; i++) {
-					var elem = $("<tr><td>" + i + "</td><td>" + tilelayers[i].name + "</td><td>" + tilelayers[i].url + "</td></tr>");
-					elem.id = tilelayers[i];
-					console.log(tilelayers[i]);
+			this.gospatial.getCustomer(function(error,result) {
+				if (error) {
+					swal("Error", error, "error");
+					self.customer = undefined;
+					return;
+				}
+				self.customer = result;
+
+				if (!self.customer.hasOwnProperty("tilelayers")) {
+					swal("Error", "Invalid customer object: " + JSON.stringify(self.customer),"error");
+					return;
+				}
+
+				for (var i=0; i < self.customer.tilelayers.length; i++) {
+					var elem = $("<tr><td>" + i + "</td><td>" + self.customer.tilelayers[i].name + "</td><td>" + self.customer.tilelayers[i].url + "</td></tr>");
+					elem.id = self.customer.tilelayers[i];
 					$("#tilelayers_list").append(elem);
 				}
-			}
+
+			});
+
 	    	// Create charts container
 			// var viewHtml = ''; 
 			// Populate elements

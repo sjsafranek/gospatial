@@ -8,19 +8,17 @@ import (
 	"net/http"
 )
 
-import mylogger "gospatial/logs"
-
 // ViewLayersHandler returns json containing customer layers
 // @param apikey customer id
 // @return json
 func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
-	mylogger.Network.Debug("[In] ", r)
+	NetworkLogger.Debug("[In] ", r)
 	// Get params
 	apikey := r.FormValue("apikey")
 
 	// Check for apikey in request
 	if apikey == "" {
-		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layers [401]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layers [401]")
 		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
@@ -28,7 +26,7 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layers [404]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layers [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -36,15 +34,15 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 	// return results
 	js, err := json.Marshal(customer)
 	if err != nil {
-		mylogger.Network.Critical(r.RemoteAddr, " POST /api/v1/layers [500]")
+		NetworkLogger.Critical(r.RemoteAddr, " POST /api/v1/layers [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	mylogger.Network.Info(r.RemoteAddr, " POST /api/v1/layers [200]")
-	mylogger.Network.Debug("[Out] ",string(js))
+	NetworkLogger.Info(r.RemoteAddr, " POST /api/v1/layers [200]")
+	NetworkLogger.Debug("[Out] ",string(js))
 	w.Write(js)
 
 }
@@ -53,14 +51,14 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 // @param apikey
 // @return json
 func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
-	mylogger.Network.Debug("[In] ",r)
+	NetworkLogger.Debug("[In] ",r)
 
 	// Get params
 	apikey := r.FormValue("apikey")
 
 	// Check for apikey in request
 	if apikey == "" {
-		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layer [401]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer [401]")
 		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
@@ -68,7 +66,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layer [404]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -76,7 +74,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Create datasource
 	ds, err := DB.NewLayer()
 	if err != nil {
-		mylogger.Network.Critical(r.RemoteAddr, " POST /api/v1/layer [500]")
+		NetworkLogger.Critical(r.RemoteAddr, " POST /api/v1/layer [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -89,7 +87,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"success","datasource":"` + ds + `"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		mylogger.Network.Critical(r.RemoteAddr, " POST /api/v1/layer [500]")
+		NetworkLogger.Critical(r.RemoteAddr, " POST /api/v1/layer [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -98,8 +96,8 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	mylogger.Network.Error(r.RemoteAddr, " POST /api/v1/layer [200]")
-	mylogger.Network.Debug("[Out] ",string(js))
+	NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer [200]")
+	NetworkLogger.Debug("[Out] ",string(js))
 	w.Write(js)
 
 }
@@ -109,7 +107,7 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 // @param apikey
 // @return geojson
 func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
-	mylogger.Network.Debug("[In] ",r)
+	NetworkLogger.Debug("[In] ",r)
 
 	// Get params
 	apikey := r.FormValue("apikey")
@@ -120,7 +118,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check for apikey in request
 	if apikey == "" {
-		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [401]")
+		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [401]")
 		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
@@ -128,14 +126,14 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [404]")
+		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	// Check customer datasource list
 	if !utils.StringInSlice(ds, customer.Datasources) {
-		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [401]")
+		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [401]")
 		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
@@ -143,7 +141,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Get layer from database
 	lyr, err := DB.GetLayer(ds)
 	if err != nil {
-		mylogger.Network.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [404]")
+		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -151,7 +149,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Marshal datasource layer to json
 	rawJSON, err := lyr.MarshalJSON()
 	if err != nil {
-		mylogger.Network.Critical(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [500]")
+		NetworkLogger.Critical(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -160,8 +158,8 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	mylogger.Network.Info(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [200]")
-	mylogger.Network.Debug("[Out] ",string(rawJSON))
+	NetworkLogger.Info(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [200]")
+	NetworkLogger.Debug("[Out] ",string(rawJSON))
 	w.Write(rawJSON)
 
 }
@@ -171,7 +169,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 // @param apikey
 // @return json
 func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
-	mylogger.Network.Debug("[In] ",r)
+	NetworkLogger.Debug("[In] ",r)
 
 	// Get params
 	apikey := r.FormValue("apikey")
@@ -182,7 +180,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check for apikey in request
 	if apikey == "" {
-		mylogger.Network.Error(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [401]")
+		NetworkLogger.Error(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [401]")
 		http.Error(w, `{"status": "error", "result": "unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
@@ -190,14 +188,14 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
-		mylogger.Network.Error(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [404]")
+		NetworkLogger.Error(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	// Check customer datasource list
 	if !utils.StringInSlice(ds, customer.Datasources) {
-		mylogger.Network.Error(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [401]")
+		NetworkLogger.Error(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [401]")
 		http.Error(w, `{"status": "error", "result": "unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
@@ -220,7 +218,7 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"ok","datasource":"` + ds + `", "result":"datasource deleted"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		mylogger.Network.Critical(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [500]")
+		NetworkLogger.Critical(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -229,8 +227,8 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	mylogger.Network.Info(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [200]")
-	mylogger.Network.Debug("[Out] ",string(js))
+	NetworkLogger.Info(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [200]")
+	NetworkLogger.Debug("[Out] ",string(js))
 	w.Write(js)
 
 }

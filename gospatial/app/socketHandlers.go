@@ -7,8 +7,6 @@ import (
 	"sync"
 )
 
-import mylogger "gospatial/logs"
-
 type connection struct {
 	ws *websocket.Conn
 	ds string
@@ -30,14 +28,14 @@ func (self hub) broadcast(update bool, conn *connection) {
 		Viewers int  `json:"viewers"`
 	}
 	if len(self.Sockets[conn.ds]) != 0 {
-		Debug.Println("Broadcasting message to open connections")
+		ServerLogger.Debug("Broadcasting message to open connections")
 		self.guard.RLock()
 		viewers := len(self.Sockets[conn.ds])
 		self.guard.RUnlock()
 		msg := Message{Update: update, Viewers: viewers}
 		for i := range self.Sockets[conn.ds] {
 			if self.Sockets[conn.ds][i] != conn.ws {
-				Debug.Println("Sending message to client")
+				ServerLogger.Debug("Sending message to client")
 				self.Sockets[conn.ds][i].WriteJSON(msg)
 			}
 		}
@@ -49,13 +47,13 @@ func (self hub) broadcastAllDsViewers(update bool, ds string) {
 		Update  bool `json:"update"`
 		Viewers int  `json:"viewers"`
 	}
-	Debug.Println("Broadcasting message to open connections")
+	ServerLogger.Debug("Broadcasting message to open connections")
 	self.guard.RLock()
 	viewers := len(self.Sockets[ds])
 	self.guard.RUnlock()
 	msg := Message{Update: update, Viewers: viewers}
 	for i := range self.Sockets[ds] {
-		Debug.Println("Sending message to client")
+		ServerLogger.Debug("Sending message to client")
 		self.Sockets[ds][i].WriteJSON(msg)
 	}
 }
@@ -80,14 +78,14 @@ func messageListener(conn *connection) {
 		var m interface{}
 		err := conn.ws.ReadJSON(&m)
 		if err != nil {
-			Warning.Println(conn.ip, "WS /ws/"+conn.ds+" [1001]")
-			Warning.Printf("%s %s", conn.ip, err)
+			ServerLogger.Warn(conn.ip, "WS /ws/"+conn.ds+" [1001]")
+			ServerLogger.Warn("%s %s", conn.ip, err)
 			return
 		}
 		// Debug.Printf("Message: %v %s", m, conn.ds)
 		for i := range Hub.Sockets[conn.ds] {
 			if Hub.Sockets[conn.ds][i] != conn.ws {
-				Debug.Println("Sending message to client")
+				ServerLogger.Debug("Sending message to client")
 				Hub.Sockets[conn.ds][i].WriteJSON(m)
 			}
 		}
@@ -109,8 +107,8 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		// networkLoggerError.Println(r.RemoteAddr, "WS /ws/"+ds+" [500]")
-		mylogger.Network.Critical(r.RemoteAddr, " WS /ws/"+ds+" [500]")
-		Error.Println(err)
+		NetworkLogger.Critical(r.RemoteAddr, " WS /ws/"+ds+" [500]")
+		ServerLogger.Error(err)
 		return
 	}
 	conn := connection{ws: ws, ds: ds, ip: ip, c: len(Hub.Sockets[ds])}
@@ -121,7 +119,7 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 		Hub.Sockets[ds][conn.c] = ws
 	}
 	// networkLoggerInfo.Println(r.RemoteAddr, "WS /ws/"+conn.ds+" [200]")
-	mylogger.Network.Info(r.RemoteAddr, " WS /ws/"+ds+" [200]")
+	NetworkLogger.Info(r.RemoteAddr, " WS /ws/"+ds+" [200]")
 	Hub.broadcastAllDsViewers(false, conn.ds)
 	go messageListener(&conn)
 }

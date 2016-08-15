@@ -8,6 +8,7 @@
 			this.vectorlayers = new VectorLayerCollection;
 			this.apikey = apikey;
 			this.gospatial = new GoSpatialApi(apikey);
+			this.customer;
 			this.render();
 			return this;
 		},
@@ -163,55 +164,62 @@
 		render: function() {
 			var self = this;
 			$("#layers_list").html("");
-			this.get_vector_layers();
-			self.vectorlayers.each(function(model) {
-				var ds = model.get("id");
-				var html =  '<div class="panel panel-default">' +
-								'<div class="panel-heading">' + ds +
-									'<div class="panel_controls">' +
-										'<button type="button" title="options" ds_id=' + ds + ' class="btn btn-default btn-sm toggleVectorLayerOptions">' + 
-											'<i class="fa fa-cog" aria-hidden="true"></i>' + 
-										'</button>' +
-									'</div>' +
-								'</div>' +
-								'<div class="panel-body vectorlayer" ds_id=' + ds + '>' + 
-									'<div class="col-md-11 column">' +
-										'<div class="well">' +
-											'<code class="raw-json"></code>' +
-										'</div>' +
-									'</div>' +
-									'<div class="col-md-1 column">' +
-										'<button class="btn btn-sm btn-info downloadLayer" title="view" ds_id=' + ds + '>' + 
-											'<a href="/api/v1/layer/'+ ds +'?apikey=' + self.apikey + '" download="' + ds + '.geojson">' +
-												// '<i class="fa fa-cloud-download" aria-hidden="true"></i>' + 
-												'<i class="fa fa-download" aria-hidden="true"></i>' + 
-											'</a>' + 
-										'</button>' +
-										'<button class="btn btn-sm btn-danger deleteLayer" title="delete" ds_id=' + ds + '>' + 
-											'<i class="fa fa-trash"></i>' +
-										'</button>' +
-									'</div>' +
-								'</div>' +
-							'</div>';
-				var elem = $(html);
-				elem.id = ds;
-				$("#layers_list").append(elem);
-			});
+			
+			this.gospatial.getCustomer(function(error,result) {
+				if (error) {
+					swal("Error", error, "error");
+					self.customer = undefined;
+					return;
+				}
+				self.customer = result;
 
-			$(".vectorlayer").hide();
-			// return this;
-		},
+				if (!self.customer.hasOwnProperty("datasources")) {
+					swal("Error", "Invalid customer object: " + JSON.stringify(self.customer),"error");
+					return;
+				}
 
-		get_vector_layers: function() {
-			var self = this;
-			var customer = this.gospatial.getCustomer();
-			var datasources = customer.datasources;
-			if (datasources) {
-				for (var i=0; i < datasources.length; i++) {
-					var lyr = new VectorLayer({id: datasources[i]});
+				for (var i=0; i < self.customer.datasources.length; i++) {
+					var lyr = new VectorLayer({id: self.customer.datasources[i]});
 					self.vectorlayers.add(lyr);
 				}
-			}
+
+				self.vectorlayers.each(function(model) {
+					var ds = model.get("id");
+					var html =  '<div class="panel panel-default">' +
+									'<div class="panel-heading">' + ds +
+										'<div class="panel_controls">' +
+											'<button type="button" title="options" ds_id=' + ds + ' class="btn btn-default btn-sm toggleVectorLayerOptions">' + 
+												'<i class="fa fa-cog" aria-hidden="true"></i>' + 
+											'</button>' +
+										'</div>' +
+									'</div>' +
+									'<div class="panel-body vectorlayer" ds_id=' + ds + '>' + 
+										'<div class="col-md-11 column">' +
+											'<div class="well">' +
+												'<code class="raw-json"></code>' +
+											'</div>' +
+										'</div>' +
+										'<div class="col-md-1 column">' +
+											'<button class="btn btn-sm btn-info downloadLayer" title="view" ds_id=' + ds + '>' + 
+												'<a href="/api/v1/layer/'+ ds +'?apikey=' + self.apikey + '" download="' + ds + '.geojson">' +
+													// '<i class="fa fa-cloud-download" aria-hidden="true"></i>' + 
+													'<i class="fa fa-download" aria-hidden="true"></i>' + 
+												'</a>' + 
+											'</button>' +
+											'<button class="btn btn-sm btn-danger deleteLayer" title="delete" ds_id=' + ds + '>' + 
+												'<i class="fa fa-trash"></i>' +
+											'</button>' +
+										'</div>' +
+									'</div>' +
+								'</div>';
+					var elem = $(html);
+					elem.id = ds;
+					$("#layers_list").append(elem);
+				});
+				$(".vectorlayer").hide();
+
+			});
+
 		}
 
 	});

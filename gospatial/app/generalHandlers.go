@@ -5,8 +5,6 @@ import (
 	"net/http"
 )
 
-import mylogger "gospatial/logs"
-
 // IndexHandler returns html page containing api docs
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "http://sjsafranek.github.io/gospatial/", 200)
@@ -23,7 +21,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check for apikey in request
 	if apikey == "" {
-		mylogger.Network.Error(r.RemoteAddr, " POST /map [401]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /map [401]")
 		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
@@ -31,7 +29,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	_, err := DB.GetCustomer(apikey)
 	if err != nil {
-		mylogger.Network.Error(r.RemoteAddr, " POST /map [404]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /map [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -39,7 +37,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	// Return results
 	htmlFile := "./templates/map.html"
 	tmpl, _ := template.ParseFiles(htmlFile)
-	mylogger.Network.Info(r.RemoteAddr, " POST /map [200]")
+	NetworkLogger.Info(r.RemoteAddr, " POST /map [200]")
 	tmpl.Execute(w, PageViewData{Apikey: apikey, Version: "1.10.4"})
 
 }
@@ -53,7 +51,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check for apikey in request
 	if apikey == "" {
-		mylogger.Network.Error(r.RemoteAddr, " POST /management [401]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /management [401]")
 		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
@@ -61,7 +59,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	// Get customer from database
 	_, err := DB.GetCustomer(apikey)
 	if err != nil {
-		mylogger.Network.Error(r.RemoteAddr, " POST /management [404]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /management [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -69,7 +67,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	// Return results
 	htmlFile := "./templates/management.html"
 	tmpl, _ := template.ParseFiles(htmlFile)
-	mylogger.Network.Info(r.RemoteAddr, " POST /management [200]")
+	NetworkLogger.Info(r.RemoteAddr, " POST /management [200]")
 	tmpl.Execute(w, PageViewData{Apikey: apikey, Version: "1.10.4"})
 
 }

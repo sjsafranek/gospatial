@@ -2,14 +2,11 @@ package app
 
 import (
 	"encoding/json"
-	// "github.com/gorilla/mux"
 	"gospatial/utils"
 	"net/http"
 	"runtime"
 	"time"
 )
-
-import mylogger "gospatial/logs"
 
 var startTime = time.Now()
 
@@ -18,23 +15,23 @@ var SuperuserKey string = "su"
 
 // PingHandler provides an api route for server health check
 func PingHandler(w http.ResponseWriter, r *http.Request) {
-	mylogger.Network.Debug("[In] ",r)
+	NetworkLogger.Debug("[In] ",r)
 	data := `{"status": "success", "data": {"result": "pong"}}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		mylogger.Network.Critical(r.RemoteAddr, " GET /ping [500]")
+		NetworkLogger.Critical(r.RemoteAddr, " GET /ping [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	mylogger.Network.Info(r.RemoteAddr, " GET /ping [200]")
+	NetworkLogger.Info(r.RemoteAddr, " GET /ping [200]")
 	w.Header().Set("Content-Type", "application/json")
-	mylogger.Network.Debug("[Out] ",string(js))
+	NetworkLogger.Debug("[Out] ",string(js))
 	w.Write(js)
 }
 
 // ServerProfile returns basic server stats
 func ServerProfile(w http.ResponseWriter, r *http.Request) {
-	mylogger.Network.Debug("[In] ",r)
+	NetworkLogger.Debug("[In] ",r)
 	var data map[string]interface{}
 	data = make(map[string]interface{})
 	data["registered"] = startTime.UTC()
@@ -44,22 +41,22 @@ func ServerProfile(w http.ResponseWriter, r *http.Request) {
 	// data["free_mem"] = runtime.MemStats()
 	js, err := json.Marshal(data)
 	if err != nil {
-		mylogger.Network.Critical(r.RemoteAddr, " GET /management/profile [500]")
+		NetworkLogger.Critical(r.RemoteAddr, " GET /management/profile [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	mylogger.Network.Info(r.RemoteAddr, " GET /management/profile [200]")
+	NetworkLogger.Info(r.RemoteAddr, " GET /management/profile [200]")
 	w.Header().Set("Content-Type", "application/json")
-	mylogger.Network.Debug("[Out] ",string(js))
+	NetworkLogger.Debug("[Out] ",string(js))
 	w.Write(js)
 }
 
 // NewCustomerHandler superuser route to create new api customers/apikeys
 func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
-	mylogger.Network.Debug("[In] ",r)
+	NetworkLogger.Debug("[In] ",r)
 	// Check auth key
 	if SuperuserKey != r.FormValue("authkey") {
-		mylogger.Network.Error(r.RemoteAddr, " POST /management/customer [401]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /management/customer [401]")
 		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
@@ -68,7 +65,7 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	customer := Customer{Apikey: apikey}
 	err := DB.InsertCustomer(customer)
 	if err != nil {
-		Error.Println(err)
+		ServerLogger.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -76,16 +73,16 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"success","apikey":"` + apikey + `", "result":"customer created"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		mylogger.Network.Critical(r.RemoteAddr, " POST /management/customer [500]")
-		Error.Println(err)
+		NetworkLogger.Critical(r.RemoteAddr, " POST /management/customer [500]")
+		ServerLogger.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	mylogger.Network.Info(r.RemoteAddr, " POST /management/customer [200]")
-	mylogger.Network.Debug("[Out] ",string(js))
+	NetworkLogger.Info(r.RemoteAddr, " POST /management/customer [200]")
+	NetworkLogger.Debug("[Out] ",string(js))
 	w.Write(js)
 }
 

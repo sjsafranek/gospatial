@@ -308,7 +308,7 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 	}
 	// self.Logger.Println(`{"method": "insert_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
 	// Insert layer into database
-	Debug.Printf("Database insert datasource [%s]", datasource)
+	ServerLogger.Debug("Database insert datasource [%s]", datasource)
 	err = conn.Update(func(tx *bolt.Tx) error {
 		table := []byte("layers")
 		bucket, err := tx.CreateBucketIfNotExists(table)
@@ -483,7 +483,7 @@ func (self *Database) Backup(filename ...string) {
 			geojs := make(map[string]interface{})
 			err := json.Unmarshal(self.decompressByte(v), &geojs)
 			if err != nil {
-				Error.Fatal(err)
+				ServerLogger.Error(err)
 			}
 			data["layers"][string(k)] = geojs
 			return nil
@@ -499,7 +499,7 @@ func (self *Database) Backup(filename ...string) {
 			val := make(map[string]interface{})
 			err := json.Unmarshal(v, &val)
 			if err != nil {
-				Error.Fatal(err)
+				ServerLogger.Error(err)
 			}
 			data["apikeys"][string(k)] = val
 			return nil

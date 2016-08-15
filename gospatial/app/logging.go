@@ -40,7 +40,8 @@ func loadServerConfig() {
         fmt.Println(err)
         return
     }
-    UseLogger(logger)
+    // UseLogger(logger)
+    ServerLogger = logger
 }
 
 func loadNetworkConfig() {
@@ -97,19 +98,29 @@ func init() {
     DisableLog()
     loadServerConfig()
     loadNetworkConfig()
-    // test()
+    loadDbConfig()
+}
+
+func enable_test_logging() {
+    LogLevel = "critical"
+    DisableLog()
+    loadServerConfig()
+    loadNetworkConfig()
+    loadDbConfig()
 }
 
 // DisableLog disables all library log output
 func DisableLog() {
+    NetworkLogger = seelog.Disabled
     ServerLogger = seelog.Disabled
+    DbLogger = seelog.Disabled
 }
 
 // UseLogger uses a specified seelog.LoggerInterface to output library log.
 // Use this func if you are using Seelog logging system in your app.
-func UseLogger(newLogger seelog.LoggerInterface) {
-    ServerLogger = newLogger
-}
+// func UseLogger(newLogger seelog.LoggerInterface) {
+//     ServerLogger = newLogger
+// }
 
 
 

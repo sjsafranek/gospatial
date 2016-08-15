@@ -9,11 +9,12 @@
 
 ## [Unreleased]
 ## [1.10.4] - 2016-08-05
-### Added
+### Changed
  - switch logging to seelog
  - refactor or logging
 ### Fixed
  - json error messages jsend complient (https://labs.omniti.com/labs/jsend)
+ - Cleaned up db tests
  
 
 

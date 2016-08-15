@@ -24,6 +24,7 @@ func BenchmarkDbInsertCustomer(b *testing.B) {
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
+	enable_test_logging()
 	testCustomer := Customer{Apikey: testCustomerApikey}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -33,10 +34,10 @@ func BenchmarkDbInsertCustomer(b *testing.B) {
 
 // Benchmark Database.getCustomer
 func BenchmarkDbGetCustomerWithCache(b *testing.B) {
-	// testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
+	enable_test_logging()
 	testCustomer := Customer{Apikey: testCustomerApikey}
 	testDb.InsertCustomer(testCustomer)
 	b.ResetTimer()
@@ -46,15 +47,16 @@ func BenchmarkDbGetCustomerWithCache(b *testing.B) {
 }
 
 func BenchmarkDbGetCustomerWithOutCache(b *testing.B) {
-	// testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
+	enable_test_logging()
 	testCustomer := Customer{Apikey: testCustomerApikey}
 	testDb.InsertCustomer(testCustomer)
 	b.ResetTimer()
 	testDb.Apikeys = make(map[string]Customer)
 	for i := 0; i < b.N; i++ {
+		delete(testDb.Apikeys, testCustomerApikey)
 		testDb.GetCustomer(testCustomerApikey)
 	}
 }
@@ -62,10 +64,10 @@ func BenchmarkDbGetCustomerWithOutCache(b *testing.B) {
 // Unittest Database.GetCustomer
 // Unittest Database.InsertCustomer
 func TestDbCustomers(t *testing.T) {
-	// testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
+	enable_test_logging()
 	testCustomer := Customer{Apikey: testCustomerApikey}
 	err := testDb.InsertCustomer(testCustomer)
 	if err != nil {
@@ -82,10 +84,10 @@ func TestDbCustomers(t *testing.T) {
 
 // Benchmark Database.NewLayer
 func BenchmarkDbNewLayer(b *testing.B) {
-	// testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
+	enable_test_logging()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		testDb.NewLayer()
@@ -94,10 +96,10 @@ func BenchmarkDbNewLayer(b *testing.B) {
 
 // Benchmark Database.InsertLayer
 func BenchmarkDbInsertLayer(b *testing.B) {
-	// testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
+	enable_test_logging()
 	data := []byte(`{"crs":{"properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"},"type":"name"},"features":[{"geometry":{"coordinates":[[[-76.64062,50.73645513701065],[-76.64062,65.65827451982659],[-38.67187,65.65827451982659],[-38.67187,50.73645513701065],[-76.64062,50.73645513701065]]],"type":"Polygon"},"properties":{"FID":0},"type":"Feature"},{"geometry":{"coordinates":[[[-87.97851562499999,58.995311187950925],[-87.97851562499999,60.500525410511294],[-84.63867187499997,60.500525410511294],[-84.63867187499997,58.995311187950925],[-87.97851562499999,58.995311187950925]]],"type":"Polygon"},"properties":{"FID":1},"type":"Feature"}],"type":"FeatureCollection"}`)
 	geojs, err := geojson.UnmarshalFeatureCollection(data)
 	if err != nil {
@@ -111,10 +113,10 @@ func BenchmarkDbInsertLayer(b *testing.B) {
 
 // Benchmark Database.GetLayer
 func BenchmarkDbGetLayerWithCache(b *testing.B) {
-	// testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
+	enable_test_logging()
 	data := []byte(`{"crs":{"properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"},"type":"name"},"features":[{"geometry":{"coordinates":[[[-76.64062,50.73645513701065],[-76.64062,65.65827451982659],[-38.67187,65.65827451982659],[-38.67187,50.73645513701065],[-76.64062,50.73645513701065]]],"type":"Polygon"},"properties":{"FID":0},"type":"Feature"},{"geometry":{"coordinates":[[[-87.97851562499999,58.995311187950925],[-87.97851562499999,60.500525410511294],[-84.63867187499997,60.500525410511294],[-84.63867187499997,58.995311187950925],[-87.97851562499999,58.995311187950925]]],"type":"Polygon"},"properties":{"FID":1},"type":"Feature"}],"type":"FeatureCollection"}`)
 	geojs, err := geojson.UnmarshalFeatureCollection(data)
 	if err != nil {
@@ -129,10 +131,10 @@ func BenchmarkDbGetLayerWithCache(b *testing.B) {
 
 // Benchmark Database.GetLayer
 func BenchmarkDbGetLayerWithoutCache(b *testing.B) {
-	// testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
+	enable_test_logging()
 	data := []byte(`{"crs":{"properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"},"type":"name"},"features":[{"geometry":{"coordinates":[[[-76.64062,50.73645513701065],[-76.64062,65.65827451982659],[-38.67187,65.65827451982659],[-38.67187,50.73645513701065],[-76.64062,50.73645513701065]]],"type":"Polygon"},"properties":{"FID":0},"type":"Feature"},{"geometry":{"coordinates":[[[-87.97851562499999,58.995311187950925],[-87.97851562499999,60.500525410511294],[-84.63867187499997,60.500525410511294],[-84.63867187499997,58.995311187950925],[-87.97851562499999,58.995311187950925]]],"type":"Polygon"},"properties":{"FID":1},"type":"Feature"}],"type":"FeatureCollection"}`)
 	geojs, err := geojson.UnmarshalFeatureCollection(data)
 	if err != nil {
@@ -149,10 +151,10 @@ func BenchmarkDbGetLayerWithoutCache(b *testing.B) {
 // Unittest: Database.GetLayer
 // Unittest: Database.InsertLayer
 func TestDbLayers(t *testing.T) {
-	// testLoggerInit()
 	testDb := Database{File: testDbFile}
 	testDb.Init()
 	testDb.TestLogger()
+	enable_test_logging()
 	data := []byte(`{"crs":{"properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"},"type":"name"},"features":[{"geometry":{"coordinates":[[[-76.64062,50.73645513701065],[-76.64062,65.65827451982659],[-38.67187,65.65827451982659],[-38.67187,50.73645513701065],[-76.64062,50.73645513701065]]],"type":"Polygon"},"properties":{"FID":0},"type":"Feature"},{"geometry":{"coordinates":[[[-87.97851562499999,58.995311187950925],[-87.97851562499999,60.500525410511294],[-84.63867187499997,60.500525410511294],[-84.63867187499997,58.995311187950925],[-87.97851562499999,58.995311187950925]]],"type":"Polygon"},"properties":{"FID":1},"type":"Feature"}],"type":"FeatureCollection"}`)
 	geojs, err := geojson.UnmarshalFeatureCollection(data)
 	if err != nil {

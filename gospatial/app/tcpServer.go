@@ -43,7 +43,7 @@ func (self TcpServer) Start() {
 
 		// Close the listener when the application closes.
 		defer l.Close()
-		// log.Println("Tcp Listening on " + host + ":" + port)
+
 		ServerLogger.Info("Tcp Listening on " + host + ":" + port)
 
 		for {

@@ -160,10 +160,33 @@ th {
 	background-color: #4CAF50;
 	color: white;
 }
+tr, td {
+	padding: 0px !important;
+	height: 20px !important;
+}
+.color, .check {
+	width: 20px !important;
+}
 tr:hover {background-color: #f5f5f5}
 .leaflet-popup-content tr:nth-child(even) {background-color: #f2f2f2}
 
 .leaflet-popup-content th, 
 .leaflet-popup-content td {
 	padding: 4px;
+}
+
+
+/*.inline {
+    display:inline-block;
+    vertical-align:middle;
+}
+*/
+
+/*  */
+.fa-paint-brush {
+	cursor: pointer;
+}
+
+.toggleFieldSection {
+	cursor: pointer;
 }

@@ -31,6 +31,8 @@ L.GoSpatial = L.Class.extend({
 			}
 		});
 
+		this.color = d3.scale.category10();
+		// this.color = d3.scale.category20b();
 		this.vectorLayers = {};
 		// this.ws = null;
 		this.drawnItems = null;
@@ -258,7 +260,7 @@ L.GoSpatial = L.Class.extend({
 		for (var _i=0; _i < fields.length; _i++) {
 			var word = false;
 			for (var _j=0; attrs[_i].value.length > _j; _j++) {
-				if (".0123456789".indexOf(attrs[_i].value[_j]) == -1) {
+				if ("-.0123456789".indexOf(attrs[_i].value[_j]) == -1) {
 					word = true;
 					break;
 				};
@@ -453,6 +455,7 @@ L.GoSpatial = L.Class.extend({
 		});
 		// Sort values
 		for (var i in data) {
+			console.log(data[i]);
 			if (typeof(data[i] == "number")) {
 				data[i].sort(function(a, b){return a-b});
 			} else {
@@ -480,7 +483,7 @@ L.GoSpatial = L.Class.extend({
 						self.choropleth($(this).attr("name"));
 					}),
 
-					$("<strong>").text(field).on("click", function() {
+					$("<strong>").addClass("toggleFieldSection").text(field).on("click", function() {
 						// selector filters
 						var vis = $(this).parent().find("table").is(':visible');
 						if (vis) {
@@ -506,6 +509,8 @@ L.GoSpatial = L.Class.extend({
 							.range(["yellow", "darkred"])
 					};
 					var rangeSelector = $("<div>").addClass("range-selector").text(fields[field][0] + " - " + fields[field][fields[field].length-1]);
+					// Todo: 
+					// 		Display gradient
 					rangeSelector.hide();
 					field_selector.append(rangeSelector);
 				} else {
@@ -513,10 +518,10 @@ L.GoSpatial = L.Class.extend({
 					var table = $("<table>").addClass("table").addClass("table-bordered").append(
 						$("<thead>").append(
 							$("<tr>").append(
-								$("<th>").append(
+								$("<th>").addClass("color").append(
 									$("<i>").addClass("fa").addClass("fa-sort")
 								),
-								$("<th>").append(
+								$("<th>").addClass("check").append(
 									$("<i>").addClass("fa").addClass("fa-sort")
 								),
 								$("<th>").append(
@@ -534,20 +539,18 @@ L.GoSpatial = L.Class.extend({
 						type: "string",
 						colors: {}
 					};
-					// var color = d3.scale.category20b();
-					var color = d3.scale.category10();
 					for (var i=0; i < fields[field].length; i++) {
-						this.choroplethColors[field].colors[fields[field][i]] = color(i);
+						this.choroplethColors[field].colors[fields[field][i]] = this.color(i);
 						tbody.append(
 							$("<tr>").append(
 								$("<td>").addClass("cell-color").append(
-									$("<i>").addClass("attr-color").css("background", color(i))
+									$("<i>").addClass("attr-color").css("background", this.color(i))
 								),
 								$("<td>").append(
 									$("<input>", {
 										type:"checkbox", 
 										name:fields[field][i]
-									})
+									}) //.addClass("inline")
 								),
 								$("<td>").text(fields[field][i]),
 								$("<td>").text("0")
@@ -584,18 +587,6 @@ L.GoSpatial = L.Class.extend({
 		});
 	},
 
-	/** 
-	 * method:     _errorMessage()
-	 * desciption: handler for error messages
-	 * @param message {string} error message to display
-	 */
-	// _errorMessage: function(message) {
-	// 	console.log(message)
-	// 	$(".err span").html(message);
-	// 	$("#error").show();
-	// 	$("#map").hide();
-	// },
-
 /*************************************************************************
  * SUBMIT FEATURES
  *************************************************************************/
@@ -621,10 +612,12 @@ L.GoSpatial = L.Class.extend({
 		// add date_created & date_modified to feature properties
 		var now = new Date();
 		if (!payload.properties.hasOwnProperty("date_created")) {
-			payload.properties.date_created = now.toISOString();
+			// payload.properties.date_created = now.toISOString();
+			payload.properties.date_created = parseInt(now.getTime()/1000);
 		}
 		if (!payload.properties.hasOwnProperty("date_modified")) {
-			payload.properties.date_modified = now.toISOString();
+			// payload.properties.date_modified = now.toISOString();
+			payload.properties.date_modified = parseInt(now.getTime()/1000);
 		}
 		// Send request
 		this.apiClient.submitFeature(

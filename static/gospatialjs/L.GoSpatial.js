@@ -115,13 +115,6 @@ L.GoSpatial = L.Class.extend({
 			return div;
 		};
 		geojsonLayerControl.addTo(this._map);
-		// //
-		// $("#submitTileLayer").on("click", function() {
-		// 	var newTiles = L.tileLayer(
-		// 		$("#newTileLayer").val(),
-		// 		{maxZoom:25});
-		// 	newTiles.addTo(self._map);
-		// });
 		// this._preventPropogation(geojsonLayerControl);
 		var attempt = 0;
 		function loadFirstLayer() {
@@ -541,7 +534,8 @@ L.GoSpatial = L.Class.extend({
 						type: "string",
 						colors: {}
 					};
-					var color = d3.scale.category20b();
+					// var color = d3.scale.category20b();
+					var color = d3.scale.category10();
 					for (var i=0; i < fields[field].length; i++) {
 						this.choroplethColors[field].colors[fields[field][i]] = color(i);
 						tbody.append(
@@ -618,7 +612,6 @@ L.GoSpatial = L.Class.extend({
 			key: id,
 			client: this.uuid
 		}
-		// console.log(payload);
 		// this.ws.send(JSON.stringify(payload));
 		// send new feature
 		var results;

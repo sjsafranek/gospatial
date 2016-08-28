@@ -43,11 +43,6 @@
 				},
 				error: function(xhr,errmsg,err) {
 					console.log(xhr.status,xhr.responseText,errmsg,err);
-					console.log(xhr);
-					// var message = "status: " + xhr.status + "<br>";
-					// message += "responseText: " + xhr.responseText + "<br>";
-					// message += "errmsg: " + errmsg + "<br>";
-					// message += "Error:" + err;
 					var message = xhr.status + " " + xhr.responseText;
 					return callback(new Error(message));
 				}
@@ -68,11 +63,6 @@
 				},
 				error: function(xhr,errmsg,err) {
 					console.log(xhr.status,xhr.responseText,errmsg,err);
-					console.log(xhr);
-					// var message = "status: " + xhr.status + "<br>";
-					// message += "responseText: " + xhr.responseText + "<br>";
-					// message += "errmsg: " + errmsg + "<br>";
-					// message += "Error:" + err;
 					var message = xhr.status + " " + xhr.responseText;
 					callback(new Error(message));
 				}

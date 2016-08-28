@@ -73,6 +73,8 @@ func init() {
 		os.Exit(0)
 	}
 	
+	app.ResetLogging()
+
 	// check if file exists!!!
 	if _, err := os.Stat(configFile); err == nil {
 		// fmt.Println(configFile)

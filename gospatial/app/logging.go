@@ -101,8 +101,16 @@ func init() {
     loadDbConfig()
 }
 
+func ResetLogging() {
+    DisableLog()
+    loadServerConfig()
+    loadNetworkConfig()
+    loadDbConfig()
+}
+
+
 func enable_test_logging() {
-    LogLevel = "critical"
+    LogLevel = "error"
     DisableLog()
     loadServerConfig()
     loadNetworkConfig()

@@ -11,7 +11,7 @@ logFile = os.path.join("log", "db.log")
 TCP_IP = '127.0.0.1'
 TCP_PORT = 3333
 BUFFER_SIZE = 1024
-MESSAGE = '{"method":"authenticate", "authkey": "nPWWflCAhfPk"}\n'
+MESSAGE = '{"method":"authenticate", "authkey": "TLAJhDe925es"}\n'
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TCP_IP, TCP_PORT))

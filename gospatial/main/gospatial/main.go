@@ -98,9 +98,16 @@ func init() {
 		configuration := serverConfig{}
 		configuration.Port = port
 		configuration.Db = database
-		authkey := utils.NewAPIKey(12)
-		configuration.Authkey = authkey
-		app.SuperuserKey = authkey
+
+		if "su" == app.SuperuserKey {
+			authkey := utils.NewAPIKey(12)
+			configuration.Authkey = authkey
+			app.SuperuserKey = authkey	
+		}
+		// authkey := utils.NewAPIKey(12)
+		// configuration.Authkey = authkey
+		// app.SuperuserKey = authkey
+
 		// app.Info.Printf("%v\n", configuration)
 		app.ServerLogger.Info(configuration)
 	}

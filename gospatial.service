@@ -1,0 +1,13 @@
+[Unit]
+Description=GoSpatial Api Server
+After=network.target
+
+[Service]
+User=root
+Group=root
+ExecStart=/bin/bash -c '~/gospatial/bin/gospatial -c ~/gospatial/settings.json'
+Restart=on-failure
+RestartSec=2s
+
+[Install]
+WantedBy=multi-user.target

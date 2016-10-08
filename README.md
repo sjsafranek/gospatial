@@ -42,3 +42,9 @@ Execute the binary file produced in the projects `bin` directory
  - `-s`: Specifies the superuser key for management routes. Default key is `su`.
  - `-v`: Prints the app version
 
+### Service File
+
+	vim /lib/systemd/system/gospatial.service
+	systemctl daemon-reload
+	
+

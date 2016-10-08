@@ -5,8 +5,8 @@ After=network.target
 [Service]
 User=root
 Group=root
-#ExecStart=/bin/bash -c '~/gospatial/bin/gospatial -c ~/gospatial/settings.json'
-ExecStart=/bin/bash -c '~/gospatial/bin/gospatial -db ~/gospatial/bolt -s 7q1qcqmsxnvw -p 8888'
+#ExecStart=/bin/bash -c 'cd ~/gospatial; ./bin/gospatial -c ~/gospatial/settings.json'
+ExecStart=/bin/bash -c 'cd ~/gospatial; ./bin/gospatial -db bolt -s 7q1qcqmsxnvw -p 8888'
 Restart=on-failure
 RestartSec=2s
 

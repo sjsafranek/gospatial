@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"gospatial/utils"
 	"net"
 	"strings"
-	"gospatial/utils"
 )
 
 const (
@@ -14,7 +14,6 @@ const (
 	TCP_DEFAULT_CONN_PORT = "3333"
 	// TCP_DEFAULT_CONN_TYPE = "tcp"
 )
-
 
 type TcpServer struct {
 	Host string
@@ -93,14 +92,14 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 			NetworkLogger.Warn("error:", err)
 			resp := `{"status": "error", "error": "` + fmt.Sprintf("%v", err) + `"}`
 			conn.Write([]byte(resp + "\n"))
-			NetworkLogger.Info("Connection closed"," [TCP]")
+			NetworkLogger.Info("Connection closed", " [TCP]")
 			return
 		}
 
 		// get method
 		if !authenticated {
 			if req.Method == "authenticate" {
-				// {"method":"authenticate", "authkey": "O1p9dLhsryIn"}
+				// {"method":"authenticate", "authkey": "7q1qcqmsxnvw"}
 				authenticated = SuperuserKey == req.Authkey
 				if authenticated {
 					resp := `{"status": "success", "data": {}}`
@@ -147,7 +146,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 
 			case req.Method == "assign_datasource" && authenticated:
 				datasource_id := req.Datasource //["datasource_id"]
-				apikey := req.Apikey //["apikey"]
+				apikey := req.Apikey            //["apikey"]
 				customer, err := DB.GetCustomer(apikey)
 				resp := `{"status": "success", "data": {}}`
 				if err != nil {
@@ -164,6 +163,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				success = true
 
 			case req.Method == "create_user" && authenticated:
+				// {"method":"create_user"}
 				apikey := utils.NewAPIKey(12)
 				customer := Customer{Apikey: apikey}
 				resp := `{"status": "success", "data": {"apikey": "` + apikey + `"}}`
@@ -205,10 +205,10 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
-		/*
-			case req.Metho == "delete_layer" && authenticated:
-				req.Data.Datasource
-		*/
+				/*
+					case req.Metho == "delete_layer" && authenticated:
+						req.Data.Datasource
+				*/
 
 			}
 

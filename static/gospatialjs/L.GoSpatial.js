@@ -609,6 +609,7 @@ L.GoSpatial = L.Class.extend({
 		var feature = this.drawnItems._layers[id];
 		var payload = feature.toGeoJSON();
 		payload.properties = this.getProperties();
+	/*	
 		// add date_created & date_modified to feature properties
 		var now = new Date();
 		if (!payload.properties.hasOwnProperty("date_created")) {
@@ -619,6 +620,7 @@ L.GoSpatial = L.Class.extend({
 			// payload.properties.date_modified = now.toISOString();
 			payload.properties.date_modified = parseInt(now.getTime()/1000);
 		}
+	*/
 		// Send request
 		this.apiClient.submitFeature(
 			$('#layers').val(),

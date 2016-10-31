@@ -6,7 +6,6 @@ import (
 	"net/http"
 )
 
-
 // Router for http api calls
 func Router() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)

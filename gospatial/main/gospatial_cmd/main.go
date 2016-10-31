@@ -13,12 +13,12 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/paulmach/go.geojson"
 	"gospatial/app"
+	"gospatial/utils"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
 	"time"
-	"gospatial/utils"
 )
 
 var (

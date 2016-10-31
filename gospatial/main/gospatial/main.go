@@ -11,6 +11,7 @@ import (
 	"flag"
 	"fmt"
 	"gospatial/app"
+	"gospatial/utils"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -18,12 +19,9 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strings"
 	"runtime/pprof"
-	"gospatial/utils"
+	"strings"
 )
-
-// import "gospatial/logs"
 
 var (
 	port          int
@@ -31,11 +29,11 @@ var (
 	bind          string
 	versionReport bool
 	configFile    string
-	debugMode bool
+	debugMode     bool
 )
 
 const (
-	VERSION       string = "1.10.5"
+	VERSION        string = "1.10.5"
 	DEFAULT_CONFIG string = "config.json"
 )
 
@@ -61,23 +59,19 @@ func init() {
 	flag.BoolVar(&versionReport, "V", false, "App Version")
 	flag.BoolVar(&app.Verbose, "v", false, "verbose")
 	flag.BoolVar(&debugMode, "d", false, "Enable debug mode")
-	// TODO:
-	// 		log directory
-	// 		log level
-	// flag.StringVar(&app.LogDirectory, "L", "logging directory", "logging directory") // check if directory exists
+	flag.StringVar(&app.LogDirectory, "L", "log", "logging directory") // check if directory exists
 	flag.StringVar(&app.LogLevel, "l", "trace", "logging level")
-	// 
+
 	flag.Parse()
 	if versionReport {
 		fmt.Println("Version:", VERSION)
 		os.Exit(0)
 	}
-	
+
 	app.ResetLogging()
 
 	// check if file exists!!!
 	if _, err := os.Stat(configFile); err == nil {
-		// fmt.Println(configFile)
 		file, err := ioutil.ReadFile(configFile)
 		if err != nil {
 			panic(err)
@@ -87,7 +81,6 @@ func init() {
 		if err != nil {
 			fmt.Println("error:", err)
 		}
-		// app.Info.Printf("%v\n", configuration)
 		port = configuration.Port
 		database = configuration.Db
 		database = strings.Replace(database, ".db", "", -1)
@@ -102,13 +95,8 @@ func init() {
 		if "su" == app.SuperuserKey {
 			authkey := utils.NewAPIKey(12)
 			configuration.Authkey = authkey
-			app.SuperuserKey = authkey	
+			app.SuperuserKey = authkey
 		}
-		// authkey := utils.NewAPIKey(12)
-		// configuration.Authkey = authkey
-		// app.SuperuserKey = authkey
-
-		// app.Info.Printf("%v\n", configuration)
 		app.ServerLogger.Info(configuration)
 	}
 
@@ -132,7 +120,6 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-
 	// source: http://patorjk.com/software/taag/#p=display&f=Slant&t=Gospatial
 	// HyperCube Platforms
 	fmt.Println(`
@@ -152,8 +139,6 @@ func main() {
 			// sig is a ^C, handle it
 			// fmt.Printf("%s \n", sig)
 			app.ServerLogger.Info("Recieved ", sig)
-			// app.Info.Println("Gracefulling shutting down")
-			// app.Info.Println("Waiting for sockets to close...")
 			app.ServerLogger.Info("Gracefully shutting down")
 			app.ServerLogger.Info("Waiting for sockets to close...")
 			for {
@@ -166,16 +151,13 @@ func main() {
 		}
 	}()
 
-	// log.Println("Authkey:", app.SuperuserKey)
-	// log.Println("Database:", database)
 	app.ServerLogger.Info("Authkey:", app.SuperuserKey)
 	app.ServerLogger.Info("Database:", database)
 
 	if debugMode {
 		// https://golang.org/pkg/net/http/pprof/
 		go func() {
-			// log.Printf("Profiling happens on port %v...\n", 6060)
-			app.ServerLogger.Info("Profiling happens on port %v...\n", 6060)
+			app.ServerLogger.Info("Profiling happens on port 6060\n")
 			app.ServerLogger.Info(http.ListenAndServe(":6060", nil))
 		}()
 	}

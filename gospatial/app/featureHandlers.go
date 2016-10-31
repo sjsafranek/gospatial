@@ -8,7 +8,8 @@ import (
 	"gospatial/utils"
 	"io/ioutil"
 	"net/http"
-	"strconv"
+	// "strconv"
+	"time"
 )
 
 // NewFeatureHandler creates a new feature and adds it to a layer.
@@ -70,6 +71,15 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Fill required attributes
+	now := time.Now().Unix()
+	feat.Properties["is_active"] = true
+	feat.Properties["is_deleted"] = false
+	feat.Properties["date_created"] = now
+	feat.Properties["date_modified"] = now
+	feat.Properties["geo_id"] = fmt.Sprintf("%v", now)
+	ServerLogger.Info(feat.Properties)
+
 	// Save feature to database
 	err = DB.InsertFeature(ds, feat)
 	if err != nil {
@@ -116,13 +126,6 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds := vars["ds"]
 
-	k, err := strconv.Atoi(vars["k"])
-	if err != nil {
-		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [400]")
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	/*=======================================*/
 	// Check for apikey in request
 	if apikey == "" {
@@ -156,28 +159,31 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check for feature
-	if k > len(data.Features) {
-		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
-		err := fmt.Errorf("Not found")
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+	var js []byte
+	for _, v := range data.Features {
+		geo_id := fmt.Sprintf("%v", v.Properties["geo_id"])
+		if geo_id == vars["k"] {
+			js, err = v.MarshalJSON()
+			if err != nil {
+				NetworkLogger.Critical(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [500]")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			// Return results
+			w.Header().Set("Content-Type", "application/json")
+			// allow cross domain AJAX requests
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			NetworkLogger.Info(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [200]")
+			NetworkLogger.Debug("[Out] ", string(js))
+			w.Write(js)
+			return
+		}
 	}
 
-	// Marshal feature to json
-	js, err := data.Features[k].MarshalJSON()
-	if err != nil {
-		NetworkLogger.Critical(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Return results
-	w.Header().Set("Content-Type", "application/json")
-	// allow cross domain AJAX requests
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	//
-	NetworkLogger.Info(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [200]")
-	NetworkLogger.Debug("[Out] ", string(js))
-	w.Write(js)
+	// Feature not found
+	NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
+	err = fmt.Errorf("Not found")
+	http.Error(w, err.Error(), http.StatusNotFound)
+	return
 
 }

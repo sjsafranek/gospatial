@@ -50,6 +50,19 @@ if [ ! -d "`pwd`/src/github.com/cihub/seelog" ]; then
     go get github.com/cihub/seelog
 fi
 
+if [ ! -d "`pwd`/src/github.com/mattn/go-sqlite3" ]; then
+    echo "downloading go-sqlite3..."
+    go get github.com/mattn/go-sqlite3
+fi
+
+if [ ! -d "`pwd`/src/github.com/lib/pq" ]; then
+    echo "downloading pg..."
+    go get github.com/lib/pq
+fi
+
+# format
+./manage.sh -f
+
 # run make install
 make install
 

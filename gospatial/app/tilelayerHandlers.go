@@ -28,7 +28,7 @@ func NewTileLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// Check for apikey in request
 	if apikey == "" {
 		// networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/tilelayer [401]")
-		NetworkLogger.Error(r.RemoteAddr,  " POST /api/v1/tilelayer [401]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/tilelayer [401]")
 		http.Error(w, `{"status": "fail", "result": "unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
@@ -37,7 +37,7 @@ func NewTileLayerHandler(w http.ResponseWriter, r *http.Request) {
 	customer, err := DB.GetCustomer(apikey)
 	if err != nil {
 		// networkLoggerWarning.Println(r.RemoteAddr, "POST /api/v1/tilelayer [404]")
-		NetworkLogger.Error(r.RemoteAddr,  " POST /api/v1/tilelayer [404]")
+		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/tilelayer [404]")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -52,7 +52,7 @@ func NewTileLayerHandler(w http.ResponseWriter, r *http.Request) {
 	js, err := json.Marshal(data)
 	if err != nil {
 		// networkLoggerError.Println(r.RemoteAddr, "POST /api/v1/tilelayer [500]")
-		NetworkLogger.Critical(r.RemoteAddr,  " POST /api/v1/tilelayer [500]")
+		NetworkLogger.Critical(r.RemoteAddr, " POST /api/v1/tilelayer [500]")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -62,7 +62,7 @@ func NewTileLayerHandler(w http.ResponseWriter, r *http.Request) {
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	// networkLoggerInfo.Println(r.RemoteAddr, "POST /api/v1/layer [200]")
-	NetworkLogger.Info(r.RemoteAddr,  " POST /api/v1/tilelayer [200]")
+	NetworkLogger.Info(r.RemoteAddr, " POST /api/v1/tilelayer [200]")
 	// networkLoggerInfoOut.Println(string(js))
 	NetworkLogger.Debug(js)
 	w.Write(js)

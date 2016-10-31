@@ -26,5 +26,5 @@ func (self HttpServer) Start() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 }

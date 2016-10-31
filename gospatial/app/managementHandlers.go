@@ -15,7 +15,7 @@ var SuperuserKey string = "su"
 
 // PingHandler provides an api route for server health check
 func PingHandler(w http.ResponseWriter, r *http.Request) {
-	NetworkLogger.Debug("[In] ",r)
+	NetworkLogger.Debug("[In] ", r)
 	data := `{"status": "success", "data": {"result": "pong"}}`
 	js, err := json.Marshal(data)
 	if err != nil {
@@ -25,13 +25,13 @@ func PingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	NetworkLogger.Info(r.RemoteAddr, " GET /ping [200]")
 	w.Header().Set("Content-Type", "application/json")
-	NetworkLogger.Debug("[Out] ",string(js))
+	NetworkLogger.Debug("[Out] ", string(js))
 	w.Write(js)
 }
 
 // ServerProfile returns basic server stats
 func ServerProfile(w http.ResponseWriter, r *http.Request) {
-	NetworkLogger.Debug("[In] ",r)
+	NetworkLogger.Debug("[In] ", r)
 	var data map[string]interface{}
 	data = make(map[string]interface{})
 	data["registered"] = startTime.UTC()
@@ -47,13 +47,13 @@ func ServerProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	NetworkLogger.Info(r.RemoteAddr, " GET /management/profile [200]")
 	w.Header().Set("Content-Type", "application/json")
-	NetworkLogger.Debug("[Out] ",string(js))
+	NetworkLogger.Debug("[Out] ", string(js))
 	w.Write(js)
 }
 
 // NewCustomerHandler superuser route to create new api customers/apikeys
 func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
-	NetworkLogger.Debug("[In] ",r)
+	NetworkLogger.Debug("[In] ", r)
 	// Check auth key
 	if SuperuserKey != r.FormValue("authkey") {
 		NetworkLogger.Error(r.RemoteAddr, " POST /management/customer [401]")
@@ -82,7 +82,7 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	// allow cross domain AJAX requests
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	NetworkLogger.Info(r.RemoteAddr, " POST /management/customer [200]")
-	NetworkLogger.Debug("[Out] ",string(js))
+	NetworkLogger.Debug("[Out] ", string(js))
 	w.Write(js)
 }
 

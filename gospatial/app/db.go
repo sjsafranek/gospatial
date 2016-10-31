@@ -71,7 +71,6 @@ func (self *Database) Init() error {
 		return err
 	}
 	// Add table for datasource owner
-	//
 	// permissions
 	err = conn.Update(func(tx *bolt.Tx) error {
 		table := []byte("apikeys")
@@ -83,20 +82,6 @@ func (self *Database) Init() error {
 	}
 	// create apikey/customer cache
 	self.Apikeys = make(map[string]Customer)
-	// put apikey into memory
-	// conn.View(func(tx *bolt.Tx) error {
-	// 	b := tx.Bucket([]byte("apikeys"))
-	// 	b.ForEach(func(k, v []byte) error {
-	// 		customer := Customer{}
-	// 		err := json.Unmarshal(v, &customer)
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 		self.Apikeys[string(k)] = customer
-	// 		return nil
-	// 	})
-	// 	return nil
-	// })
 	// close and return err
 	return err
 }
@@ -137,26 +122,13 @@ func (self *Database) TestLogger() {
 // @returns Error
 func (self *Database) InsertCustomer(customer Customer) error {
 	self.Apikeys[customer.Apikey] = customer
-	// Connect to database
-	conn := self.connect()
-	defer conn.Close()
-	// convert to bytes
-	table := []byte("apikeys")
-	key := []byte(customer.Apikey)
 	value, err := json.Marshal(customer)
 	if err != nil {
 		return err
 	}
 	self.Logger.Println(`{"method": "insert_apikey", "data":` + string(value) + `}`)
 	// Insert customer into database
-	err = conn.Update(func(tx *bolt.Tx) error {
-		bucket, err := tx.CreateBucketIfNotExists(table)
-		if err != nil {
-			return err
-		}
-		err = bucket.Put(key, value)
-		return err
-	})
+	err = self.Insert("apikeys", customer.Apikey, value)
 	if err != nil {
 		panic(err)
 	}
@@ -168,27 +140,14 @@ func (self *Database) InsertCustomer(customer Customer) error {
 // @returns Error
 func (self *Database) InsertCustomers(customers map[string]Customer) error {
 	// Connect to database
-	conn := self.connect()
-	defer conn.Close()
 	for i := range customers {
 		customer := customers[i]
-		// convert to bytes
-		table := []byte("apikeys")
-		key := []byte(customer.Apikey)
 		value, err := json.Marshal(customer)
 		if err != nil {
 			return err
 		}
 		self.Logger.Println(`{"method": "insert_apikey", "data": ` + string(value) + `}`)
-		// Insert layer into database
-		err = conn.Update(func(tx *bolt.Tx) error {
-			bucket, err := tx.CreateBucketIfNotExists(table)
-			if err != nil {
-				return err
-			}
-			err = bucket.Put(key, value)
-			return err
-		})
+		err = self.Insert("apikeys", customer.Apikey, value)
 		if err != nil {
 			panic(err)
 		}
@@ -206,28 +165,9 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 		return self.Apikeys[apikey], nil
 	}
 	// If customer not found get from database
-	conn := self.connect()
-	defer conn.Close()
-	// Make sure table exists
-	table := []byte("apikeys")
-	// Get datasrouce from database
-	key := []byte(apikey)
-	val := []byte{}
-	err := conn.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(table)
-		if bucket == nil {
-			return fmt.Errorf("Bucket %q not found!", bucket)
-		}
-		val = bucket.Get(key)
-		return nil
-	})
+	val, err := self.Select("apikeys", apikey)
 	if err != nil {
-		// bucket doesn't exist
-		conn.Update(func(tx *bolt.Tx) error {
-			_, err := tx.CreateBucketIfNotExists(table)
-			return err
-		})
-		return Customer{}, err
+		panic(err)
 	}
 	// datasource not found
 	if val == nil {
@@ -237,7 +177,6 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 	customer := Customer{}
 	err = json.Unmarshal(val, &customer)
 	if err != nil {
-		// panic(err)
 		return Customer{}, err
 	}
 	// Put apikey into cache
@@ -253,10 +192,6 @@ func (self *Database) NewLayer() (string, error) {
 	// create geojson
 	datasource, _ := utils.NewUUID()
 	geojs := geojson.NewFeatureCollection()
-	// Connect to database
-	conn := self.connect()
-	defer conn.Close()
-	key := []byte(datasource)
 	// convert to bytes
 	value, err := geojs.MarshalJSON()
 	if err != nil {
@@ -264,15 +199,7 @@ func (self *Database) NewLayer() (string, error) {
 	}
 	self.Logger.Println(`{"method": "new_layer", "data": { "datasource": "` + datasource + `", "layer": ` + string(value) + `}}`)
 	// Insert layer into database
-	err = conn.Update(func(tx *bolt.Tx) error {
-		table := []byte("layers")
-		bucket, err := tx.CreateBucketIfNotExists(table)
-		if err != nil {
-			return err
-		}
-		err = bucket.Put(key, self.compressByte(value))
-		return err
-	})
+	err = self.Insert("layers", datasource, value)
 	if err != nil {
 		panic(err)
 	}
@@ -296,11 +223,6 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 		self.Cache[datasource] = pgc
 	}
 	// self.guard.Unlock()
-
-	// Connect to database
-	conn := self.connect()
-	defer conn.Close()
-	key := []byte(datasource)
 	// convert to bytes
 	value, err := geojs.MarshalJSON()
 	if err != nil {
@@ -309,18 +231,12 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 	// self.Logger.Println(`{"method": "insert_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
 	// Insert layer into database
 	ServerLogger.Debug("Database insert datasource [%s]", datasource)
-	err = conn.Update(func(tx *bolt.Tx) error {
-		table := []byte("layers")
-		bucket, err := tx.CreateBucketIfNotExists(table)
-		if err != nil {
-			return err
-		}
-		err = bucket.Put(key, self.compressByte(value))
-		return err
-	})
+
+	err = self.Insert("layers", datasource, value)
 	if err != nil {
 		panic(err)
 	}
+
 	return err
 }
 
@@ -329,10 +245,8 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 // @returns Error
 func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollection) error {
 	// Connect to database
-	conn := self.connect()
-	defer conn.Close()
 	for datasource, geojs := range datsources {
-		key := []byte(datasource)
+		//key := []byte(datasource)
 		// convert to bytes
 		value, err := geojs.MarshalJSON()
 		if err != nil {
@@ -340,18 +254,11 @@ func (self *Database) InsertLayers(datsources map[string]*geojson.FeatureCollect
 		}
 		// self.Logger.Println(`{"method": "insert_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
 		// Insert layer into database
-		err = conn.Update(func(tx *bolt.Tx) error {
-			table := []byte("layers")
-			bucket, err := tx.CreateBucketIfNotExists(table)
-			if err != nil {
-				return err
-			}
-			err = bucket.Put(key, self.compressByte(value))
-			return err
-		})
+		err = self.Insert("layers", datasource, value)
 		if err != nil {
 			panic(err)
 		}
+
 	}
 	return nil
 }
@@ -369,31 +276,9 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 		return v.Geojson, nil
 	}
 	// If page not found get from database
-	conn := self.connect()
-	defer conn.Close()
-	table := []byte("layers")
-	// Get datasrouce from database
-	key := []byte(datasource)
-	val := []byte{}
-	err := conn.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(table)
-		if bucket == nil {
-			return fmt.Errorf("Bucket %q not found!", bucket)
-		}
-		val = self.decompressByte(bucket.Get(key))
-		return nil
-	})
+	val, err := self.Select("layers", datasource)
 	if err != nil {
-		// bucket doesn't exist
-		conn.Update(func(tx *bolt.Tx) error {
-			_, err := tx.CreateBucketIfNotExists(table)
-			return err
-		})
 		return nil, err
-	}
-	// datasource not found
-	if val == nil {
-		return nil, fmt.Errorf("Not found")
 	}
 	// Read to struct
 	geojs, err := geojson.UnmarshalFeatureCollection(val)
@@ -414,7 +299,6 @@ func (self *Database) DeleteLayer(datasource string) error {
 	conn := self.connect()
 	defer conn.Close()
 	key := []byte(datasource)
-	//
 	self.Logger.Println(string(`{"method": "delete_layer", "data": { "datasource": "` + datasource + `"}}`))
 	// Insert layer into database
 	err := conn.Update(func(tx *bolt.Tx) error {
@@ -436,6 +320,47 @@ func (self *Database) DeleteLayer(datasource string) error {
 	delete(self.Cache, datasource)
 	self.guard.Unlock()
 	return err
+}
+
+func (self *Database) Insert(table string, key string, value []byte) error {
+	conn := self.connect()
+	defer conn.Close()
+	k := []byte(key)
+	err := conn.Update(func(tx *bolt.Tx) error {
+		table := []byte(table)
+		bucket, err := tx.CreateBucketIfNotExists(table)
+		if err != nil {
+			return err
+		}
+		err = bucket.Put(k, self.compressByte(value))
+		return err
+	})
+	return err
+}
+
+func (self *Database) Select(table string, key string) ([]byte, error) {
+	conn := self.connect()
+	defer conn.Close()
+	k := []byte(key)
+	val := []byte{}
+	t := []byte(table)
+	err := conn.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(t)
+		if bucket == nil {
+			return fmt.Errorf("Bucket %q not found!", bucket)
+		}
+		val = self.decompressByte(bucket.Get(k))
+		return nil
+	})
+	if err != nil {
+		// bucket doesn't exist
+		conn.Update(func(tx *bolt.Tx) error {
+			_, err := tx.CreateBucketIfNotExists(t)
+			return err
+		})
+		return nil, err
+	}
+	return val, err
 }
 
 // InsertFeature adds feature to layer. Updates layer in Database
@@ -460,7 +385,6 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 		panic(err)
 	}
 	return err
-
 }
 
 // Backup dumps database contents to json file

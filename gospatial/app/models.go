@@ -21,19 +21,18 @@ type PageViewData struct {
 	Version string
 }
 
-
 type TcpData struct {
-	Apikey string `json:"apikey"`
-	Datasources []string `json:"datasources"`
-	Datasource string `json:"datasource"`
-	Layer *geojson.FeatureCollection `json:"layer"`
-	Feature *geojson.Feature `json:"feature"`
+	Apikey      string                     `json:"apikey"`
+	Datasources []string                   `json:"datasources"`
+	Datasource  string                     `json:"datasource"`
+	Layer       *geojson.FeatureCollection `json:"layer"`
+	Feature     *geojson.Feature           `json:"feature"`
 }
 
 type TcpMessage struct {
-	Authkey string `json:"authkey"`
-	Apikey string `json:"apikey"`
-	Method string `json:"method"`
-	Data TcpData `json:"data"`
-	Datasource string `json:"datasource"`
+	Authkey    string  `json:"authkey"`
+	Apikey     string  `json:"apikey"`
+	Method     string  `json:"method"`
+	Data       TcpData `json:"data"`
+	Datasource string  `json:"datasource"`
 }

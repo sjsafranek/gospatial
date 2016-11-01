@@ -12,15 +12,17 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
+	//"path/filepath"
+	//"strings"
 	"sync"
 	"time"
 )
 
 // DB application Database
-var DB Database
-var dbLog io.Writer
+var (
+	DB              Database
+	COMMIT_LOG_FILE string = "commit.log"
+)
 
 // LayerCache keeps track of Database's loaded geojson layers
 type LayerCache struct {
@@ -30,11 +32,11 @@ type LayerCache struct {
 
 // Database strust for application.
 type Database struct {
-	File    string
-	Cache   map[string]*LayerCache
-	Apikeys map[string]Customer
-	Logger  *log.Logger
-	guard   sync.RWMutex
+	File             string
+	Cache            map[string]*LayerCache
+	Apikeys          map[string]Customer
+	guard            sync.RWMutex
+	commit_log_queue chan string
 }
 
 // Connect to bolt database. Returns open database connection.
@@ -57,7 +59,7 @@ func (self *Database) Init() error {
 	m := make(map[string]*LayerCache)
 	self.Cache = m
 	go self.cacheManager()
-	self.startLogger()
+	go self.startCommitLog()
 	// connect to db
 	conn := self.connect()
 	defer conn.Close()
@@ -86,35 +88,28 @@ func (self *Database) Init() error {
 	return err
 }
 
-// Starts Database logger
-func (self *Database) startLogger() {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+// Starts Database commit log
+func (self *Database) startCommitLog() {
+	//go func() {
+	self.commit_log_queue = make(chan string, 10000)
+
+	// open files r and w
+	COMMIT_LOG, err := os.OpenFile(COMMIT_LOG_FILE, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
-	dbLogFile := strings.Replace(dir, "bin", "log/db.log", -1)
-	dbLog, err := os.OpenFile(dbLogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		dbLog, err = os.OpenFile("db.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-		if err != nil {
-			panic(err)
+	defer COMMIT_LOG.Close()
+	for {
+		if len(self.commit_log_queue) > 0 {
+			line := <-self.commit_log_queue
+			if _, err := COMMIT_LOG.WriteString(line + "\n"); err != nil {
+				panic(err)
+			}
+		} else {
+			time.Sleep(1000 * time.Millisecond)
 		}
 	}
-	self.Logger = log.New(dbLog, "WRITE [DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
-}
-
-// TestLogger starts Database logger for db_test.go
-func (self *Database) TestLogger() {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		panic(err)
-	}
-	f := filepath.Join(dir, "test_db.log")
-	dbLog, err := os.OpenFile(f, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		panic(err)
-	}
-	self.Logger = log.New(dbLog, "WRITE [DB] ", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile|log.Lmicroseconds)
+	//}()
 }
 
 // InsertCustomer inserts customer into apikeys table
@@ -126,7 +121,7 @@ func (self *Database) InsertCustomer(customer Customer) error {
 	if err != nil {
 		return err
 	}
-	self.Logger.Println(`{"method": "insert_apikey", "data":` + string(value) + `}`)
+	self.commit_log_queue <- `{"method": "insert_apikey", "data":` + string(value) + `}`
 	// Insert customer into database
 	err = self.Insert("apikeys", customer.Apikey, value)
 	if err != nil {
@@ -146,7 +141,7 @@ func (self *Database) InsertCustomers(customers map[string]Customer) error {
 		if err != nil {
 			return err
 		}
-		self.Logger.Println(`{"method": "insert_apikey", "data": ` + string(value) + `}`)
+		self.commit_log_queue <- `{"method": "insert_apikey", "data": ` + string(value) + `}`
 		err = self.Insert("apikeys", customer.Apikey, value)
 		if err != nil {
 			panic(err)
@@ -197,7 +192,7 @@ func (self *Database) NewLayer() (string, error) {
 	if err != nil {
 		return "", nil
 	}
-	self.Logger.Println(`{"method": "new_layer", "data": { "datasource": "` + datasource + `", "layer": ` + string(value) + `}}`)
+	self.commit_log_queue <- `{"method": "new_layer", "data": { "datasource": "` + datasource + `", "layer": ` + string(value) + `}}`
 	// Insert layer into database
 	err = self.Insert("layers", datasource, value)
 	if err != nil {
@@ -230,7 +225,7 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 	}
 	// self.Logger.Println(`{"method": "insert_layer", "data": { "datasource": ` + datasource + `, "layer": ` + string(value) + `}}`)
 	// Insert layer into database
-	ServerLogger.Debug("Database insert datasource [%s]", datasource)
+	//ServerLogger.Debug("Database insert datasource [%s]", datasource)
 
 	err = self.Insert("layers", datasource, value)
 	if err != nil {
@@ -299,7 +294,7 @@ func (self *Database) DeleteLayer(datasource string) error {
 	conn := self.connect()
 	defer conn.Close()
 	key := []byte(datasource)
-	self.Logger.Println(string(`{"method": "delete_layer", "data": { "datasource": "` + datasource + `"}}`))
+	self.commit_log_queue <- `{"method": "delete_layer", "data": { "datasource": "` + datasource + `"}}`
 	// Insert layer into database
 	err := conn.Update(func(tx *bolt.Tx) error {
 		table := []byte("layers")
@@ -378,7 +373,7 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 	if err != nil {
 		return err
 	}
-	self.Logger.Println(`{"method": "insert_feature", "data": { "datasource": "` + datasource + `", "feature": ` + string(value) + `}}`)
+	self.commit_log_queue <- `{"method": "insert_feature", "data": { "datasource": "` + datasource + `", "feature": ` + string(value) + `}}`
 	featCollection.AddFeature(feat)
 	err = self.InsertLayer(datasource, featCollection)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"gospatial/utils"
 	"net"
+	"net/textproto"
 	"strings"
 )
 
@@ -70,6 +71,9 @@ func (self TcpServer) Start() {
 // Handles incoming requests.
 func (self TcpServer) tcpClientHandler(conn net.Conn) {
 
+	reader := bufio.NewReader(conn)
+	tp := textproto.NewReader(reader)
+
 	defer conn.Close()
 
 	authenticated := false
@@ -77,20 +81,22 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 	for {
 
 		// will listen for message to process ending in newline (\n)
-		message, _ := bufio.NewReader(conn).ReadString('\n')
+		//message, _ := bufio.NewReader(conn).ReadString('\n') // sometimes read partial messages
+		message, _ := tp.ReadLine()
+
+		// go self.handleTcpMessage(authenticated, message, conn)
 
 		// output message received
 		NetworkLogger.Info("Message Received: ", string(message), " [TCP]")
 
 		// json parse message
-		// req := make(map[string]string)
 		req := TcpMessage{}
 		err := json.Unmarshal([]byte(message), &req)
 		if err != nil {
 			// invalid message
 			// close connection
 			NetworkLogger.Warn("error:", err)
-			resp := `{"status": "error", "error": "` + fmt.Sprintf("%v", err) + `"}`
+			resp := `{"status": "error", "error": "` + fmt.Sprintf("%v", err) + `",""}`
 			conn.Write([]byte(resp + "\n"))
 			NetworkLogger.Info("Connection closed", " [TCP]")
 			return
@@ -117,33 +123,34 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 
 			success := false
 			switch {
-			case req.Method == "clear_datasource_cache" && authenticated:
-				// {"method": "clear_datasource_cache"}
-				// Unload all layers in database cache
-				for key := range DB.Cache {
-					delete(DB.Cache, key)
-				}
-				resp := `{"status": "success", "data": {}}`
-				conn.Write([]byte(resp + "\n"))
-				success = true
+			/*
+				case req.Method == "clear_datasource_cache" && authenticated:
+					// {"method": "clear_datasource_cache"}
+					// Unload all layers in database cache
+					for key := range DB.Cache {
+						delete(DB.Cache, key)
+					}
+					resp := `{"status": "success", "data": {}}`
+					conn.Write([]byte(resp + "\n"))
+					success = true
 
-			case req.Method == "loaded_datasources" && authenticated:
-				// {"method": "loaded_datasources"}
-				result, _ := json.Marshal(DB.Cache)
-				resp := `{"status": "success", "data": ` + string(result) + `}`
-				conn.Write([]byte(resp + "\n"))
-				success = true
+				case req.Method == "loaded_datasources" && authenticated:
+					// {"method": "loaded_datasources"}
+					result, _ := json.Marshal(DB.Cache)
+					resp := `{"status": "success", "data": ` + string(result) + `}`
+					conn.Write([]byte(resp + "\n"))
+					success = true
 
-			case req.Method == "clear_customer_cache" && authenticated:
-				// {"method": "clear_customer_cache"}
-				// Unload all apikeys in database cache
-				for key := range DB.Apikeys {
-					delete(DB.Apikeys, key)
-				}
-				resp := `{"status": "success", "data": {}}`
-				conn.Write([]byte(resp + "\n"))
-				success = true
-
+				case req.Method == "clear_customer_cache" && authenticated:
+					// {"method": "clear_customer_cache"}
+					// Unload all apikeys in database cache
+					for key := range DB.Apikeys {
+						delete(DB.Apikeys, key)
+					}
+					resp := `{"status": "success", "data": {}}`
+					conn.Write([]byte(resp + "\n"))
+					success = true
+			*/
 			case req.Method == "assign_datasource" && authenticated:
 				datasource_id := req.Datasource //["datasource_id"]
 				apikey := req.Apikey            //["apikey"]
@@ -205,10 +212,8 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
-				/*
-					case req.Metho == "delete_layer" && authenticated:
-						req.Data.Datasource
-				*/
+				//	case req.Method == "delete_layer" && authenticated:
+				//		req.Data.Datasource
 
 			}
 

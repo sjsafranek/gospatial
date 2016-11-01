@@ -163,6 +163,7 @@ func main() {
 	}
 
 	// Initiate Database
+	app.COMMIT_LOG_FILE = database + "_commit.log"
 	app.DB = app.Database{File: database + ".db"}
 	err := app.DB.Init()
 	if err != nil {

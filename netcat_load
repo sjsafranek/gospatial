@@ -1,0 +1,2 @@
+nc localhost 3333
+nc localhost 3333 < test_commit.log 2>&1 | tee -a file_load.log

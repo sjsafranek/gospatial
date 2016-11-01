@@ -8,8 +8,12 @@
 
 
 ## [Unreleased]
-
-
+## [1.11.1] - 2016-10-30
+### Added
+ - Commit log file handling
+### Fixed
+ - Fixed tcp partial messages bug
+ 
 
 
 ## [1.11.0] - 2016-10-30

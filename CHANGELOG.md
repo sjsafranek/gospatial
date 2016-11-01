@@ -11,6 +11,7 @@
 ## [1.11.1] - 2016-10-30
 ### Added
  - Commit log file handling
+ - new benchmark test for Database.InsertFeature
 ### Fixed
  - Fixed tcp partial messages bug
  

@@ -1,16 +1,14 @@
 package app
 
 import (
+	"errors"
 	"github.com/paulmach/go.geojson"
+	//"log"
 	"testing"
 )
 
 // go test -bench=.
 // go test -bench=. -test.benchmem
-
-// Test NewLayer
-// Benchmark InsertFeature
-// Test InsertFeature
 
 const (
 	testDbFile         string = "./test.db"
@@ -147,6 +145,65 @@ func BenchmarkDbGetLayerWithoutCache(b *testing.B) {
 	}
 }
 
+// Benchmark Database.InsertFeature
+func BenchmarkDbInsertFeatureWithCache(b *testing.B) {
+	COMMIT_LOG_FILE = "./test_commit.log"
+	testDb := Database{File: testDbFile}
+	testDb.Init()
+	enable_test_logging()
+
+	lyr_data := []byte(`{"crs":{"properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"},"type":"name"},"features":[],"type":"FeatureCollection"}`)
+	layer, err := geojson.UnmarshalFeatureCollection(lyr_data)
+	if err != nil {
+		b.Error(err)
+	}
+	testDb.InsertLayer(testDatasource, layer)
+
+	feat_data := []byte(`{"geometry":{"coordinates":[[[-76.64062,50.73645513701065],[-76.64062,65.65827451982659],[-38.67187,65.65827451982659],[-38.67187,50.73645513701065],[-76.64062,50.73645513701065]]],"type":"Polygon"},"properties":{"FID":0},"type":"Feature"}`)
+	feature, err := geojson.UnmarshalFeature(feat_data)
+	if err != nil {
+		b.Error(err)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		err = testDb.InsertFeature(testDatasource, feature)
+		if err != nil {
+			b.Error(err)
+		}
+	}
+}
+
+// Benchmark Database.InsertFeature
+func BenchmarkDbInsertFeatureWithOutCache(b *testing.B) {
+	COMMIT_LOG_FILE = "./test_commit.log"
+	testDb := Database{File: testDbFile}
+	testDb.Init()
+	enable_test_logging()
+
+	lyr_data := []byte(`{"crs":{"properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"},"type":"name"},"features":[],"type":"FeatureCollection"}`)
+	layer, err := geojson.UnmarshalFeatureCollection(lyr_data)
+	if err != nil {
+		b.Error(err)
+	}
+	testDb.InsertLayer(testDatasource, layer)
+
+	feat_data := []byte(`{"geometry":{"coordinates":[[[-76.64062,50.73645513701065],[-76.64062,65.65827451982659],[-38.67187,65.65827451982659],[-38.67187,50.73645513701065],[-76.64062,50.73645513701065]]],"type":"Polygon"},"properties":{"FID":0},"type":"Feature"}`)
+	feature, err := geojson.UnmarshalFeature(feat_data)
+	if err != nil {
+		b.Error(err)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		delete(testDb.Cache, testDatasource)
+		err = testDb.InsertFeature(testDatasource, feature)
+		if err != nil {
+			b.Error(err)
+		}
+	}
+}
+
 // Unittest: Database.GetLayer
 // Unittest: Database.InsertLayer
 func TestDbLayers(t *testing.T) {
@@ -163,8 +220,16 @@ func TestDbLayers(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = testDb.GetLayer(testDatasource)
+	lyr, err := testDb.GetLayer(testDatasource)
 	if err != nil {
 		t.Error(err)
 	}
+	if 2 != len(lyr.Features) {
+		t.Error(errors.New("missing features!"))
+	}
 }
+
+
+// Test NewLayer
+// Test InsertFeature
+

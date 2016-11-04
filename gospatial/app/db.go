@@ -61,22 +61,24 @@ func (self *Database) Init() error {
 	conn := self.connect()
 	defer conn.Close()
 	// datasources
-	err := conn.Update(func(tx *bolt.Tx) error {
-		table := []byte("layers")
-		_, err := tx.CreateBucketIfNotExists(table)
-		return err
-	})
+	err := self.CreateTable(conn, "layers")
+	// err := conn.Update(func(tx *bolt.Tx) error {
+	// 	_, err := tx.CreateBucketIfNotExists([]byte("layers"))
+	// 	return err
+	// })
 	if err != nil {
+		panic(err)
 		return err
 	}
 	// Add table for datasource owner
 	// permissions
-	err = conn.Update(func(tx *bolt.Tx) error {
-		table := []byte("apikeys")
-		_, err := tx.CreateBucketIfNotExists(table)
-		return err
-	})
+	err = self.CreateTable(conn, "apikeys")
+	// err = conn.Update(func(tx *bolt.Tx) error {
+	// 	_, err := tx.CreateBucketIfNotExists([]byte("apikeys"))
+	// 	return err
+	// })
 	if err != nil {
+		panic(err)
 		return err
 	}
 	// create apikey/customer cache
@@ -104,6 +106,17 @@ func (self *Database) startCommitLog() {
 			time.Sleep(1000 * time.Millisecond)
 		}
 	}
+}
+
+func (self *Database) CreateTable(conn *bolt.DB, table string) error {
+	err := conn.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists([]byte("layers"))
+		return err
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // InsertCustomer inserts customer into apikeys table
@@ -243,8 +256,8 @@ func (self *Database) DeleteLayer(datasource string) error {
 	self.commit_log_queue <- `{"method": "delete_layer", "data": { "datasource": "` + datasource + `"}}`
 	// Insert layer into database
 	err := conn.Update(func(tx *bolt.Tx) error {
-		table := []byte("layers")
-		bucket, err := tx.CreateBucketIfNotExists(table)
+		// table := []byte("layers")
+		bucket, err := tx.CreateBucketIfNotExists([]byte("layers"))
 		if err != nil {
 			return err
 		}

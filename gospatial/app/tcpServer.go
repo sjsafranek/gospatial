@@ -124,51 +124,24 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 			success := false
 			switch {
 			/*
-				case req.Method == "clear_datasource_cache" && authenticated:
-					// {"method": "clear_datasource_cache"}
-					// Unload all layers in database cache
-					for key := range DB.Cache {
-						delete(DB.Cache, key)
-					}
+				case req.Method == "assign_datasource" && authenticated:
+					datasource_id := req.Datasource //["datasource_id"]
+					apikey := req.Apikey            //["apikey"]
+					customer, err := DB.GetCustomer(apikey)
 					resp := `{"status": "success", "data": {}}`
-					conn.Write([]byte(resp + "\n"))
-					success = true
-
-				case req.Method == "loaded_datasources" && authenticated:
-					// {"method": "loaded_datasources"}
-					result, _ := json.Marshal(DB.Cache)
-					resp := `{"status": "success", "data": ` + string(result) + `}`
-					conn.Write([]byte(resp + "\n"))
-					success = true
-
-				case req.Method == "clear_customer_cache" && authenticated:
-					// {"method": "clear_customer_cache"}
-					// Unload all apikeys in database cache
-					for key := range DB.Apikeys {
-						delete(DB.Apikeys, key)
+					if err != nil {
+						fmt.Println("Customer key not found!")
+						resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "Customer key not found!"}}`
 					}
-					resp := `{"status": "success", "data": {}}`
+					// CHECK IF DATASOURCE EXISTS
+					// *****
+					fmt.Println(DB.GetLayer(datasource_id))
+
+					customer.Datasources = append(customer.Datasources, datasource_id)
+					DB.InsertCustomer(customer)
 					conn.Write([]byte(resp + "\n"))
 					success = true
 			*/
-			case req.Method == "assign_datasource" && authenticated:
-				datasource_id := req.Datasource //["datasource_id"]
-				apikey := req.Apikey            //["apikey"]
-				customer, err := DB.GetCustomer(apikey)
-				resp := `{"status": "success", "data": {}}`
-				if err != nil {
-					fmt.Println("Customer key not found!")
-					resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "Customer key not found!"}}`
-				}
-				// CHECK IF DATASOURCE EXISTS
-				// *****
-				fmt.Println(DB.GetLayer(datasource_id))
-
-				customer.Datasources = append(customer.Datasources, datasource_id)
-				DB.InsertCustomer(customer)
-				conn.Write([]byte(resp + "\n"))
-				success = true
-
 			case req.Method == "create_user" && authenticated:
 				// {"method":"create_user"}
 				apikey := utils.NewAPIKey(12)
@@ -215,6 +188,63 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				//	case req.Method == "delete_layer" && authenticated:
 				//		req.Data.Datasource
 
+			case req.Method == "export_apikeys" && authenticated:
+				// {"method":"export_apikeys"}
+				apikeys, err := DB.SelectAll("apikeys")
+				if err != nil {
+					fmt.Println(err)
+				}
+				js, err := json.Marshal(apikeys)
+				if err != nil {
+					fmt.Println(err)
+				}
+				resp := `{"status":"ok","data":"` + string(js) + `"}`
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
+			case req.Method == "export_apikey" && authenticated:
+				// {"method":"export_apikey","apikey":"4AvJJ3oW0zeT"}
+				apikey, err := DB.GetCustomer(req.Apikey)
+				if err != nil {
+					fmt.Println(err)
+				}
+				fmt.Println(apikey)
+				js, err := json.Marshal(apikey)
+				if err != nil {
+					fmt.Println(err)
+				}
+				resp := `{"status":"ok","data":"` + string(js) + `"}`
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
+			case req.Method == "export_datasources" && authenticated:
+				// {"method":"export_datasources"}
+				layers, err := DB.SelectAll("layers")
+				if err != nil {
+					fmt.Println(err)
+				}
+				js, err := json.Marshal(layers)
+				if err != nil {
+					fmt.Println(err)
+				}
+				resp := `{"status":"ok","data":"` + string(js) + `"}`
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
+			case req.Method == "export_datasource" && authenticated:
+				// {"method":"export_datasource","datasource":"3b1f5d633d884b9499adfc9b49c45236"}
+				layer, err := DB.GetLayer(req.Datasource)
+				if err != nil {
+					fmt.Println(err)
+				}
+				js, err := json.Marshal(layer)
+				if err != nil {
+					fmt.Println(err)
+				}
+				resp := `{"status":"ok","data":"` + string(js) + `"}`
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
 			}
 
 			if !success {
@@ -226,3 +256,10 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 
 	}
 }
+
+/*
+get_apikey
+insert_layer
+export_layer
+get_apikeys
+*/

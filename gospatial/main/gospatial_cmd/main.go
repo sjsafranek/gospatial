@@ -7,7 +7,7 @@
 package main
 
 import (
-	"encoding/json"
+	//	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/boltdb/bolt"
@@ -18,7 +18,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
+	//	"time"
 )
 
 var (
@@ -178,40 +178,6 @@ func main() {
 		}
 		importFile := requiredArgs[1]
 		importDatasource(importFile)
-	} else if method == "backup" {
-		fmt.Println("Backing up database...")
-		setupDb()
-		savefile := "backup_" + time.Now().String()
-		app.DB.Backup(savefile)
-		fmt.Println("Backup created:", savefile)
-	} else if method == "load" {
-		if len(requiredArgs) != 2 {
-			usageError("Please provide a database to load")
-		} else {
-			filename := requiredArgs[1]
-			fmt.Println("Loading database...")
-			setupDb()
-			fmt.Printf("Loading database [%s]\n", filename)
-			// check for file
-			if _, err := os.Stat(filename); os.IsNotExist(err) {
-				fmt.Println("File not found [" + filename + "]")
-			}
-			// open json file
-			file, err := ioutil.ReadFile(filename)
-			if err != nil {
-				fmt.Println(err)
-			}
-			// unmarshal data
-			var data dumpedDatabase
-			data.Apikeys = make(map[string]app.Customer)
-			data.Layers = make(map[string]*geojson.FeatureCollection)
-			err = json.Unmarshal(file, &data)
-			if err != nil {
-				fmt.Println(err)
-			}
-			app.DB.InsertCustomers(data.Apikeys)
-			app.DB.InsertLayers(data.Layers)
-		}
 	} else {
 		usageError("Method not found")
 	}

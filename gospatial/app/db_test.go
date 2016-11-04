@@ -229,7 +229,5 @@ func TestDbLayers(t *testing.T) {
 	}
 }
 
-
 // Test NewLayer
 // Test InsertFeature
-

@@ -256,7 +256,6 @@ func (self *Database) DeleteLayer(datasource string) error {
 	self.commit_log_queue <- `{"method": "delete_layer", "data": { "datasource": "` + datasource + `"}}`
 	// Insert layer into database
 	err := conn.Update(func(tx *bolt.Tx) error {
-		// table := []byte("layers")
 		bucket, err := tx.CreateBucketIfNotExists([]byte("layers"))
 		if err != nil {
 			return err

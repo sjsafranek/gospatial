@@ -185,9 +185,6 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
-				//	case req.Method == "delete_layer" && authenticated:
-				//		req.Data.Datasource
-
 			case req.Method == "export_apikeys" && authenticated:
 				// {"method":"export_apikeys"}
 				apikeys, err := DB.SelectAll("apikeys")
@@ -258,8 +255,8 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 }
 
 /*
-get_apikey
-insert_layer
-export_layer
-get_apikeys
+
+"insert_layer"
+"delete_layer"
+
 */

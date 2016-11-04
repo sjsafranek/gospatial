@@ -12,9 +12,13 @@
 ### Added
  - Commit log file handling
  - new benchmark test for Database.InsertFeature
+ - Database.SelectAll method 
+ - New methods for tcp connection
+### Changed
+ - Further clean up of Database class
 ### Fixed
  - Fixed tcp partial messages bug
- 
+
 
 
 ## [1.11.0] - 2016-10-30

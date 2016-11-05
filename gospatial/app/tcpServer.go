@@ -13,7 +13,7 @@ import (
 const (
 	TCP_DEFAULT_CONN_HOST = "localhost"
 	TCP_DEFAULT_CONN_PORT = "3333"
-	// TCP_DEFAULT_CONN_TYPE = "tcp"
+	TCP_DEFAULT_CONN_TYPE = "tcp"
 )
 
 type TcpServer struct {
@@ -35,7 +35,7 @@ func (self TcpServer) Start() {
 		}
 
 		// Listen for incoming connections.
-		l, err := net.Listen("tcp", host+":"+port)
+		l, err := net.Listen(TCP_DEFAULT_CONN_TYPE, host+":"+port)
 		if err != nil {
 			ServerLogger.Error("Error listening:", err.Error())
 			panic(err)
@@ -115,6 +115,17 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 					resp := `{"status": "error", "error": "incorrect authkey"}`
 					conn.Write([]byte(resp + "\n"))
 				}
+			} else if req.Method == "help" {
+				conn.Write([]byte("Methods:\n"))
+				conn.Write([]byte("\t authenticate\n"))
+				conn.Write([]byte("\t create_user\n"))
+				conn.Write([]byte("\t insert_apikey\n"))
+				conn.Write([]byte("\t export_apikeys\n"))
+				conn.Write([]byte("\t export_apikey\n"))
+				conn.Write([]byte("\t new_layer\n"))
+				conn.Write([]byte("\t insert_feature\n"))
+				conn.Write([]byte("\t export_datasource\n"))
+				conn.Write([]byte("\t export_datasources\n"))
 			} else {
 				resp := `{"status": "error", "error": "connection not authenticated"}`
 				conn.Write([]byte(resp + "\n"))

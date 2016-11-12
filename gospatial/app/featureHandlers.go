@@ -33,7 +33,7 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	r.Body.Close()
 
 	// Get params
-	apikey := r.FormValue("apikey")
+	//apikey := r.FormValue("apikey")
 
 	// Get ds from url path
 	vars := mux.Vars(r)
@@ -41,9 +41,14 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 
 	/*=======================================*/
 	// Check for apikey in request
+	// if apikey == "" {
+	// 	NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [401]")
+	// 	http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
+	// 	return
+	// }
+	apikey := GetApikeyFromRequest(w, r)
 	if apikey == "" {
 		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [401]")
-		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -103,12 +108,9 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	Hub.broadcast(true, &conn)
 
 	// Return results
-	w.Header().Set("Content-Type", "application/json")
-	// allow cross domain AJAX requests
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	NetworkLogger.Info(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [200]")
 	NetworkLogger.Debug("[Out] ", string(js))
-	w.Write(js)
+	SendJsonResponse(w, js)
 
 }
 
@@ -120,7 +122,7 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	NetworkLogger.Debug("[In] ", r)
 
 	// Get params
-	apikey := r.FormValue("apikey")
+	//apikey := r.FormValue("apikey")
 
 	// Get ds from url path
 	vars := mux.Vars(r)
@@ -128,9 +130,14 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 
 	/*=======================================*/
 	// Check for apikey in request
+	// if apikey == "" {
+	// 	NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [401]")
+	// 	http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
+	// 	return
+	// }
+	apikey := GetApikeyFromRequest(w, r)
 	if apikey == "" {
 		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [401]")
-		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -170,12 +177,9 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			// Return results
-			w.Header().Set("Content-Type", "application/json")
-			// allow cross domain AJAX requests
-			w.Header().Set("Access-Control-Allow-Origin", "*")
 			NetworkLogger.Info(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [200]")
 			NetworkLogger.Debug("[Out] ", string(js))
-			w.Write(js)
+			SendJsonResponse(w, js)
 			return
 		}
 	}
@@ -184,6 +188,5 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
 	err = fmt.Errorf("Not found")
 	http.Error(w, err.Error(), http.StatusNotFound)
-	return
 
 }

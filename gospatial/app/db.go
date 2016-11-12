@@ -62,10 +62,6 @@ func (self *Database) Init() error {
 	defer conn.Close()
 	// datasources
 	err := self.CreateTable(conn, "layers")
-	// err := conn.Update(func(tx *bolt.Tx) error {
-	// 	_, err := tx.CreateBucketIfNotExists([]byte("layers"))
-	// 	return err
-	// })
 	if err != nil {
 		panic(err)
 		return err
@@ -73,10 +69,6 @@ func (self *Database) Init() error {
 	// Add table for datasource owner
 	// permissions
 	err = self.CreateTable(conn, "apikeys")
-	// err = conn.Update(func(tx *bolt.Tx) error {
-	// 	_, err := tx.CreateBucketIfNotExists([]byte("apikeys"))
-	// 	return err
-	// })
 	if err != nil {
 		panic(err)
 		return err

@@ -16,13 +16,9 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 // @return map template
 func MapHandler(w http.ResponseWriter, r *http.Request) {
 
-	// Get params
-	apikey := r.FormValue("apikey")
-
-	// Check for apikey in request
+	apikey := GetApikeyFromRequest(w, r)
 	if apikey == "" {
 		NetworkLogger.Error(r.RemoteAddr, " POST /map [401]")
-		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -46,13 +42,9 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 // Allows customers to create and delete both geojson layers and tile baselayers.
 func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 
-	// Get params
-	apikey := r.FormValue("apikey")
-
-	// Check for apikey in request
+	apikey := GetApikeyFromRequest(w, r)
 	if apikey == "" {
 		NetworkLogger.Error(r.RemoteAddr, " POST /management [401]")
-		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
 		return
 	}
 

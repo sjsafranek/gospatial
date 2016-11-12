@@ -30,16 +30,13 @@ var routes = apiRoutes{
 	apiRoute{"NewLayer", "POST", "/api/v1/layer", NewLayerHandler},
 	apiRoute{"DeleteLayer", "DELETE", "/api/v1/layer/{ds}", DeleteLayerHandler},
 	apiRoute{"NewTileLayer", "POST", "/api/v1/tilelayer", NewTileLayerHandler},
-	// apiRoute{"ShareLayerHandler", "PUT", "/api/v1/layer/{ds}", ShareLayerHandler},
 	apiRoute{"NewFeature", "POST", "/api/v1/layer/{ds}/feature", NewFeatureHandler},
 	apiRoute{"ViewFeature", "GET", "/api/v1/layer/{ds}/feature/{k}", ViewFeatureHandler},
 
 	// Superuser apiRoutes
 	apiRoute{"NewCustomerHandler", "POST", "/api/v1/customer", NewCustomerHandler},
+	apiRoute{"AllCustomerDatasources", "GET", "/api/v1/customers", AllCustomerDatasources},
 
 	// Web Socket apiRoute
 	apiRoute{"Socket", "GET", "/ws/{ds}", serveWs},
-
-	// Experimental
-	// apiRoute{"LoadedLayers", "GET", "/mgmt/profile", ServerProfile},
 }

@@ -16,7 +16,17 @@ var SuperuserKey string = "su"
 // PingHandler provides an api route for server health check
 func PingHandler(w http.ResponseWriter, r *http.Request) {
 	NetworkLogger.Debug("[In] ", r)
-	data := `{"status": "success", "data": {"result": "pong"}}`
+
+	var data map[string]interface{}
+	data = make(map[string]interface{})
+	data["status"] = "success"
+	result := make(map[string]interface{})
+	result["result"] = "pong"
+	result["registered"] = startTime.UTC()
+	result["uptime"] = time.Since(startTime).Seconds()
+	result["num_cores"] = runtime.NumCPU()
+	data["data"] = result
+
 	js, err := json.Marshal(data)
 	if err != nil {
 		NetworkLogger.Critical(r.RemoteAddr, " GET /ping [500]")
@@ -24,42 +34,19 @@ func PingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	NetworkLogger.Info(r.RemoteAddr, " GET /ping [200]")
-	w.Header().Set("Content-Type", "application/json")
 	NetworkLogger.Debug("[Out] ", string(js))
-	w.Write(js)
-}
-
-// ServerProfile returns basic server stats
-func ServerProfile(w http.ResponseWriter, r *http.Request) {
-	NetworkLogger.Debug("[In] ", r)
-	var data map[string]interface{}
-	data = make(map[string]interface{})
-	data["registered"] = startTime.UTC()
-	data["uptime"] = time.Since(startTime).Seconds()
-	// data["status"] = AppMode // debug, static, standard
-	data["num_cores"] = runtime.NumCPU()
-	// data["free_mem"] = runtime.MemStats()
-	js, err := json.Marshal(data)
-	if err != nil {
-		NetworkLogger.Critical(r.RemoteAddr, " GET /management/profile [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	NetworkLogger.Info(r.RemoteAddr, " GET /management/profile [200]")
-	w.Header().Set("Content-Type", "application/json")
-	NetworkLogger.Debug("[Out] ", string(js))
-	w.Write(js)
+	SendJsonResponse(w, js)
 }
 
 // NewCustomerHandler superuser route to create new api customers/apikeys
 func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	NetworkLogger.Debug("[In] ", r)
+
 	// Check auth key
-	if SuperuserKey != r.FormValue("authkey") {
-		NetworkLogger.Error(r.RemoteAddr, " POST /management/customer [401]")
-		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
+	if !CheckAuthKey(w, r) {
 		return
 	}
+
 	// new customer
 	apikey := utils.NewAPIKey(12)
 	customer := Customer{Apikey: apikey}
@@ -73,71 +60,57 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	data := `{"status":"success","apikey":"` + apikey + `", "result":"customer created"}`
 	js, err := json.Marshal(data)
 	if err != nil {
-		NetworkLogger.Critical(r.RemoteAddr, " POST /management/customer [500]")
+		NetworkLogger.Critical(r.RemoteAddr, " POST /api/v1/customer [500]")
 		ServerLogger.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	// allow cross domain AJAX requests
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	NetworkLogger.Info(r.RemoteAddr, " POST /management/customer [200]")
+
+	NetworkLogger.Info(r.RemoteAddr, " POST /api/v1/customer [200]")
 	NetworkLogger.Debug("[Out] ", string(js))
-	w.Write(js)
+	SendJsonResponse(w, js)
 }
 
-// ShareLayerHandler gives customer access to an existing datasource.
-// @param apikey - customer to give access
-// @param authkey
-// @return json
-// func ShareLayerHandler(w http.ResponseWriter, r *http.Request) {
+// Pull all customer datasource pairs
+// Distributed System
+func AllCustomerDatasources(w http.ResponseWriter, r *http.Request) {
+	results := []Customer{}
 
-// 	// Get url params
-// 	apikey := r.FormValue("apikey")
-// 	authkey := r.FormValue("authkey")
+	customers, err := DB.SelectAll("apikeys")
+	if err != nil {
+		ServerLogger.Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-// 	// Get ds from url path
-// 	vars := mux.Vars(r)
-// 	ds := vars["ds"]
+	if !CheckAuthKey(w, r) {
+		return
+	}
 
-// 	// superuser access
-// 	if SuperuserKey != authkey {
-// 		http.Error(w, "unauthorized", http.StatusUnauthorized)
-// 		return
-// 	}
+	for _, v := range customers {
+		val, err := DB.Select("apikeys", v)
+		if err != nil {
+			ServerLogger.Error(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		customer := Customer{}
+		err = json.Unmarshal(val, &customer)
+		if err != nil {
+			panic(err)
+		}
+		results = append(results, customer)
+	}
 
-// 	if apikey == "" {
-// 		networkLoggerError.Println(r.RemoteAddr, "PUT /api/v1/layer/{ds} [401]")
-// 		http.Error(w, "bad request", http.StatusBadRequest)
-// 		return
-// 	}
+	js, err := json.Marshal(results)
+	if err != nil {
+		NetworkLogger.Critical(r.RemoteAddr, " POST /api/v1/customers [500]")
+		ServerLogger.Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-// 	// Get customer from database
-// 	customer, err := DB.GetCustomer(apikey)
-// 	if err != nil {
-// 		networkLoggerWarning.Println(r.RemoteAddr, "PUT /api/v1/layer/{ds} [404]")
-// 		http.Error(w, err.Error(), http.StatusNotFound)
-// 		return
-// 	}
-
-// 	// Add datasource uuid to customer
-// 	customer.Datasources = append(customer.Datasources, ds)
-// 	DB.InsertCustomer(customer)
-
-// 	// Generate message
-// 	data := `{"status":"ok","datasource":"` + ds + `"}`
-// 	js, err := json.Marshal(data)
-// 	if err != nil {
-// 		networkLoggerError.Println(r.RemoteAddr, "PUT /api/v1/layer [500]")
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	// Return results
-// 	networkLoggerInfo.Println(r.RemoteAddr, "PUT /api/v1/layer [200]")
-// 	w.Header().Set("Content-Type", "application/json")
-// 	// allow cross domain AJAX requests
-// 	w.Header().Set("Access-Control-Allow-Origin", "*")
-// 	w.Write(js)
-
-// }
+	NetworkLogger.Info(r.RemoteAddr, " POST /api/v1/customer [200]")
+	NetworkLogger.Debug("[Out] ", string(js))
+	SendJsonResponse(w, js)
+}

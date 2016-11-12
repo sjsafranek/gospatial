@@ -8,7 +8,14 @@
 
 
 ## [Unreleased]
-## [1.11.1] - 2016-10-30
+## [1.11.2] - 2016-11-12
+### Changed
+ - Refactor of authentication methods
+ - Refactor of http response methods
+
+
+
+## [1.11.1] - 2016-11-07
 ### Added
  - Commit log file handling
  - new benchmark test for Database.InsertFeature
@@ -18,8 +25,6 @@
  - Further clean up of Database class
 ### Fixed
  - Fixed tcp partial messages bug
-
-
 
 ## [1.11.0] - 2016-10-30
 ### Changed

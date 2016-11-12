@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-	// "fmt"
 	"github.com/gorilla/mux"
 	"gospatial/utils"
 	"net/http"
@@ -13,26 +12,14 @@ import (
 // @return json
 func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 	NetworkLogger.Debug("[In] ", r)
-	// Get params
-	//apikey := r.FormValue("apikey")
-	// Check for apikey in request
-	// if apikey == "" {
-	// 	NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layers [401]")
-	// 	http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
-	// 	return
-	// }
 
 	apikey := GetApikeyFromRequest(w, r)
 	if apikey == "" {
-		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layers [401]")
 		return
 	}
 
-	// Get customer from database
-	customer, err := DB.GetCustomer(apikey)
+	customer, err := GetCustomerFromDatabase(w, r, apikey)
 	if err != nil {
-		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layers [404]")
-		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -43,9 +30,8 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	NetworkLogger.Info(r.RemoteAddr, " POST /api/v1/layers [200]")
-	NetworkLogger.Debug("[Out] ", string(js))
-	SendJsonResponse(w, js)
+
+	SendJsonResponse(w, r, js)
 }
 
 // NewLayerHandler creates a new geojson layer. Saves layer to database and adds layer to customer
@@ -54,27 +40,13 @@ func ViewLayersHandler(w http.ResponseWriter, r *http.Request) {
 func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	NetworkLogger.Debug("[In] ", r)
 
-	// // Get params
-	// apikey := r.FormValue("apikey")
-
-	// // Check for apikey in request
-	// if apikey == "" {
-	// 	NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer [401]")
-	// 	http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
-	// 	return
-	// }
-
 	apikey := GetApikeyFromRequest(w, r)
 	if apikey == "" {
-		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer [401]")
 		return
 	}
 
-	// Get customer from database
-	customer, err := DB.GetCustomer(apikey)
+	customer, err := GetCustomerFromDatabase(w, r, apikey)
 	if err != nil {
-		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer [404]")
-		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -92,17 +64,13 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Generate message
 	data := `{"status":"success","datasource":"` + ds + `"}`
-	js, err := json.Marshal(data)
+	js, err := MarshalJsonFromString(w, r, data)
 	if err != nil {
-		NetworkLogger.Critical(r.RemoteAddr, " POST /api/v1/layer [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Return results
-	NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer [200]")
-	NetworkLogger.Debug("[Out] ", string(js))
-	SendJsonResponse(w, js)
+	SendJsonResponse(w, r, js)
 }
 
 // ViewLayerHandler returns geojson of requested layer. Apikey/customer is checked for permissions to requested layer.
@@ -112,38 +80,21 @@ func NewLayerHandler(w http.ResponseWriter, r *http.Request) {
 func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	NetworkLogger.Debug("[In] ", r)
 
-	// Get params
-	//apikey := r.FormValue("apikey")
-
 	// Get ds from url path
 	vars := mux.Vars(r)
 	ds := vars["ds"]
 
-	// Check for apikey in request
-	// if apikey == "" {
-	// 	NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [401]")
-	// 	http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
-	// 	return
-	// }
-
 	apikey := GetApikeyFromRequest(w, r)
 	if apikey == "" {
-		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [401]")
 		return
 	}
 
-	// Get customer from database
-	customer, err := DB.GetCustomer(apikey)
+	customer, err := GetCustomerFromDatabase(w, r, apikey)
 	if err != nil {
-		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [404]")
-		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	// Check customer datasource list
-	if !utils.StringInSlice(ds, customer.Datasources) {
-		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [401]")
-		http.Error(w, `{"status": "fail", "data": {"error": "unauthorized"}}`, http.StatusUnauthorized)
+	if !CheckCustomerForDatasource(w, r, customer, ds) {
 		return
 	}
 
@@ -164,9 +115,7 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return layer json
-	NetworkLogger.Info(r.RemoteAddr, " GET /api/v1/layer/"+ds+" [200]")
-	NetworkLogger.Debug("[Out] ", string(js))
-	SendJsonResponse(w, js)
+	SendJsonResponse(w, r, js)
 }
 
 // DeleteLayerHandler deletes layer from database and removes it from customer list.
@@ -176,49 +125,23 @@ func ViewLayerHandler(w http.ResponseWriter, r *http.Request) {
 func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 	NetworkLogger.Debug("[In] ", r)
 
-	// Get params
-	//apikey := r.FormValue("apikey")
-
 	// Get ds from url path
 	vars := mux.Vars(r)
 	ds := vars["ds"]
 
-	// Check for apikey in request
-	// if apikey == "" {
-	// 	NetworkLogger.Error(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [401]")
-	// 	http.Error(w, `{"status": "error", "result": "unauthorized"}`, http.StatusUnauthorized)
-	// 	return
-	// }
-
 	apikey := GetApikeyFromRequest(w, r)
 	if apikey == "" {
-		NetworkLogger.Error(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [401]")
 		return
 	}
 
-	// Get customer from database
-	customer, err := DB.GetCustomer(apikey)
+	customer, err := GetCustomerFromDatabase(w, r, apikey)
 	if err != nil {
-		NetworkLogger.Error(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [404]")
-		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	// Check customer datasource list
-	if !utils.StringInSlice(ds, customer.Datasources) {
-		NetworkLogger.Error(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [401]")
-		http.Error(w, `{"status": "error", "result": "unauthorized"}`, http.StatusUnauthorized)
+	if !CheckCustomerForDatasource(w, r, customer, ds) {
 		return
 	}
-
-	// KEEP LAYER IN CASE OF RECOVERY
-	// Delete layer from database
-	// err = DB.DeleteLayer(ds)
-	// if err != nil {
-	// 	networkLoggerInfo.Println(r.RemoteAddr, "DELETE /api/v1/layer/"+ds+" [500]")
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
 
 	// Delete layer from customer
 	i := utils.SliceIndex(ds, customer.Datasources)
@@ -227,15 +150,11 @@ func DeleteLayerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Generate message
 	data := `{"status":"ok","datasource":"` + ds + `", "result":"datasource deleted"}`
-	js, err := json.Marshal(data)
+	js, err := MarshalJsonFromString(w, r, data)
 	if err != nil {
-		NetworkLogger.Critical(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Returns results
-	NetworkLogger.Info(r.RemoteAddr, " DELETE /api/v1/layer/"+ds+" [200]")
-	NetworkLogger.Debug("[Out] ", string(js))
-	SendJsonResponse(w, js)
+	SendJsonResponse(w, r, js)
 }

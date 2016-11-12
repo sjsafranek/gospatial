@@ -106,7 +106,6 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 	ip := r.RemoteAddr
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		// networkLoggerError.Println(r.RemoteAddr, "WS /ws/"+ds+" [500]")
 		NetworkLogger.Critical(r.RemoteAddr, " WS /ws/"+ds+" [500]")
 		ServerLogger.Error(err)
 		return
@@ -118,7 +117,7 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 		Hub.Sockets[ds] = make(map[int]*websocket.Conn)
 		Hub.Sockets[ds][conn.c] = ws
 	}
-	// networkLoggerInfo.Println(r.RemoteAddr, "WS /ws/"+conn.ds+" [200]")
+
 	NetworkLogger.Info(r.RemoteAddr, " WS /ws/"+ds+" [200]")
 	Hub.broadcastAllDsViewers(false, conn.ds)
 	go messageListener(&conn)

@@ -18,7 +18,6 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 
 	apikey := GetApikeyFromRequest(w, r)
 	if apikey == "" {
-		NetworkLogger.Error(r.RemoteAddr, " POST /map [401]")
 		return
 	}
 
@@ -44,7 +43,6 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 
 	apikey := GetApikeyFromRequest(w, r)
 	if apikey == "" {
-		NetworkLogger.Error(r.RemoteAddr, " POST /management [401]")
 		return
 	}
 

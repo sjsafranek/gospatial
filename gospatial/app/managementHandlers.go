@@ -33,9 +33,8 @@ func PingHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	NetworkLogger.Info(r.RemoteAddr, " GET /ping [200]")
-	NetworkLogger.Debug("[Out] ", string(js))
-	SendJsonResponse(w, js)
+
+	SendJsonResponse(w, r, js)
 }
 
 // NewCustomerHandler superuser route to create new api customers/apikeys
@@ -58,17 +57,12 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// return results
 	data := `{"status":"success","apikey":"` + apikey + `", "result":"customer created"}`
-	js, err := json.Marshal(data)
+
+	js, err := MarshalJsonFromString(w, r, data)
 	if err != nil {
-		NetworkLogger.Critical(r.RemoteAddr, " POST /api/v1/customer [500]")
-		ServerLogger.Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	NetworkLogger.Info(r.RemoteAddr, " POST /api/v1/customer [200]")
-	NetworkLogger.Debug("[Out] ", string(js))
-	SendJsonResponse(w, js)
+	SendJsonResponse(w, r, js)
 }
 
 // Pull all customer datasource pairs
@@ -110,7 +104,5 @@ func AllCustomerDatasources(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	NetworkLogger.Info(r.RemoteAddr, " POST /api/v1/customer [200]")
-	NetworkLogger.Debug("[Out] ", string(js))
-	SendJsonResponse(w, js)
+	SendJsonResponse(w, r, js)
 }

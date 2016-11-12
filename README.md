@@ -46,5 +46,8 @@ Execute the binary file produced in the projects `bin` directory
 
 	vim /lib/systemd/system/gospatial.service
 	systemctl daemon-reload
-	
+
+### Restore database from commit log
+
+	`nc localhost 3333 < test_commit.log 2>&1 | tee -a file_load.log`
 

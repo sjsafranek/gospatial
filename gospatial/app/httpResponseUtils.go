@@ -18,6 +18,17 @@ func MarshalJsonFromString(w http.ResponseWriter, r *http.Request, data string) 
 	return js, nil
 }
 
+func MarshalJsonFromStruct(w http.ResponseWriter, r *http.Request, data interface{}) ([]byte, error) {
+	js, err := json.Marshal(data)
+	if err != nil {
+		message := fmt.Sprintf(" %v %v [500]", r.Method, r.URL.Path)
+		NetworkLogger.Critical(r.RemoteAddr, message)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return js, err
+	}
+	return js, nil
+}
+
 // Sends http response
 func SendJsonResponse(w http.ResponseWriter, r *http.Request, js []byte) {
 	// Log result

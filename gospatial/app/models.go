@@ -38,7 +38,8 @@ type TcpMessage struct {
 }
 
 type HttpMessageResponse struct {
-	Status     string `json:"status"`
-	Datasource string `json:"datasource"`
-	// Result struct `json:"result"`
+	Status     string      `json:"status"`
+	Datasource string      `json:"datasource,omitempty"`
+	Apikey     string      `json:"apikey,omitempty"`
+	Data       interface{} `json:"data,omitempty"`
 }

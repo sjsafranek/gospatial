@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	// "fmt"
 	"gospatial/utils"
 	"net/http"
 	"runtime"
@@ -27,10 +28,8 @@ func PingHandler(w http.ResponseWriter, r *http.Request) {
 	result["num_cores"] = runtime.NumCPU()
 	data["data"] = result
 
-	js, err := json.Marshal(data)
+	js, err := MarshalJsonFromStruct(w, r, data)
 	if err != nil {
-		NetworkLogger.Critical(r.RemoteAddr, " GET /ping [500]")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -55,13 +54,13 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// return results
-	data := `{"status":"success","apikey":"` + apikey + `", "result":"customer created"}`
 
-	js, err := MarshalJsonFromString(w, r, data)
+	data := HttpMessageResponse{Status: "success", Apikey: apikey, Data: "customer created"}
+	js, err := MarshalJsonFromStruct(w, r, data)
 	if err != nil {
 		return
 	}
+
 	SendJsonResponse(w, r, js)
 }
 
@@ -96,11 +95,8 @@ func AllCustomerDatasources(w http.ResponseWriter, r *http.Request) {
 		results = append(results, customer)
 	}
 
-	js, err := json.Marshal(results)
+	js, err := MarshalJsonFromStruct(w, r, results)
 	if err != nil {
-		NetworkLogger.Critical(r.RemoteAddr, " POST /api/v1/customers [500]")
-		ServerLogger.Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

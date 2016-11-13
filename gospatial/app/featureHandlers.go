@@ -21,9 +21,8 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Get request body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		vars := mux.Vars(r)
-		ds := vars["ds"]
-		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [500]")
+		message := fmt.Sprintf(" %v %v [500]", r.Method, r.URL.Path)
+		NetworkLogger.Critical(r.RemoteAddr, message)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -51,8 +50,8 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Unmarshal feature
 	feat, err := geojson.UnmarshalFeature(body)
 	if err != nil {
-		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [400]")
-		// Error.Println(err)
+		message := fmt.Sprintf(" %v %v [400]", r.Method, r.URL.Path)
+		NetworkLogger.Critical(r.RemoteAddr, message)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -68,16 +67,15 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Save feature to database
 	err = DB.InsertFeature(ds, feat)
 	if err != nil {
-		NetworkLogger.Error(r.RemoteAddr, " POST /api/v1/layer/"+ds+"/feature [500]")
-		// Error.Println(err)
+		message := fmt.Sprintf(" %v %v [500]", r.Method, r.URL.Path)
+		NetworkLogger.Critical(r.RemoteAddr, message)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Generate message
-	data := `{"status":"success","datasource":"` + ds + `", "message":"feature added"}`
-
-	js, err := MarshalJsonFromString(w, r, data)
+	data := HttpMessageResponse{Status: "success", Datasource: ds, Data: "feature added"}
+	js, err := MarshalJsonFromStruct(w, r, data)
 	if err != nil {
 		return
 	}
@@ -120,7 +118,8 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	// Get layer from database
 	data, err := DB.GetLayer(ds)
 	if err != nil {
-		NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
+		message := fmt.Sprintf(" %v %v [404]", r.Method, r.URL.Path)
+		NetworkLogger.Critical(r.RemoteAddr, message)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -132,7 +131,8 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 		if geo_id == vars["k"] {
 			js, err = v.MarshalJSON()
 			if err != nil {
-				NetworkLogger.Critical(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [500]")
+				message := fmt.Sprintf(" %v %v [500]", r.Method, r.URL.Path)
+				NetworkLogger.Critical(r.RemoteAddr, message)
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -143,7 +143,8 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Feature not found
-	NetworkLogger.Error(r.RemoteAddr, " GET /api/v1/layer/"+ds+"/feature/"+vars["k"]+" [404]")
+	message := fmt.Sprintf(" %v %v [404]", r.Method, r.URL.Path)
+	NetworkLogger.Critical(r.RemoteAddr, message)
 	err = fmt.Errorf("Not found")
 	http.Error(w, err.Error(), http.StatusNotFound)
 

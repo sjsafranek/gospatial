@@ -9,7 +9,6 @@ var (
 	Verbose       bool = false
 	ServerLogger  seelog.LoggerInterface
 	NetworkLogger seelog.LoggerInterface
-	DbLogger      seelog.LoggerInterface
 	LogDirectory  string = "log"
 	LogLevel      string = "trace"
 )
@@ -69,42 +68,16 @@ func loadNetworkConfig() {
 	NetworkLogger = logger
 }
 
-func loadDbConfig() {
-	// https://github.com/cihub/seelog/wiki/Log-levels
-	appConfig := `
-<seelog minlevel="` + LogLevel + `">
-    <outputs formatid="common">
-        <rollingfile type="size" filename="` + LogDirectory + `/db.log" maxsize="100000" maxrolls="5"/>
-        <filter levels="critical,error,warn,info,debug,trace">
-            <console formatid="stdout"/>
-        </filter>
-    </outputs>
-    <formats>
-        <format id="common"   format="%Date %Time [%LEVEL] %File %FuncShort:%Line %Msg %n" />
-        <format id="stdout"   format="%Date %Time [%LEVEL] %File %FuncShort:%Line %Msg %n" />
-    </formats>
-</seelog>
-`
-	logger, err := seelog.LoggerFromConfigAsBytes([]byte(appConfig))
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	DbLogger = logger
-}
-
 func init() {
 	DisableLog()
 	loadServerConfig()
 	loadNetworkConfig()
-	loadDbConfig()
 }
 
 func ResetLogging() {
 	DisableLog()
 	loadServerConfig()
 	loadNetworkConfig()
-	loadDbConfig()
 }
 
 func enable_test_logging() {
@@ -112,12 +85,10 @@ func enable_test_logging() {
 	DisableLog()
 	loadServerConfig()
 	loadNetworkConfig()
-	loadDbConfig()
 }
 
 // DisableLog disables all library log output
 func DisableLog() {
 	NetworkLogger = seelog.Disabled
 	ServerLogger = seelog.Disabled
-	DbLogger = seelog.Disabled
 }

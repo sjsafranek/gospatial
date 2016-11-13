@@ -33,7 +33,7 @@ var (
 )
 
 const (
-	VERSION        string = "1.10.5"
+	VERSION        string = "1.11.2"
 	DEFAULT_CONFIG string = "config.json"
 )
 
@@ -67,6 +67,8 @@ func init() {
 		fmt.Println("Version:", VERSION)
 		os.Exit(0)
 	}
+
+	app.Version = VERSION
 
 	app.ResetLogging()
 

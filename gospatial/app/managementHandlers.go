@@ -70,14 +70,14 @@ func NewCustomerHandler(w http.ResponseWriter, r *http.Request) {
 func AllCustomerDatasources(w http.ResponseWriter, r *http.Request) {
 	results := []Customer{}
 
+	if !CheckAuthKey(w, r) {
+		return
+	}
+
 	customers, err := DB.SelectAll("apikeys")
 	if err != nil {
 		ServerLogger.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if !CheckAuthKey(w, r) {
 		return
 	}
 

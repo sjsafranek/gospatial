@@ -75,6 +75,10 @@
         <link rel="stylesheet" href="/leaflet.locate/L.Control.Locate.min.css" />
         <script src="/leaflet.locate/L.Control.Locate.min.js" ></script>
 
+        <!-- Backbone -->
+        <script src="/underscore/underscore-min.js"></script>
+        <script src="/backbone/backbone-min.js"></script>
+
         <!-- HEAT MAP -->
     <!--
         <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.0/leaflet-heat.js'></script>
@@ -112,6 +116,7 @@
             });
 
             var map,
+                appview,
                 GoSpatial,
                 apikey;
 
@@ -121,6 +126,8 @@
 
                 GoSpatial = L.gospatial(apikey);
                 GoSpatial.addTo(map);
+
+                appview = new MapView(GoSpatial);
 
                 osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{ 
                     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'

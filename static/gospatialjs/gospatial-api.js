@@ -1,4 +1,29 @@
 
+/*
+var GoSpatialApiHandler = Backbone.Model.extend({
+	
+	urlRoot: '/api/v1',
+	
+	defaults: {
+		server: null,
+		apikey: null
+	},
+
+	initialize: function(){
+		console.log(this.get("server"),this.get("apikey"));
+	}
+
+});
+
+var API = new GoSpatialApiHandler({server:"test",apikey:"1234", id:"1"});
+*/
+
+
+
+
+
+
+
 	function GoSpatialApi(apikey, server) {
 
 		this.apikey = apikey;

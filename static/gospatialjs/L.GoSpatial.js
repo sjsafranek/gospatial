@@ -1,3 +1,126 @@
+
+
+	var MapView = Backbone.View.extend({
+		el: "#map",
+
+		initialize: function(gospatial) {
+			_.bindAll(this, 
+				'render',
+				'_preventPropogation',
+				'_addMouseControl',
+				'changeLayer',
+				'zoomToLayer',
+				'_renderTemplate'
+			);
+			this._map = gospatial._map;
+			this.gospatial = gospatial;
+			this.render();
+			return this;
+		},
+
+	    events: {
+	    	"change #layers": 'changeLayer',
+	    	'click #zoom': 'zoomToLayer'
+	    },
+
+	    changeLayer: function() {
+			var self = this;
+			this.gospatial.apiClient.getLayer($('#layers').val(), function(error, result){
+				if (error) {
+					swal("Error!", error, "error");
+				} else {
+					self.gospatial.updateFeatureLayers(result);
+				}
+			});
+	    },
+
+	    zoomToLayer: function() {
+			this._map.fitBounds(
+				this.gospatial.vectorLayers[$('#layers').val()].getBounds()
+			);
+	    },
+
+	    _renderTemplate: function() {
+	    	// Add logo
+			var logo = L.control({position : 'topleft'});
+			logo.onAdd = function () {
+				this._div = L.DomUtil.create('div', 'logo-hypercube');
+				this._div.innerHTML = "<img class='img-logo-hypercube' src='/images/HyperCube2.png' alt='logo'>"
+				return this._div;
+			};
+			logo.addTo(this._map);
+
+			// Measurement control
+			var measureControl = new L.Control.Measure();
+			measureControl.addTo(this._map);
+
+			// Geo-locate control
+			L.control.locate().addTo(this._map);
+
+			// GeoSearch control
+			new L.Control.GeoSearch({
+				provider: new L.GeoSearch.Provider.OpenStreetMap()
+			}).addTo(this._map);
+
+	    },
+
+		/** 
+		 * method:     _addMouseControl()
+		 * desciption: Creates L.control for displaying cursor location
+		 */
+		_addMouseControl: function() {
+			// Create UI control element
+			mouseLocationControl = L.control({position: 'bottomright'});
+			mouseLocationControl.onAdd = function () {
+				var div = L.DomUtil.create('div');
+				div.innerHTML = "<div id='location'></div>";
+				return div;
+			};
+			mouseLocationControl.addTo(this._map);
+			this._preventPropogation(mouseLocationControl);
+			// UI Event listeners
+			this._map.on('mousemove', function(e) {
+				$("#location")[0].innerHTML = "<strong>Lat, Lon : " + e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4) + "</strong>";
+			});
+		},
+
+		/** 
+		 * method:     _preventPropogation()
+		 * source:     http://gis.stackexchange.com/questions/104507/disable-panning-dragging-on-leaflet-map-for-div-within-map
+		 * desciption: disables mouseover map events from leaflet control objected
+		 * @param obj {L.control} Leaflet control object
+		 */
+		_preventPropogation: function(obj) {
+			var self = this;
+			// http://gis.stackexchange.com/questions/104507/disable-panning-dragging-on-leaflet-map-for-div-within-map
+			// Disable dragging when user's cursor enters the element
+			obj.getContainer().addEventListener('mouseover', function () {
+				self._map.dragging.disable();
+				self._map.scrollWheelZoom.disable();
+				self._map.doubleClickZoom.disable();
+			});
+			// Re-enable dragging when user's cursor leaves the element
+			obj.getContainer().addEventListener('mouseout', function () {
+				self._map.dragging.enable();
+				self._map.scrollWheelZoom.enable();
+				self._map.doubleClickZoom.enable();
+			});
+		},
+
+		render: function() {
+			var self = this;
+			this._renderTemplate();
+		}
+
+	});
+
+
+
+
+
+
+
+
 /**
  * GoSpatial Map Client
  * Author: Stefan Safranek
@@ -32,7 +155,6 @@ L.GoSpatial = L.Class.extend({
 		});
 
 		this.color = d3.scale.category10();
-		// this.color = d3.scale.category20b();
 		this.vectorLayers = {};
 		// this.ws = null;
 		this.drawnItems = null;
@@ -43,13 +165,8 @@ L.GoSpatial = L.Class.extend({
 	addTo: function(map) {
 		this._map = map;
 		// Reading
-		this._addLogoControl();
 		this._addLayerControl();
-		this._addMouseControl();
 		// Drawing
-		this._addMeasureControl();
-		this._addLocateControl();
-		this._addGeosearchControl();
 		this._addDrawingControl();
 		this._addDrawEventHandlers();
 		this._addFeaturePropertiesControl();
@@ -88,20 +205,6 @@ L.GoSpatial = L.Class.extend({
 	},
 
 	/** 
-	 * method:     _addLogoControl()
-	 * desciption: Creates L.control containing logo
-	 */
-	_addLogoControl: function() {
-		var logo = L.control({position : 'topleft'});
-		logo.onAdd = function () {
-			this._div = L.DomUtil.create('div', 'logo-hypercube');
-			this._div.innerHTML = "<img class='img-logo-hypercube' src='/images/HyperCube2.png' alt='logo'>"
-			return this._div;
-		};
-		logo.addTo(this._map);
-	},
-
-	/** 
 	 * method:     _addLayerControl()
 	 * desciption: Creates L.control for selecting geojson layers
 	 */
@@ -111,104 +214,27 @@ L.GoSpatial = L.Class.extend({
 		geojsonLayerControl = L.control({position: 'topright'});
 		geojsonLayerControl.onAdd = function () {
 			var div = L.DomUtil.create('div', 'info legend');
-			// div.innerHTML = '<div><button id="submitTileLayer">Add TileLayer</button> <input type=text id="newTileLayer"></input></div>';
 			div.innerHTML += '<i class="fa fa-search-plus" id="zoom" style="padding-left:5px; margin-right:0px;"></i><select name="geojson" id="layers"></select>';
-			// div.innerHTML += '<br>Viewers: <span id="viewers">1</span>';
 			return div;
 		};
 		geojsonLayerControl.addTo(this._map);
-		// this._preventPropogation(geojsonLayerControl);
-		var attempt = 0;
 		function loadFirstLayer() {
-			console.log("loading...");
 			var lyr = $('#layers').val();
-			if (lyr) {
-				self.apiClient.getLayer(lyr, function(error, result){
-					if (error) {
-						swal("Error!", error, "error");
-					} else {
-						self.updateFeatureLayers(result);
-						try {
-							self._map.fitBounds(self.vectorLayers[lyr].getBounds());
-						}
-						catch (err) {
-							self._map.fitWorld();
-						}
-					}
-				});
-			} else {
-				if (attempt < 50) {
-					setTimeout(loadFirstLayer, 10);
-					attempt++;
-				} else {
-					swal("Error!", "Failed to load datasource layer: " + lyr, "error");
-				}
-			}
-		}
-		setTimeout(loadFirstLayer, 10);
-
-		$('#layers').on('change', function(){ 
-			self.apiClient.getLayer($('#layers').val(), function(error, result){
+			self.apiClient.getLayer(lyr, function(error, result){
 				if (error) {
 					swal("Error!", error, "error");
 				} else {
 					self.updateFeatureLayers(result);
+					try {
+						self._map.fitBounds(self.vectorLayers[lyr].getBounds());
+					}
+					catch (err) {
+						self._map.fitWorld();
+					}
 				}
 			});
-		});
-
-		$('#zoom').on('click', function(){ 
-			self._map.fitBounds(
-				self.vectorLayers[$('#layers').val()].getBounds()
-			);
-		});
-	},
-
-	/** 
-	 * method:     _addMouseControl()
-	 * desciption: Creates L.control for displaying cursor location
-	 */
-	_addMouseControl: function() {
-		// Create UI control element
-		mouseLocationControl = L.control({position: 'bottomright'});
-		mouseLocationControl.onAdd = function () {
-			var div = L.DomUtil.create('div');
-			div.innerHTML = "<div id='location'></div>";
-			return div;
-		};
-		mouseLocationControl.addTo(this._map);
-		this._preventPropogation(mouseLocationControl);
-		// UI Event listeners
-		this._map.on('mousemove', function(e) {
-			$("#location")[0].innerHTML = "<strong>Lat, Lon : " + e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4) + "</strong>";
-		});
-	},
-
-	/** 
-	 * method:     _addMeasureControl()
-	 * desciption: enables L.Control.Measure
-	 */
-	_addMeasureControl: function() {
-		var measureControl = new L.Control.Measure();
-		measureControl.addTo(this._map);
-	},
-
-	/** 
-	 * method:     _addLocateControl()
-	 * desciption: enables L.control.locate
-	 */
-	_addLocateControl: function() {
-		L.control.locate().addTo(this._map);
-	},
-
-	/** 
-	 * method:     _addGeosearchControl()
-	 * desciption: enables L.Control.GeoSearch
-	 */
-	_addGeosearchControl: function() {
-		new L.Control.GeoSearch({
-			provider: new L.GeoSearch.Provider.OpenStreetMap()
-		}).addTo(this._map);
+		}
+		setTimeout(loadFirstLayer, 10);
 	},
 
 	/** 
@@ -288,7 +314,6 @@ L.GoSpatial = L.Class.extend({
 			else {
 				popup
 					.setLatLng(e.latlng)
-					// .setContent("<div class='button' value='Submit Feature' onClick='GoSpatial.sendFeature(" + e.target._leaflet_id + ")'><h4>Submit Feature</h4><div>")
 					.setContent("<button class='btn btn-sm btn-default' value='Submit Feature' onClick='GoSpatial.sendFeature(" + e.target._leaflet_id + ")'>Submit Feature</button>")
 					.openOn(map);
 			}
@@ -309,7 +334,6 @@ L.GoSpatial = L.Class.extend({
 				key: key,
 				client: self.uuid
 			}
-			// self.ws.send(JSON.stringify(payload));
 		});
 		this._map.on("draw:editstop", function(event) {
 			var key = Object.keys(self.drawnItems._layers).pop();
@@ -319,7 +343,6 @@ L.GoSpatial = L.Class.extend({
 				key: key,
 				client: self.uuid
 			}
-			// self.ws.send(JSON.stringify(payload));
 		});
 	},
 
@@ -355,7 +378,6 @@ L.GoSpatial = L.Class.extend({
 		var featureLayer = L.geoJson(data, {
 			filter: function(feature, layer) {
 				return true;
-                // return feature.properties.BusType == "Cafe";
             },
 			style: {
 				weight: 2, 
@@ -455,7 +477,6 @@ L.GoSpatial = L.Class.extend({
 		});
 		// Sort values
 		for (var i in data) {
-			console.log(data[i]);
 			if (typeof(data[i] == "number")) {
 				data[i].sort(function(a, b){return a-b});
 			} else {
@@ -603,24 +624,13 @@ L.GoSpatial = L.Class.extend({
 			key: id,
 			client: this.uuid
 		}
-		// this.ws.send(JSON.stringify(payload));
+
 		// send new feature
 		var results;
 		var feature = this.drawnItems._layers[id];
 		var payload = feature.toGeoJSON();
 		payload.properties = this.getProperties();
-	/*	
-		// add date_created & date_modified to feature properties
-		var now = new Date();
-		if (!payload.properties.hasOwnProperty("date_created")) {
-			// payload.properties.date_created = now.toISOString();
-			payload.properties.date_created = parseInt(now.getTime()/1000);
-		}
-		if (!payload.properties.hasOwnProperty("date_modified")) {
-			// payload.properties.date_modified = now.toISOString();
-			payload.properties.date_modified = parseInt(now.getTime()/1000);
-		}
-	*/
+
 		// Send request
 		this.apiClient.submitFeature(
 			$('#layers').val(),
@@ -644,6 +654,17 @@ L.GoSpatial = L.Class.extend({
 			}
 		);
 	},
+
+
+});
+
+L.gospatial = function(apikey, options) {
+	return new L.GoSpatial(apikey, options);
+};
+
+
+
+
 
 	// getWebSocket: function() {
 	// 	var self = this;
@@ -703,12 +724,3 @@ L.GoSpatial = L.Class.extend({
 	// 	ws.onerror = function(e) { console.log(e); }
 	// 	return ws;
 	// }
-
-});
-
-L.gospatial = function(apikey, options) {
-	return new L.GoSpatial(apikey, options);
-};
-
-
-

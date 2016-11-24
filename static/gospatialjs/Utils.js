@@ -29,6 +29,7 @@ function Utils() {
 	 * @returns    map of url parts
 	 */
 	this.parseUrl = function(url) {
+		// new URL.searchParams.get('apikey')
 		return new URL(url);
 	}
 

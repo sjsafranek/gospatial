@@ -186,9 +186,7 @@ L.GoSpatial = L.Class.extend({
 
 	addTo: function(map) {
 		this._map = map;
-		// Reading
 		this._addLayerControl();
-		// Drawing
 		this._addDrawingControl();
 		this._addDrawEventHandlers();
 		// this.ws = this.getWebSocket();

@@ -9,6 +9,7 @@
 				'_preventPropogation',
 				'_addMouseControl',
 				'changeLayer',
+				'addProperty',
 				'zoomToLayer',
 				'_renderTemplate'
 			);
@@ -20,7 +21,8 @@
 
 	    events: {
 	    	"change #layers": 'changeLayer',
-	    	'click #zoom': 'zoomToLayer'
+	    	'click #zoom': 'zoomToLayer',
+	    	'click #add_property': 'addProperty'
 	    },
 
 	    changeLayer: function() {
@@ -32,6 +34,10 @@
 					self.gospatial.updateFeatureLayers(result);
 				}
 			});
+	    },
+
+	    addProperty: function() {
+			$("#properties").append("<input type='text' class='field' placeholder='field'><input type='text' class='attr' placeholder='attribute'><br>");
 	    },
 
 	    zoomToLayer: function() {
@@ -62,6 +68,30 @@
 				provider: new L.GeoSearch.Provider.OpenStreetMap()
 			}).addTo(this._map);
 
+			// Choropleth options
+			featureAttributesControl = L.control({position: 'bottomright'});
+			featureAttributesControl.onAdd = function () {
+				var div = L.DomUtil.create('div', 'info legend');
+				div.innerHTML += "<div id='filters'></div>";
+				return div;
+			};
+			featureAttributesControl.addTo(this._map);
+			this._preventPropogation(featureAttributesControl);
+
+			// Feature properties
+			featurePropertiesControl = L.control({position: 'bottomleft'});
+			featurePropertiesControl.onAdd = function () {
+				var div = L.DomUtil.create('div', 'info legend properties_form');
+				div.innerHTML = "<div>";
+				div.innerHTML += "<strong>Feature Properties </strong>";
+				div.innerHTML += "<a href='#' id='add_property'>[Add Field]</a>";
+				div.innerHTML += "</div>";
+				div.innerHTML += "<div id='properties'>";
+				div.innerHTML += "</div>";
+				return div;
+			};
+			featurePropertiesControl.addTo(this._map);
+			this._preventPropogation(featurePropertiesControl);
 	    },
 
 		/** 
@@ -121,6 +151,15 @@
 
 
 
+
+
+
+
+
+
+
+
+
 /**
  * GoSpatial Map Client
  * Author: Stefan Safranek
@@ -137,23 +176,6 @@ L.GoSpatial = L.Class.extend({
 		this._map = null;
 		this.apikey = apikey;
 		this.apiClient = new GoSpatialApi(apikey);
-
-		// Get customer details
-		this.apiClient.getCustomer(function(error,result){
-			if (error) {
-				 swal("Error!", error, "error");
-			} else {
-				self.customer = result;
-				self.datasources = self.customer.datasources;
-				for (var _i=0; _i < self.datasources.length; _i++) {
-					var obj = document.createElement('option');
-					obj.value = self.datasources[_i];
-					obj.text = self.datasources[_i];
-					$('#layers').append(obj);
-				}
-			}
-		});
-
 		this.color = d3.scale.category10();
 		this.vectorLayers = {};
 		// this.ws = null;
@@ -169,8 +191,6 @@ L.GoSpatial = L.Class.extend({
 		// Drawing
 		this._addDrawingControl();
 		this._addDrawEventHandlers();
-		this._addFeaturePropertiesControl();
-		this._addChoroplethOptions();
 		// this.ws = this.getWebSocket();
 		return this;
 	},
@@ -210,7 +230,7 @@ L.GoSpatial = L.Class.extend({
 	 */
 	_addLayerControl: function() {
 		var self = this;
-		// Create UI control element
+		
 		geojsonLayerControl = L.control({position: 'topright'});
 		geojsonLayerControl.onAdd = function () {
 			var div = L.DomUtil.create('div', 'info legend');
@@ -218,23 +238,36 @@ L.GoSpatial = L.Class.extend({
 			return div;
 		};
 		geojsonLayerControl.addTo(this._map);
-		function loadFirstLayer() {
-			var lyr = $('#layers').val();
-			self.apiClient.getLayer(lyr, function(error, result){
-				if (error) {
-					swal("Error!", error, "error");
-				} else {
-					self.updateFeatureLayers(result);
-					try {
-						self._map.fitBounds(self.vectorLayers[lyr].getBounds());
-					}
-					catch (err) {
-						self._map.fitWorld();
-					}
+
+		this.apiClient.getCustomer(function(error,result){
+			if (error) {
+				 swal("Error!", error, "error");
+				 throw new Error(error);
+			} else {
+				self.customer = result;
+				var datasources = self.customer.datasources;
+				for (var _i=0; _i < datasources.length; _i++) {
+					var obj = document.createElement('option');
+					obj.value = datasources[_i];
+					obj.text = datasources[_i];
+					$('#layers').append(obj);
 				}
-			});
-		}
-		setTimeout(loadFirstLayer, 10);
+				var lyr = $('#layers').val();
+				self.apiClient.getLayer(lyr, function(error, result){
+					if (error) {
+						swal("Error!", error, "error");
+					} else {
+						self.updateFeatureLayers(result);
+						try {
+							self._map.fitBounds(self.vectorLayers[lyr].getBounds());
+						}
+						catch (err) {
+							self._map.fitWorld();
+						}
+					}
+				});
+			}
+		});
 	},
 
 	/** 
@@ -247,31 +280,6 @@ L.GoSpatial = L.Class.extend({
 			draw: { circle: false },
 			edit: { featureGroup: this.drawnItems }
 		}));
-	},
-
-	/** 
-	 * method:     _addFeaturePropertiesControl()
-	 * desciption: creates L.control for adding properties to new features
-	 */
-	_addFeaturePropertiesControl: function() {
-		// Ui Control element
-		featurePropertiesControl = L.control({position: 'bottomleft'});
-		featurePropertiesControl.onAdd = function () {
-			var div = L.DomUtil.create('div', 'info legend properties_form');
-			div.innerHTML = "<div>";
-			div.innerHTML += "<strong>Feature Properties </strong>";
-			div.innerHTML += "<a href='#' id='add_property'>[Add Field]</a>";
-			div.innerHTML += "</div>";
-			div.innerHTML += "<div id='properties'>";
-			div.innerHTML += "</div>";
-			return div;
-		};
-		featurePropertiesControl.addTo(this._map);
-		this._preventPropogation(featurePropertiesControl);
-		// Ui Event Handlers
-		$("#add_property").on("click", function() {
-			$("#properties").append("<input type='text' class='field' placeholder='field'><input type='text' class='attr' placeholder='attribute'><br>");
-		});
 	},
 
 	/** 
@@ -346,9 +354,6 @@ L.GoSpatial = L.Class.extend({
 		});
 	},
 
-/*************************************************************************
- * FEATURE LAYERS
- *************************************************************************/
 	/** 
 	 * method:     updateFeatureLayers()
 	 * desciption: updates map vector layers
@@ -393,7 +398,6 @@ L.GoSpatial = L.Class.extend({
 				});
 			},
 			onEachFeature: function (feature, layer) {
-
 				if (feature.properties) {
 						var results = "<table>";
 						results += "<th>Field</th><th>Attribute</th>";
@@ -403,7 +407,6 @@ L.GoSpatial = L.Class.extend({
 						results += "</table>";
 					layer.bindPopup(results);
 				}
-
 				layer.on({
 					mouseover: function(e) {
 						// highlight feature
@@ -437,26 +440,6 @@ L.GoSpatial = L.Class.extend({
 			}
 		});
 		return featureLayer;
-	},
-
-/*************************************************************************
- * CHOROPLETH
- *************************************************************************/
- 	/** 
-	 * method:     _addChoroplethOptions()
-	 * desciption: Creates L.control for changing choropleth
-	 */
-	_addChoroplethOptions: function() {
-		var self = this;
-		// Create UI control element
-		featureAttributesControl = L.control({position: 'bottomright'});
-		featureAttributesControl.onAdd = function () {
-			var div = L.DomUtil.create('div', 'info legend');
-			div.innerHTML += "<div id='filters'></div>";
-			return div;
-		};
-		featureAttributesControl.addTo(this._map);
-		this._preventPropogation(featureAttributesControl);
 	},
 
 	choroplethColors: {},
@@ -608,9 +591,6 @@ L.GoSpatial = L.Class.extend({
 		});
 	},
 
-/*************************************************************************
- * SUBMIT FEATURES
- *************************************************************************/
 	/** 
 	 * method:     sendFeature()
 	 * desciption: send feature layer to GoSpatialApi

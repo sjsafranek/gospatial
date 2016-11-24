@@ -72,10 +72,17 @@
 			featureAttributesControl = L.control({position: 'bottomright'});
 			featureAttributesControl.onAdd = function () {
 				var div = L.DomUtil.create('div', 'info legend');
+				div.id = "filterControl"
 				div.innerHTML += "<div id='filters'></div>";
 				return div;
 			};
 			featureAttributesControl.addTo(this._map);
+			$( "#filterControl" ).draggable({
+				containment: "#map"
+			});
+			$( "#filterControl" ).resizable({
+		  		//containment: "#map"
+		    });
 			this._preventPropogation(featureAttributesControl);
 
 			// Feature properties

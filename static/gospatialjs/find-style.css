@@ -59,9 +59,10 @@ td.cell-color {
 	padding-right: 2px !important;
 }
 
-div#filters {
-	max-height: 350px;
-	width: 258px;
+/*div#filters */
+div#filterControl {
+	/*max-height: 350px;*/
+	/*width: 258px;*/
 	overflow: scroll;
 }
 

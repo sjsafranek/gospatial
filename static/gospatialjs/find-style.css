@@ -59,17 +59,32 @@ td.cell-color {
 	padding-right: 2px !important;
 }
 
-/*div#filters */
-div#filterControl {
-	/*max-height: 350px;*/
-	/*width: 258px;*/
-	overflow: scroll;
+div#filters {
+	height: 100%;
+	width: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	position: relative;
+}
+
+#filtersControl {
+	/*position: absolute; */
+	line-height: 18px;
+	padding-bottom: 54px;
+	background: rgba(255,255,255,0.8);
+	box-shadow: 0 0 15px rgba(0,0,0,0.2);
+	border-radius: 5px;
+}
+
+#filtersControl i {
+	margin-right: 8px;
+	/*float: left;*/
 }
 
 
-
+/*
 .legend {
-	line-height: 18px;;
+	line-height: 18px;
 }
 
 .legend i {
@@ -79,6 +94,7 @@ div#filterControl {
 	margin-right: 8px;
 	opacity: 0.7;
 }
+*/
 
 .info {
 	padding: 6px 8px;
@@ -88,9 +104,9 @@ div#filterControl {
 	border-radius: 5px;
 }
 
-.info.legend.leaflet-control {
+/*.info.legend.leaflet-control {
 	background: white;
-}
+}*/
 
 /*.attr {*/
 	/*padding: 1px;*/

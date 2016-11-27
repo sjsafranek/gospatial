@@ -71,18 +71,23 @@
 			// Choropleth options
 			featureAttributesControl = L.control({position: 'bottomright'});
 			featureAttributesControl.onAdd = function () {
-				var div = L.DomUtil.create('div', 'info legend');
-				div.id = "filterControl"
-				div.innerHTML += "<div id='filters'></div>";
+				var div = L.DomUtil.create('div', 'panel panel-default');
+				div.id = "filtersControl"
+				// div.innerHTML += "<div id='filters'></div>";
+				div.innerHTML += '<div class="panel-heading"><label>Filters</label></div>'
+							  +  '<div class="panel-body" id="filters"></div>';
 				return div;
 			};
 			featureAttributesControl.addTo(this._map);
-			$( "#filterControl" ).draggable({
+			$( "#filtersControl" ).draggable({
 				containment: "#map"
 			});
-			$( "#filterControl" ).resizable({
-		  		//containment: "#map"
+			$( "#filtersControl" ).resizable({
+				minHeight: 139,
+		  		maxHeight: 560,
+				maxWidth: 280
 		    });
+		    //$( "#filterControl" ).append("body");
 			this._preventPropogation(featureAttributesControl);
 
 			// Feature properties

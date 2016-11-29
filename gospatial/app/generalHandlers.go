@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 )
@@ -31,7 +32,8 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	// Return results
 	htmlFile := "./templates/map.html"
 	tmpl, _ := template.ParseFiles(htmlFile)
-	NetworkLogger.Info(r.RemoteAddr, " POST /map [200]")
+	message := fmt.Sprintf(" %v %v [200]", r.Method, r.URL.Path)
+	NetworkLogger.Info(r.RemoteAddr, message)
 	tmpl.Execute(w, PageViewData{Apikey: apikey, Version: Version})
 
 }
@@ -53,7 +55,8 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	// Return results
 	htmlFile := "./templates/management.html"
 	tmpl, _ := template.ParseFiles(htmlFile)
-	NetworkLogger.Info(r.RemoteAddr, " POST /management [200]")
+	message := fmt.Sprintf(" %v %v [200]", r.Method, r.URL.Path)
+	NetworkLogger.Info(r.RemoteAddr, message)
 	tmpl.Execute(w, PageViewData{Apikey: apikey, Version: Version})
 
 }

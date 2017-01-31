@@ -110,66 +110,17 @@
         </div>
 
         <div id='map'> </div>
+        <div id='map2'> </div>
 
         <script>
 
-            $(function(){
-                $("#error").hide();
-                initialize("map", {{.Apikey}});
-            });
-
-            var map,
-                appview,
-                GoSpatial,
+            var App,
                 apikey;
 
-            function initialize(div, apikey) {
-
-                map = L.map(div,{maxZoom: 23});
-
-                GoSpatial = L.gospatial(apikey);
-                GoSpatial.addTo(map);
-
-                appview = new MapView(GoSpatial);
-
-                osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{ 
-                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
-                });
-                osm.addTo(map);
-                map._baseMaps = {
-                    "OpenStreetMap": osm,
-                    "Topographic": L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22}),
-                    "Streets": L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22}),
-                    "Imagery": L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22}),
-                    "Hydda_Full": L.tileLayer('http://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
-                        attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                        reuseTiles: true
-                    }),
-                    "OpenStreetMap_HOT": L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>',
-                        reuseTiles: true
-                    }),
-                    "Esri_DarkGrey": L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-                        attribution: 'Esri, HERE, DeLorme, MapmyIndia, © OpenStreetMap contributors, and the GIS user community',
-                        reuseTiles: true,
-                        maxZoom: 16
-                    })
-
-                };
-
-                var osmb = new OSMBuildings(map)
-                   .date(new Date(2015, 5, 15, 17, 30))
-                   .load()
-                   .click(function(id) {
-                        console.log('feature id clicked:', id);
-                   }
-                );
-
-                var overlayMaps = { Buildings: osmb };
-
-                L.control.layers(map._baseMaps, overlayMaps, {position: 'topright'}).addTo(map);
-
-            }
+            $(function(){
+                $("#error").hide();
+                App = new MapView("map", {{.Apikey}});
+            });
 
         </script>
 

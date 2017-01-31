@@ -1,9 +1,56 @@
 
+	// Source: Stacked Overflow
+	// http://stackoverflow.com/questions/1960473/unique-values-in-an-array
+	Array.prototype.getUnique = function(){
+	   var u = {}, a = [];
+	   for(var i = 0, l = this.length; i < l; ++i){
+	      if(u.hasOwnProperty(this[i])) {
+	         continue;
+	      }
+	      a.push(this[i]);
+	      u[this[i]] = 1;
+	   }
+	   return a;
+	}
+
+	Array.prototype.getMin = function() {
+		var n = null;
+		for (var i=0; i<this.length; i++) {
+			if ("number" == typeof(this[i])) {
+				if (null == n) {
+					n = this[i];
+				}
+				if (n > this[i]) {
+					n = this[i];
+				}
+			}
+		}
+		return n;
+	}
+
+	Array.prototype.getMax = function() {
+		var n = null;
+		for (var i=0; i<this.length; i++) {
+			if ("number" == typeof(this[i])) {
+				if (null == n) {
+					n = this[i];
+				}
+				if (n < this[i]) {
+					n = this[i];
+				}
+			}
+		}
+		return n;
+	}
+
+
 
 	var MapView = Backbone.View.extend({
+		
 		el: "#map",
 
-		initialize: function(gospatial) {
+		initialize: function(div, apikey) {
+			
 			_.bindAll(this, 
 				'render',
 				'_preventPropogation',
@@ -11,10 +58,70 @@
 				'changeLayer',
 				'addProperty',
 				'zoomToLayer',
+				'_addDrawEventHandlers',
+				'getProperties',
+				'sendFeature',
 				'_renderTemplate'
 			);
-			this._map = gospatial._map;
-			this.gospatial = gospatial;
+
+			this.utils = new Utils();
+			this.uuid = this.utils.uuid();
+
+			this.api = new GoSpatialApi(apikey);
+
+			//this._map = L.map(div, {maxZoom: 23});
+			this._map = L.drawMap(apikey, div, {maxZoom: 23});
+
+			this._addLayerControl();
+
+            osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{ 
+                attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+            });
+            osm.addTo(this._map);
+
+            L.control.layers(
+	            {
+	                "OpenStreetMap": osm,
+	                "Topographic": L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22}),
+	                "Streets": L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22}),
+	                "Imagery": L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png",{maxNativeZoom:22}),
+	                "Hydda_Full": L.tileLayer('http://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
+	                    attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+	                    reuseTiles: true
+	                }),
+	                "OpenStreetMap_HOT": L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+	                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>',
+	                    reuseTiles: true
+	                }),
+	                "Esri_DarkGrey": L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+	                    attribution: 'Esri, HERE, DeLorme, MapmyIndia, © OpenStreetMap contributors, and the GIS user community',
+	                    reuseTiles: true,
+	                    maxZoom: 16
+	                })
+	            }, 
+            	{ 
+            		Buildings: (function() {
+			            return new OSMBuildings(this._map)
+			               .date(new Date(2015, 5, 15, 17, 30))
+			               .load()
+			               .click(function(id) {
+			                    console.log('feature id clicked:', id);
+			               });
+            		})()
+            	}, 
+            	{
+            		position: 'topright'
+            	}
+            ).addTo(this._map);
+
+			this.featureGroup = new L.choroplethLayer({});
+			this.featureGroup.addTo(this._map);
+
+			// this.ws = null;
+			this.drawnItems = null;
+			this._editFeatures = {};
+			this._addDrawEventHandlers();
+
 			this.render();
 			return this;
 		},
@@ -27,11 +134,16 @@
 
 	    changeLayer: function() {
 			var self = this;
-			this.gospatial.apiClient.getLayer($('#layers').val(), function(error, result){
+			this.api.getLayer($('#layers').val(), function(error, result){
 				if (error) {
 					swal("Error!", error, "error");
-				} else {
-					self.gospatial.updateFeatureLayers(result);
+				}
+				self.featureGroup.setGeoJSON(result);
+				try {
+					self._map.fitBounds(self.featureGroup.getBounds());
+				}
+				catch (err) {
+					self._map.fitWorld();
 				}
 			});
 	    },
@@ -42,9 +154,38 @@
 
 	    zoomToLayer: function() {
 			this._map.fitBounds(
-				this.gospatial.vectorLayers[$('#layers').val()].getBounds()
+				this.featureGroup.getBounds()
 			);
 	    },
+
+		_addLayerControl: function() {
+			var self = this;
+			
+			geojsonLayerControl = L.control({position: 'topright'});
+			geojsonLayerControl.onAdd = function () {
+				var div = L.DomUtil.create('div', 'info legend');
+				div.innerHTML += '<i class="fa fa-search-plus" id="zoom" style="padding-left:5px; margin-right:0px;"></i><select name="geojson" id="layers"></select>';
+				return div;
+			};
+			geojsonLayerControl.addTo(this._map);
+
+			this.api.getCustomer(function(error,result){
+				if (error) {
+					 swal("Error!", error, "error");
+					 throw new Error(error);
+				} else {
+					self.customer = result;
+					var datasources = self.customer.datasources;
+					for (var _i=0; _i < datasources.length; _i++) {
+						var obj = document.createElement('option');
+						obj.value = datasources[_i];
+						obj.text = datasources[_i];
+						$('#layers').append(obj);
+					}
+					self.changeLayer();
+				}
+			});
+		},
 
 	    _renderTemplate: function() {
 	    	// Add logo
@@ -149,6 +290,101 @@
 			});
 		},
 
+		_addDrawEventHandlers: function() {
+			var self = this;
+			function onMapClick(e) {
+				var popup = L.popup();
+				if (e.target.editing._enabled) { 
+					console.log('editing enabled')  
+			 	}
+				else {
+					popup
+						.setLatLng(e.latlng)
+						.setContent("<button class='btn btn-sm btn-default' value='Submit Feature' onClick='App.sendFeature(" + e.target._leaflet_id + ")'>Submit Feature</button>")
+						.openOn(self._map);
+				}
+			}
+			this._map.on('draw:created', function(event) {
+				var layer = event.layer;
+				layer.on('click', onMapClick);
+				layer.options.color='blue';
+				layer.layerType = event.layerType;
+				self._map.drawnItems.addLayer(layer);
+			});
+			this._map.on("draw:drawstop", function(event) {
+				var key = Object.keys(self._map.drawnItems._layers).pop();
+				var feature = self._map.drawnItems._layers[key];
+				var payload = {
+					feature: feature.toGeoJSON(),
+					key: key,
+					client: self.uuid
+				}
+			});
+			this._map.on("draw:editstop", function(event) {
+				var key = Object.keys(self.drawnItems._layers).pop();
+				var feature = self._map.drawnItems._layers[key];
+				var payload = {
+					feature: feature.toGeoJSON(),
+					key: key,
+					client: self.uuid
+				}
+			});
+		},
+
+		getProperties: function() {
+			var properties = {};
+			var fields = $("#properties .field");
+			var attrs = $("#properties .attr");
+			for (var _i=0; _i < fields.length; _i++) {
+				var word = false;
+				for (var _j=0; attrs[_i].value.length > _j; _j++) {
+					if ("-.0123456789".indexOf(attrs[_i].value[_j]) == -1) {
+						word = true;
+						break;
+					};
+				}
+				if (word) {
+					properties[fields[_i].value] = attrs[_i].value;
+				}
+				else {
+					properties[fields[_i].value] = parseFloat(attrs[_i].value);
+				}
+			}
+			return properties;
+		},
+
+		sendFeature: function(id) {
+			var self = this;
+			// update websockets
+			var payload = {
+				feature: false,
+				key: id,
+				client: this.uuid
+			}
+
+			// send new feature
+			var results;
+			var feature = this._map.drawnItems._layers[id];
+			var payload = feature.toGeoJSON();
+			payload.properties = this.getProperties();
+
+			// Send request
+			this.api.submitFeature(
+				$('#layers').val(),
+				JSON.stringify(payload),
+				function(error, results) {
+					if (error) {
+						swal("Error!", error, "error");
+					} else {
+						swal("Success", "Feature has been submitted.", "success");
+						self._map.removeLayer(self._map.drawnItems._layers[id]);
+						$("#properties .attr").val("");
+						self.changeLayer();
+					}
+				}
+			);
+		},
+
 		render: function() {
 			var self = this;
 			this._renderTemplate();
@@ -158,15 +394,250 @@
 
 
 
+/**
+ * Choropleth GeoJSON Layer
+ */
+L.ChoroplethLayer = L.GeoJSON.extend({
 
+	options: {
+		
+		filter: function(feature, layer) {
+			return true;
+        },
+		
+		style: {
+			weight: 2, 
+			color: "#000", 
+			fillOpacity: 0.25,
+		},
 
+		pointToLayer: function(feature, latlng) {
+			return L.circleMarker(latlng, {
+				radius: 4,
+				weight: 1,
+				fillOpacity: 0.25,
+				color: '#000'
+			});
+		},
 
+		onEachFeature: function (feature, layer) {
+			
+			if (feature.properties) {
+					var results = "<table>";
+					results += "<th>Field</th><th>Attribute</th>";
+					for (var item in feature.properties) {
+						results += "<tr><td>" + item + "</td><td>" + feature.properties[item] + "</td></tr>";
+					}
+					results += "</table>";
+				layer.bindPopup(results);
+			}
 
+			layer.on({
 
+				mouseover: function(e) {
+					// highlight feature
+					e.target.setStyle({
+						weight: 4,
+						radius: 6
+					});
+					if (!L.Browser.ie && !L.Browser.opera) {
+						e.target.bringToFront();
+					}
+				},
+				
+				mouseout: function(e){
+					// reset style
+					e.target.setStyle({
+						weight: 1,
+						radius: 4
+					});
+				},
+				
+				dblclick: function(e) {
+					// center map on feature
+					e.target._map.setView(e.target.getBounds().getCenter());
+				},
+				
+				click: function(e) {
+					// center map on feature
+					e.target._map.setView(e.target.getBounds().getCenter());
+				},
+				
+				contextmenu: function(e) { 
+					e.target._map.fitBounds(e.target.getBounds(), {maxZoom:12});
+				}
 
+			});
+		}
+	},
 
+	initialize: function(geojson, options) {
+		this._layers = {};
+		this.datasource_id = "";
+	},
 
+	addTo: function(map) {
+		this._map = map;
+		return this;
+	},
 
+	// @method 			setGeoJSON
+	// @description 	clears layers and creates new layers from supplied geojson
+	// @params 			geojson{object} 
+	setGeoJSON: function(geojson) {
+	    this.clearLayers();
+	    this.addData(geojson);
+	    this._buildColorTree();
+	},
+
+	// @method 			_buildColorTree
+	// @description 	Scans layer features and build meta data for datasource columns
+	_buildColorTree: function() {
+		var fields = {};
+		
+		// loop through features features
+		this.eachLayer(function(layer) { 
+			var properties = layer.feature.properties;
+			for (var j in properties) {
+				if (!fields.hasOwnProperty(j)) {
+					fields[j] = {
+						attrs:[], 
+						type:"", 
+						color:null, 
+						name: j
+					};
+				}
+				// get field values from feature properties
+				fields[j].attrs.push(properties[j]);
+			}
+		});
+
+		// get unique field values
+		for (var i in fields) {
+			fields[i].attrs = fields[i].attrs.getUnique();
+			for (var j in fields[i].attrs) {
+				var item = fields[i].attrs[j];
+				if ("string" == typeof(item)) {
+					fields[i].type = "string";
+					break;
+				} else if ("boolean" == typeof(item)) {
+					if ( -1 != ["", "boolean"].indexOf(fields[i].type) ) {
+						fields[i].type = "boolean";
+					} else {
+						fields[i].type = "string";
+						break;
+					}
+				} else if ("number" == typeof(item)) {
+					if ( -1 != ["","number"].indexOf(fields[i].type) ) {
+						fields[i].type = "number";
+					} else {
+						fields[i].type = "string";
+						break;	
+					}
+				}
+			}
+
+			// sort field values
+			if ("number" == fields[i].type) {
+				fields[i].attrs.sort(function(a, b){return a-b});
+			} else {
+				fields[i].attrs.sort();
+			}
+
+			// create color based on data type
+			switch(fields[i].type) {
+				case "number":
+					// color range
+					if (0 != fields[i].attrs.length) {
+						fields[i].color = d3.scale
+											.linear()
+											.domain([
+												fields[i].attrs.getMin(),
+												fields[i].attrs.getMax()
+											])
+											.range(["#330F53", "#FFDC00"]);
+					}
+					break;
+				case "boolean":
+					fields[i].color = d3.scale.category10();
+					break;
+				case "string":
+					fields[i].color = d3.scale.category10();
+					break;
+				default:
+					console.log("[DEBUG]: Uncaught data type", fields[i]);
+			}
+
+		}
+
+		this.columns = fields;
+
+	},
+
+	// @method 			getColumnNames
+	// @description 	Returns array of column names
+	// @returns 		{array}
+	getColumnNames: function() {
+		return Object.keys(this.columns);
+	},
+
+	// @method 			hasColumn
+	// @description 	Checks if datasource has column
+	// @params 			column_name{string} 
+	// @returns 		{boolean}
+	hasColumn: function(column_name) {
+		return this.columns.hasOwnProperty(column_name);
+	},
+
+	// @method 			getColumn
+	// @description 	Returns datasource column object 
+	// @params 			column_name{string} 	
+	// @returns 		{object}
+	getColumn: function(column_name) {
+		if (!this.hasColumn(column_name)) {
+			throw new Error("Column not found");
+		}
+		return this.columns[column_name];
+	},
+
+	//
+	updateColorLegend: function() {
+
+	},
+
+	// @method 			choropleth
+	// @description 	colors layer features by selected column
+	// @params 			column_name{string} 
+	choropleth: function(column_name) {
+		var self = this;
+		var column = this.getColumn(column_name);
+		this.eachLayer(function(layer) {
+			var feature = layer.feature; 
+			if (column.type == "number" ) {
+				layer.setStyle({ 
+					weight: 2, 
+					color: column.color(feature.properties[column.name]), 
+					fillOpacity: 0.8,
+					fillColor: column.color(feature.properties[column.name])
+				});
+			} else {
+				var index = column.attrs.indexOf(feature.properties[column.name]);
+				layer.setStyle({
+					weight: 2, 
+					color: column.color(index),
+					fillOpacity: 0.8,
+					fillColor: column.color(index)
+				});
+			}
+		});
+		this.updateColorLegend();
+	}
+
+});
+
+L.choroplethLayer = function(geojson, options) {
+	return new L.ChoroplethLayer(geojson, options);
+};
 
 
 
@@ -177,481 +648,30 @@
  * Author: Stefan Safranek
  * Email:  sjsafranek@gmail.com
  */
+L.DrawMap = L.Map.extend({
 
-L.GoSpatial = L.Class.extend({
-
-	options: {},
-
-	initialize: function(apikey, options) {
+	initialize: function(apikey, id, options) {
 		var self = this;
-		L.setOptions(this, options || {});
-		this._map = null;
-		this.apikey = apikey;
-		this.apiClient = new GoSpatialApi(apikey);
-		this.color = d3.scale.category10();
-		this.vectorLayers = {};
-		// this.ws = null;
-		this.drawnItems = null;
-		this.uuid = this.utils.uuid();
-		this._editFeatures = {};
-	},
-
-	addTo: function(map) {
-		this._map = map;
-		this._addLayerControl();
+		L.Map.prototype.initialize.call(this, id, options);
+		this.drawnItems = {};
 		this._addDrawingControl();
-		this._addDrawEventHandlers();
-		// this.ws = this.getWebSocket();
-		return this;
 	},
 
-	/** 
-	 * object:     utils{}
-	 * desciption: contains general methods
-	 */
-	utils: new Utils(),
-
-	/** 
-	 * method:     _preventPropogation()
-	 * source:     http://gis.stackexchange.com/questions/104507/disable-panning-dragging-on-leaflet-map-for-div-within-map
-	 * desciption: disables mouseover map events from leaflet control objected
-	 * @param obj {L.control} Leaflet control object
-	 */
-	_preventPropogation: function(obj) {
-		map = this._map;
-		// http://gis.stackexchange.com/questions/104507/disable-panning-dragging-on-leaflet-map-for-div-within-map
-		// Disable dragging when user's cursor enters the element
-		obj.getContainer().addEventListener('mouseover', function () {
-			map.dragging.disable();
-			map.scrollWheelZoom.disable();
-			map.doubleClickZoom.disable();
-		});
-		// Re-enable dragging when user's cursor leaves the element
-		obj.getContainer().addEventListener('mouseout', function () {
-			map.dragging.enable();
-			map.scrollWheelZoom.enable();
-			map.doubleClickZoom.enable();
-		});
-	},
-
-	/** 
-	 * method:     _addLayerControl()
-	 * desciption: Creates L.control for selecting geojson layers
-	 */
-	_addLayerControl: function() {
-		var self = this;
-		
-		geojsonLayerControl = L.control({position: 'topright'});
-		geojsonLayerControl.onAdd = function () {
-			var div = L.DomUtil.create('div', 'info legend');
-			div.innerHTML += '<i class="fa fa-search-plus" id="zoom" style="padding-left:5px; margin-right:0px;"></i><select name="geojson" id="layers"></select>';
-			return div;
-		};
-		geojsonLayerControl.addTo(this._map);
-
-		this.apiClient.getCustomer(function(error,result){
-			if (error) {
-				 swal("Error!", error, "error");
-				 throw new Error(error);
-			} else {
-				self.customer = result;
-				var datasources = self.customer.datasources;
-				for (var _i=0; _i < datasources.length; _i++) {
-					var obj = document.createElement('option');
-					obj.value = datasources[_i];
-					obj.text = datasources[_i];
-					$('#layers').append(obj);
-				}
-				var lyr = $('#layers').val();
-				self.apiClient.getLayer(lyr, function(error, result){
-					if (error) {
-						swal("Error!", error, "error");
-					} else {
-						self.updateFeatureLayers(result);
-						try {
-							self._map.fitBounds(self.vectorLayers[lyr].getBounds());
-						}
-						catch (err) {
-							self._map.fitWorld();
-						}
-					}
-				});
-			}
-		});
-	},
-
-	/** 
-	 * method:     _addDrawingControl()
-	 * desciption: enables L.featureGroup
-	 */
 	_addDrawingControl: function() {
-		this.drawnItems = L.featureGroup().addTo(this._map);
-		this._map.addControl(new L.Control.Draw({
-			draw: { circle: false },
-			edit: { featureGroup: this.drawnItems }
-		}));
-	},
-
-	/** 
-	 * method:     getProperties()
-	 * desciption: gets feature properties from .properties_form
-	 * @returns {json} json of feature properties
-	 */
-	getProperties: function() {
-		var properties = {};
-		var fields = $("#properties .field");
-		var attrs = $("#properties .attr");
-		for (var _i=0; _i < fields.length; _i++) {
-			var word = false;
-			for (var _j=0; attrs[_i].value.length > _j; _j++) {
-				if ("-.0123456789".indexOf(attrs[_i].value[_j]) == -1) {
-					word = true;
-					break;
-				};
-			}
-			if (word) {
-				properties[fields[_i].value] = attrs[_i].value;
-			}
-			else {
-				properties[fields[_i].value] = parseFloat(attrs[_i].value);
-			}
-		}
-		return properties;
-	},
-
-	/** 
-	 * method:     _addDrawEventHandlers()
-	 * desciption: Adds draw events
-	 */
-	_addDrawEventHandlers: function() {
-		function onMapClick(e) {
-			var popup = L.popup();
-			if (e.target.editing._enabled) { 
-				console.log('editing enabled')  
-		 	}
-			else {
-				popup
-					.setLatLng(e.latlng)
-					.setContent("<button class='btn btn-sm btn-default' value='Submit Feature' onClick='GoSpatial.sendFeature(" + e.target._leaflet_id + ")'>Submit Feature</button>")
-					.openOn(map);
-			}
-		}
-		var self = this;
-		this._map.on('draw:created', function(event) {
-			var layer = event.layer;
-			layer.on('click', onMapClick);
-			layer.options.color='blue';
-			layer.layerType = event.layerType;
-			self.drawnItems.addLayer(layer);
-		});
-		this._map.on("draw:drawstop", function(event) {
-			var key = Object.keys(self.drawnItems._layers).pop();
-			var feature = self.drawnItems._layers[key];
-			var payload = {
-				feature: feature.toGeoJSON(),
-				key: key,
-				client: self.uuid
-			}
-		});
-		this._map.on("draw:editstop", function(event) {
-			var key = Object.keys(self.drawnItems._layers).pop();
-			var feature = self.drawnItems._layers[key];
-			var payload = {
-				feature: feature.toGeoJSON(),
-				key: key,
-				client: self.uuid
-			}
-		});
-	},
-
-	/** 
-	 * method:     updateFeatureLayers()
-	 * desciption: updates map vector layers
-	 * @param data {geojson}
-	 */
-	updateFeatureLayers: function(data) {
-		for (var _i in this.vectorLayers){
-			if (this._map.hasLayer(this.vectorLayers[_i])) {
-				this._map.removeLayer(this.vectorLayers[_i]);
-			}
-		}
-		try {
-			this.vectorLayers[$('#layers').val()] = this.createFeatureLayer(data);
-			this.vectorLayers[$('#layers').val()].addTo(this._map);
-			this.generateChoroplethColors();
-		}
-		catch(err) { console.log(err); }
-	},
-
-	/** 
-	 * method:     createFeatureLayer()
-	 * desciption: creates vector layer from geojson
-	 * @param data {geojson}
-	 */
-	createFeatureLayer: function(data) {
-		map = this._map;
-		var featureLayer = L.geoJson(data, {
-			filter: function(feature, layer) {
-				return true;
-            },
-			style: {
-				weight: 2, 
-				color: "#000", 
-				fillOpacity: 0.25,
-			},
-			pointToLayer: function(feature, latlng) {
-				return L.circleMarker(latlng, {
-					radius: 4,
-					weight: 1,
-					fillOpacity: 0.25,
-					color: '#000'
-				});
-			},
-			onEachFeature: function (feature, layer) {
-				if (feature.properties) {
-						var results = "<table>";
-						results += "<th>Field</th><th>Attribute</th>";
-						for (var item in feature.properties) {
-							results += "<tr><td>" + item + "</td><td>" + feature.properties[item] + "</td></tr>";
-						}
-						results += "</table>";
-					layer.bindPopup(results);
-				}
-				layer.on({
-					mouseover: function(e) {
-						// highlight feature
-						e.target.setStyle({
-							weight: 4,
-							radius: 6
-						});
-						if (!L.Browser.ie && !L.Browser.opera) {
-							e.target.bringToFront();
-						}
-					},
-					mouseout: function(e){
-						// reset style
-						e.target.setStyle({
-							weight: 1,
-							radius: 4
-						});
-					},
-					dblclick: function(e) {
-						// center map on feature
-						map.setView(e.target.getBounds().getCenter());
-					},
-					click: function(e) {
-						// center map on feature
-						map.setView(e.target.getBounds().getCenter());
-					},
-					contextmenu: function(e) { 
-						map.fitBounds(e.target.getBounds(), {maxZoom:12});
-					}
-				});
-			}
-		});
-		return featureLayer;
-	},
-
-	choroplethColors: {},
-
-	getUniqueFeatureProperties: function(){
-		var data = {};
-		// Get unique values
-		this.vectorLayers[$('#layers').val()].eachLayer(function(layer) {
-			for (var i in layer.feature.properties) {
-				if (!data.hasOwnProperty(i)) {
-					data[i] = [];
-				}
-				var value = layer.feature.properties[i];
-				if (data[i].indexOf(value) == -1 && value != null) {
-					data[i].push(value);
-				}
-			}
-		});
-		// Sort values
-		for (var i in data) {
-			if (typeof(data[i] == "number")) {
-				data[i].sort(function(a, b){return a-b});
-			} else {
-				data[i].sort();
-			}
-		}
-		return data;
-	},
-
-// COLOR ISSUES
-	generateChoroplethColors: function() {
-		var self = this;
-		$("#filters").html("");
-		fields = this.getUniqueFeatureProperties();
-		this.choroplethColors = {};
-		for (var field in fields) {
-			if (!this.choroplethColors.hasOwnProperty(field)) {
-				// field section
-				var field_selector = $("<div>", {
-					title: field
-				}).append(
-					$("<i>", {name: field}).addClass("fa").addClass("fa-paint-brush").on("click", function(){
-						$("i.fa.fa-paint-brush").css("color", "black");
-						$(this).css("color", "red");
-						self.choropleth($(this).attr("name"));
-					}),
-
-					$("<strong>").addClass("toggleFieldSection").text(field).on("click", function() {
-						// selector filters
-						var vis = $(this).parent().find("table").is(':visible');
-						if (vis) {
-							$(this).parent().find("table").hide();
-						} else {
-							$(this).parent().find("table").show();
-						}
-						// range filters
-						var vis = $(this).parent().find(".range-selector").is(':visible');
-						if (vis) {
-							$(this).parent().find(".range-selector").hide();
-						} else {
-							$(this).parent().find(".range-selector").show();
-						}
-					})
-				);
-				if (typeof(fields[field][0]) == "number") {
-					// range filter
-					this.choroplethColors[field] = { 
-						type: "number",
-						color: d3.scale.linear()
-							.domain([fields[field][0], fields[field][fields[field].length-1]])
-							.range(["yellow", "darkred"])
-					};
-					var rangeSelector = $("<div>").addClass("range-selector").text(fields[field][0] + " - " + fields[field][fields[field].length-1]);
-					// Todo: 
-					// 		Display gradient
-					rangeSelector.hide();
-					field_selector.append(rangeSelector);
-				} else {
-					// selectors filter
-					var table = $("<table>").addClass("table").addClass("table-bordered").append(
-						$("<thead>").append(
-							$("<tr>").append(
-								$("<th>").addClass("color").append(
-									$("<i>").addClass("fa").addClass("fa-sort")
-								),
-								$("<th>").addClass("check").append(
-									$("<i>").addClass("fa").addClass("fa-sort")
-								),
-								$("<th>").append(
-									$("<i>").addClass("fa").addClass("fa-sort")
-								),
-								$("<th>").append(
-									$("<i>").addClass("fa").addClass("fa-sort")
-								)
-							)
-						)
-					);
-					var tbody = $("<tbody>");
-					// fill table body with checkbox filters
-					this.choroplethColors[field] = { 
-						type: "string",
-						colors: {}
-					};
-					for (var i=0; i < fields[field].length; i++) {
-						this.choroplethColors[field].colors[fields[field][i]] = this.color(i);
-						tbody.append(
-							$("<tr>").append(
-								$("<td>").addClass("cell-color").append(
-									$("<i>").addClass("attr-color").css("background", this.color(i))
-								),
-								$("<td>").append(
-									$("<input>", {
-										type:"checkbox", 
-										name:fields[field][i]
-									}) //.addClass("inline")
-								),
-								$("<td>").text(fields[field][i]),
-								$("<td>").text("0")
-							)
-						);
-					}
-					table.append(tbody);
-					table.hide();
-					field_selector.append(table);
-				}
-				$("#filters").append(field_selector);
-			}
-		}
-	},
-
-	choropleth: function(field) {
-		var self = this;
-		this.vectorLayers[$('#layers').val()].eachLayer(function(layer) {
-			if (self.choroplethColors[field].type == "number" ) {
-				layer.setStyle({ 
-					weight: 2, 
-					color: self.choroplethColors[field].color( layer.feature.properties[field] ), 
-					fillOpacity: 0.8,
-					fillColor: self.choroplethColors[field].color( layer.feature.properties[field] )
-				});
-			} else {
-				layer.setStyle({
-					weight: 2, 
-					color: self.choroplethColors[field].colors[layer.feature.properties[field]],  
-					fillOpacity: 0.8,
-					fillColor: self.choroplethColors[field].colors[layer.feature.properties[field]]
-				});
-			}
-		});
-	},
-
-	/** 
-	 * method:     sendFeature()
-	 * desciption: send feature layer to GoSpatialApi
-	 * @param id {integer} integer of drawn feature layer
-	 */
-	sendFeature: function(id) {
-		var self = this;
-		// update websockets
-		var payload = {
-			feature: false,
-			key: id,
-			client: this.uuid
-		}
-
-		// send new feature
-		var results;
-		var feature = this.drawnItems._layers[id];
-		var payload = feature.toGeoJSON();
-		payload.properties = this.getProperties();
-
-		// Send request
-		this.apiClient.submitFeature(
-			$('#layers').val(),
-			JSON.stringify(payload),
-			function(error, results) {
-				if (error) {
-					swal("Error!", error, "error");
-				} else {
-					swal("Success", "Feature has been submitted.", "success");
-					self.apiClient.getLayer($('#layers').val(), function(error, result){
-						if (error) {
-							swal("Error!", error, "error");
-						} else {
-							self.updateFeatureLayers(result);
-						}
-					});
-					self._map.removeLayer(self.drawnItems._layers[id]);
-					$("#properties .attr").val("");
-					return results;
-				}
-			}
+		this.drawnItems = L.featureGroup().addTo(this);
+		this.addControl(
+			new L.Control.Draw({
+				draw: { circle: false },
+				edit: { featureGroup: this.drawnItems }
+			})
 		);
-	},
-
+	}
 
 });
 
-L.gospatial = function(apikey, options) {
-	return new L.GoSpatial(apikey, options);
+L.drawMap = function(apikey, container, options) {
+	return new L.DrawMap(apikey, container, options);
 };
-
 
 
 
@@ -680,7 +700,7 @@ L.gospatial = function(apikey, options) {
 	// 				if (error) {
 	// 					throw error;
 	// 					self.errorMessage(error);
-	// 				} else {
+	// 				} else {apiClient
 	// 					self.updateFeatureLayers(result);
 	// 				}
 	// 			});

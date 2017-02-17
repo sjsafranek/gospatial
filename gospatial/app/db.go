@@ -36,9 +36,26 @@ type Database struct {
 	commit_log_queue chan string
 }
 
+// Create to bolt database. Returns open database connection.
+// @returns *bolt.DB
+func (self *Database) createDb() *bolt.DB {
+	conn, err := bolt.Open(self.File, 0644, nil)
+	if err != nil {
+		conn.Close()
+		panic(err)
+	}
+	return conn
+}
+
 // Connect to bolt database. Returns open database connection.
 // @returns *bolt.DB
 func (self *Database) connect() *bolt.DB {
+	// Check if file exists
+	_, err := os.Stat(self.File)
+	if err != nil {
+		panic("Database not found!")
+	}
+	// Open database connection
 	conn, err := bolt.Open(self.File, 0644, nil)
 	if err != nil {
 		conn.Close()
@@ -58,7 +75,8 @@ func (self *Database) Init() error {
 	go self.cacheManager()
 	go self.startCommitLog()
 	// connect to db
-	conn := self.connect()
+	//conn := self.connect()
+	conn := self.createDb()
 	defer conn.Close()
 	// datasources
 	err := self.CreateTable(conn, "layers")
@@ -182,7 +200,7 @@ func (self *Database) NewLayer() (string, error) {
 // @param geojs {Geojson}
 // @returns Error
 func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureCollection) error {
-	// Caching layer
+	// Update caching layer
 	if v, ok := self.Cache[datasource]; ok {
 		self.guard.Lock()
 		v.Geojson = geojs
@@ -247,6 +265,9 @@ func (self *Database) DeleteLayer(datasource string) error {
 		//}
 		//err = bucket.Delete(key)
 		bucket := tx.Bucket([]byte("layers"))
+		if bucket == nil {
+			return fmt.Errorf("Bucket layers not found!")
+		}
 		err := bucket.Delete(key)
 		return err
 	})
@@ -269,6 +290,9 @@ func (self *Database) Insert(table string, key string, value []byte) error {
 		//}
 		//err = bucket.Put([]byte(key), self.compressByte(value))
 		bucket := tx.Bucket([]byte(table))
+		if bucket == nil {
+			return fmt.Errorf("Bucket %q not found!", table)
+		}
 		err := bucket.Put([]byte(key), self.compressByte(value))
 		return err
 	})
@@ -282,7 +306,7 @@ func (self *Database) Select(table string, key string) ([]byte, error) {
 	err := conn.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(table))
 		if bucket == nil {
-			return fmt.Errorf("Bucket %q not found!", bucket)
+			return fmt.Errorf("Bucket %q not found!", table)
 		}
 		val = self.decompressByte(bucket.Get([]byte(key)))
 		return nil
@@ -297,7 +321,7 @@ func (self *Database) SelectAll(table string) ([]string, error) {
 	err := conn.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(table))
 		if bucket == nil {
-			return fmt.Errorf("Bucket %q not found!", bucket)
+			return fmt.Errorf("Bucket %q not found!", table)
 		}
 		bucket.ForEach(func(key, _ []byte) error {
 			data = append(data, string(key))
@@ -325,6 +349,7 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 	}
 	self.commit_log_queue <- `{"method": "insert_feature", "data": { "datasource": "` + datasource + `", "feature": ` + string(value) + `}}`
 	featCollection.AddFeature(feat)
+	// insert layer
 	err = self.InsertLayer(datasource, featCollection)
 	if err != nil {
 		panic(err)

@@ -25,22 +25,27 @@ import (
 
 var (
 	port          int
+	tcp_port      int
 	database      string
 	bind          string
 	versionReport bool
 	configFile    string
 	debugMode     bool
+	configuration serverConfig
 )
 
 const (
-	VERSION        string = "1.11.2"
-	DEFAULT_CONFIG string = "config.json"
+	VERSION             string = "1.11.3"
+	DEFAULT_CONFIG_FILE string = "config.json"
+	DEFAULT_HTTP_PORT   int    = 8080
+	DEFAULT_TCP_PORT    int    = 3333
 )
 
 type serverConfig struct {
-	Port    int    `json:"port"`
-	Db      string `json:"db"`
-	Authkey string `json:"authkey"`
+	HttpPort int    `json:"http_port"`
+	TcpPort  int    `json:"tcp_port"`
+	Db       string `json:"db"`
+	Authkey  string `json:"authkey"`
 }
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
@@ -51,8 +56,10 @@ func init() {
 		app.ServerLogger.Error(err)
 	}
 	db := strings.Replace(dir, "bin", "bolt", -1)
-	flag.StringVar(&configFile, "c", DEFAULT_CONFIG, "server config file")
-	flag.IntVar(&port, "p", 8080, "server port")
+	flag.StringVar(&configFile, "c", DEFAULT_CONFIG_FILE, "server config file")
+	flag.IntVar(&port, "p", DEFAULT_HTTP_PORT, "http server port")
+	flag.IntVar(&tcp_port, "tcp_port", DEFAULT_TCP_PORT, "tcp server port")
+	//flag.IntVar(&port, "p", 8888, "server port")
 	flag.StringVar(&database, "db", db, "app database")
 	// flag.StringVar(&app.SuperuserKey, "s", "7q1qcqmsxnvw", "superuser key")
 	flag.StringVar(&app.SuperuserKey, "s", "su", "superuser key")
@@ -72,34 +79,57 @@ func init() {
 
 	app.ResetLogging()
 
-	// check if file exists!!!
-	if _, err := os.Stat(configFile); err == nil {
-		file, err := ioutil.ReadFile(configFile)
-		if err != nil {
-			panic(err)
-		}
-		configuration := serverConfig{}
-		err = json.Unmarshal(file, &configuration)
-		if err != nil {
-			fmt.Println("error:", err)
-		}
-		port = configuration.Port
-		database = configuration.Db
-		database = strings.Replace(database, ".db", "", -1)
-		app.SuperuserKey = configuration.Authkey
-		app.ServerLogger.Info(configuration)
-	} else {
-		// create config file
-		configuration := serverConfig{}
-		configuration.Port = port
+	// check if config file exists!!!
+	if _, err := os.Stat(configFile); err != nil {
+
+		// create config object from commandline args
+		configuration = serverConfig{}
+		configuration.HttpPort = port
+		configuration.TcpPort = tcp_port
 		configuration.Db = database
 
+		// superuser key
 		if "su" == app.SuperuserKey {
 			authkey := utils.NewAPIKey(12)
 			configuration.Authkey = authkey
 			app.SuperuserKey = authkey
 		}
-		app.ServerLogger.Info(configuration)
+
+		// write to file
+		configJson, _ := json.Marshal(configuration)
+		err := ioutil.WriteFile(configFile, configJson, 0644)
+		if err != nil {
+			panic(err)
+		}
+
+	} else {
+		// read config file
+		file, err := ioutil.ReadFile(configFile)
+		if err != nil {
+			panic(err)
+		}
+
+		// build config object from file contents
+		configuration = serverConfig{}
+		err = json.Unmarshal(file, &configuration)
+		if err != nil {
+			panic(err)
+		}
+
+		// apply commandline args as overrides
+		if "su" == app.SuperuserKey {
+			app.SuperuserKey = configuration.Authkey
+		}
+
+		if DEFAULT_HTTP_PORT != port {
+			configuration.HttpPort = port
+		}
+		if DEFAULT_TCP_PORT != tcp_port {
+			configuration.TcpPort = tcp_port
+		}
+
+		//configuration.Db = strings.Replace(database, ".db", "", -1) //database
+		//app.ServerLogger.Info(strings.Replace(database, ".db", "", -1))
 	}
 
 }
@@ -163,12 +193,15 @@ func main() {
 		panic(err)
 	}
 
+	app.ServerLogger.Info(configuration)
+
 	// start tcp server
-	tcpServer := app.TcpServer{Host: "localhost", Port: "3333"}
+	//tcpServer := app.TcpServer{Host: "localhost", Port: "3333"}
+	tcpServer := app.TcpServer{Host: "localhost", Port: fmt.Sprintf("%v", configuration.TcpPort)}
 	tcpServer.Start()
 
 	// start http server
-	httpServer := app.HttpServer{Port: port}
+	httpServer := app.HttpServer{Port: configuration.HttpPort}
 	httpServer.Start()
 
 }

@@ -42,7 +42,7 @@ func (self *Database) connect() *bolt.DB {
 	conn, err := bolt.Open(self.File, 0644, nil)
 	if err != nil {
 		conn.Close()
-		// log.Fatal(err)
+		//log.Fatal(err)
 		panic(err)
 	}
 	return conn
@@ -102,13 +102,10 @@ func (self *Database) startCommitLog() {
 
 func (self *Database) CreateTable(conn *bolt.DB, table string) error {
 	err := conn.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte("layers"))
+		_, err := tx.CreateBucketIfNotExists([]byte(table))
 		return err
 	})
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // InsertCustomer inserts customer into apikeys table
@@ -200,12 +197,10 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 	if err != nil {
 		return err
 	}
-
 	err = self.Insert("layers", datasource, value)
 	if err != nil {
 		panic(err)
 	}
-
 	return err
 }
 
@@ -241,22 +236,19 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 // @param datasource {string}
 // @returns Error
 func (self *Database) DeleteLayer(datasource string) error {
-	// Connect to database
 	conn := self.connect()
 	defer conn.Close()
 	key := []byte(datasource)
 	self.commit_log_queue <- `{"method": "delete_layer", "data": { "datasource": "` + datasource + `"}}`
-	// Insert layer into database
 	err := conn.Update(func(tx *bolt.Tx) error {
-		bucket, err := tx.CreateBucketIfNotExists([]byte("layers"))
-		if err != nil {
-			return err
-		}
-		err = bucket.Delete(key)
-		if err != nil {
-			return err
-		}
-		return nil
+		//bucket, err := tx.CreateBucketIfNotExists([]byte("layers"))
+		//if err != nil {
+		//	return err
+		//}
+		//err = bucket.Delete(key)
+		bucket := tx.Bucket([]byte("layers"))
+		err := bucket.Delete(key)
+		return err
 	})
 	if err != nil {
 		panic(err)
@@ -271,11 +263,13 @@ func (self *Database) Insert(table string, key string, value []byte) error {
 	conn := self.connect()
 	defer conn.Close()
 	err := conn.Update(func(tx *bolt.Tx) error {
-		bucket, err := tx.CreateBucketIfNotExists([]byte(table))
-		if err != nil {
-			return err
-		}
-		err = bucket.Put([]byte(key), self.compressByte(value))
+		//bucket, err := tx.CreateBucketIfNotExists([]byte(table))
+		//if err != nil {
+		//	return err
+		//}
+		//err = bucket.Put([]byte(key), self.compressByte(value))
+		bucket := tx.Bucket([]byte(table))
+		err := bucket.Put([]byte(key), self.compressByte(value))
 		return err
 	})
 	return err
@@ -293,15 +287,6 @@ func (self *Database) Select(table string, key string) ([]byte, error) {
 		val = self.decompressByte(bucket.Get([]byte(key)))
 		return nil
 	})
-	if err != nil {
-		panic(err)
-		// bucket doesn't exist
-		// conn.Update(func(tx *bolt.Tx) error {
-		// 	_, err := tx.CreateBucketIfNotExists([]byte(table))
-		// 	return err
-		// })
-		// return nil, err
-	}
 	return val, err
 }
 
@@ -309,16 +294,18 @@ func (self *Database) SelectAll(table string) ([]string, error) {
 	conn := self.connect()
 	defer conn.Close()
 	data := []string{}
-	conn.View(func(tx *bolt.Tx) error {
-		// Assume bucket exists and has keys
+	err := conn.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(table))
+		if bucket == nil {
+			return fmt.Errorf("Bucket %q not found!", bucket)
+		}
 		bucket.ForEach(func(key, _ []byte) error {
 			data = append(data, string(key))
 			return nil
 		})
 		return nil
 	})
-	return data, nil
+	return data, err
 }
 
 // InsertFeature adds feature to layer. Updates layer in Database

@@ -76,7 +76,9 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 
 	defer conn.Close()
 
-	authenticated := false
+	// DEBUGGING
+	//	authenticated := false
+	authenticated := true
 
 	for {
 

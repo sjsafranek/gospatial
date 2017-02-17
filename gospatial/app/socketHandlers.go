@@ -82,7 +82,6 @@ func messageListener(conn *connection) {
 			ServerLogger.Warn("%s %s", conn.ip, err)
 			return
 		}
-		// Debug.Printf("Message: %v %s", m, conn.ds)
 		for i := range Hub.Sockets[conn.ds] {
 			if Hub.Sockets[conn.ds][i] != conn.ws {
 				ServerLogger.Debug("Sending message to client")

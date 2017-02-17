@@ -106,13 +106,6 @@ func init() {
 
 func main() {
 
-	// app.ServerLogger.Trace("setting to default value")
-	// app.ServerLogger.Debug("page request. url + params")
-	// app.ServerLogger.Info("Server started")
-	// app.ServerLogger.Warn("Cannot talk to database, using backup")
-	// app.ServerLogger.Error("Cannot process request!")
-	// app.ServerLogger.Critical("Shit BROKE. Shutting down...")
-
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
 		if err != nil {
@@ -139,13 +132,11 @@ func main() {
 	go func() {
 		for sig := range sigs {
 			// sig is a ^C, handle it
-			// fmt.Printf("%s \n", sig)
 			app.ServerLogger.Info("Recieved ", sig)
 			app.ServerLogger.Info("Gracefully shutting down")
 			app.ServerLogger.Info("Waiting for sockets to close...")
 			for {
 				if len(app.Hub.Sockets) == 0 {
-					// app.Info.Println("Shutting down...")
 					app.ServerLogger.Info("Shutting down...")
 					os.Exit(0)
 				}

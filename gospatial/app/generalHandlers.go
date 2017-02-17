@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-var Version string = "1.11.2"
+var Version string = "1.11.3"
 
 // IndexHandler returns html page containing api docs
 func IndexHandler(w http.ResponseWriter, r *http.Request) {

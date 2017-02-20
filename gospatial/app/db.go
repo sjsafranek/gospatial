@@ -10,10 +10,21 @@ import (
 	"gospatial/utils"
 	"io"
 	"log"
+	"math"
 	"os"
 	"sync"
 	"time"
 )
+
+// https://gist.github.com/DavidVaini/10308388
+func Round(f float64) float64 {
+	return math.Floor(f + .5)
+}
+
+func RoundToPrecision(f float64, places int) float64 {
+	shift := math.Pow(10, float64(places))
+	return Round(f*shift) / shift
+}
 
 // DB application Database
 var (
@@ -34,6 +45,7 @@ type Database struct {
 	Apikeys          map[string]Customer
 	guard            sync.RWMutex
 	commit_log_queue chan string
+	Precision        int
 }
 
 // Create to bolt database. Returns open database connection.
@@ -69,6 +81,8 @@ func (self *Database) connect() *bolt.DB {
 // Creates layers and apikey tables. Starts database caching for layers
 // @returns Error
 func (self *Database) Init() error {
+	// Set initial data precision
+	self.Precision = 8
 	// Start db caching
 	m := make(map[string]*LayerCache)
 	self.Cache = m
@@ -337,6 +351,66 @@ func (self *Database) SelectAll(table string) ([]string, error) {
 // @param feat {Geojson Feature}
 // @returns Error
 func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) error {
+
+	// FIT TO 7 - 8 DECIMAL PLACES OF PRECISION
+	switch feat.Geometry.Type {
+
+	case geojson.GeometryPoint:
+		// []float64
+		feat.Geometry.Point[0] = RoundToPrecision(feat.Geometry.Point[0], self.Precision)
+		feat.Geometry.Point[0] = RoundToPrecision(feat.Geometry.Point[1], self.Precision)
+
+	case geojson.GeometryMultiPoint:
+		// [][]float64
+		for i := range feat.Geometry.MultiPoint {
+			for j := range feat.Geometry.MultiPoint[i] {
+				feat.Geometry.MultiPoint[i][j] = RoundToPrecision(feat.Geometry.MultiPoint[i][j], self.Precision)
+			}
+		}
+
+	case geojson.GeometryLineString:
+		// [][]float64
+		for i := range feat.Geometry.LineString {
+			for j := range feat.Geometry.LineString[i] {
+				feat.Geometry.LineString[i][j] = RoundToPrecision(feat.Geometry.LineString[i][j], self.Precision)
+			}
+		}
+
+	case geojson.GeometryMultiLineString:
+		// [][][]float64
+		for i := range feat.Geometry.MultiLineString {
+			for j := range feat.Geometry.MultiLineString[i] {
+				for k := range feat.Geometry.MultiLineString[i][j] {
+					feat.Geometry.MultiLineString[i][j][k] = RoundToPrecision(feat.Geometry.MultiLineString[i][j][k], self.Precision)
+				}
+			}
+		}
+
+	case geojson.GeometryPolygon:
+		// [][][]float64
+		for i := range feat.Geometry.Polygon {
+			for j := range feat.Geometry.Polygon[i] {
+				for k := range feat.Geometry.Polygon[i][j] {
+					feat.Geometry.Polygon[i][j][k] = RoundToPrecision(feat.Geometry.Polygon[i][j][k], self.Precision)
+				}
+			}
+		}
+
+	case geojson.GeometryMultiPolygon:
+		// [][][][]float64
+		for i := range feat.Geometry.MultiPolygon {
+			log.Printf("%v\n", feat.Geometry.MultiPolygon[i])
+		}
+
+	}
+
+	/*
+		//case GeometryCollection:
+		//	geo.Geometries = g.Geometries
+		//	// log.Printf("%v\n", feat.Geometry.Geometries)
+
+	*/
+
 	// Get layer from database
 	featCollection, err := self.GetLayer(datasource)
 	if err != nil {

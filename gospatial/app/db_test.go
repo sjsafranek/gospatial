@@ -3,8 +3,10 @@ package app
 import (
 	"errors"
 	"github.com/paulmach/go.geojson"
-	//"log"
+	"log"
+	"math/rand"
 	"testing"
+	"time"
 )
 
 // go test -bench=.
@@ -201,6 +203,8 @@ func BenchmarkDbInsertFeatureWithOutCache(b *testing.B) {
 		if err != nil {
 			b.Error(err)
 		}
+
+		create_random_feature()
 	}
 }
 
@@ -231,6 +235,21 @@ func TestDbLayers(t *testing.T) {
 
 // Test NewLayer
 // Test InsertFeature
+
+func randomInt(min, max int) int {
+	rand.Seed(time.Now().Unix())
+	return rand.Intn(max-min) + min
+}
+
+func randomFloat(min, max int) float64 {
+	rand.Seed(time.Now().Unix())
+	return rand.Float64() + float64(randomInt(min, max))
+}
+
+func create_random_feature() {
+	log.Println(randomFloat(-85, 85))
+	log.Println(randomFloat(-180, 180))
+}
 
 /*
 

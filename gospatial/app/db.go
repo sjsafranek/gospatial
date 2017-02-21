@@ -358,7 +358,7 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 	case geojson.GeometryPoint:
 		// []float64
 		feat.Geometry.Point[0] = RoundToPrecision(feat.Geometry.Point[0], self.Precision)
-		feat.Geometry.Point[0] = RoundToPrecision(feat.Geometry.Point[1], self.Precision)
+		feat.Geometry.Point[1] = RoundToPrecision(feat.Geometry.Point[1], self.Precision)
 
 	case geojson.GeometryMultiPoint:
 		// [][]float64

@@ -368,6 +368,8 @@
 			var payload = feature.toGeoJSON();
 			payload.properties = this.getProperties();
 
+			console.log( new Date().toISOString(), "[DEBUG]:", JSON.stringify(payload) );
+
 			// Send request
 			this.api.submitFeature(
 				$('#layers').val(),

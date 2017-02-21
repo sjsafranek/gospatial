@@ -231,3 +231,15 @@ func TestDbLayers(t *testing.T) {
 
 // Test NewLayer
 // Test InsertFeature
+
+/*
+
+
+{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-159.609375,55.77657302],[-106.171875,61.60639637],[-142.734375,-21.28937436],[-91.40625,-11.86735091]]},"properties":{"date_created":1.487653433e+09,"date_modified":1.487653433e+09,"geo_id":"1487653433","is_active":true,"is_deleted":false,"name":"Zed"}}
+{"type":"Feature","geometry":{"type":"Point","coordinates":[47.279229,47.27922900257082]},"properties":{"date_created":1.487653451e+09,"date_modified":1.487653451e+09,"geo_id":"1487653451","is_active":true,"is_deleted":false,"name":"Dot"}}
+{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-111.4453125,41.37680857],[-101.77734375,61.6898722],[-67.8515625,49.72447919],[-93.1640625,45.58328976],[-111.4453125,41.37680857]]]},"properties":{"date_created":1.487653559e+09,"date_modified":1.487653559e+09,"geo_id":"1487653559","is_active":true,"is_deleted":false,"name":"triangle"}}
+
+
+
+
+*/

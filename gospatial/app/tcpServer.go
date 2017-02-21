@@ -155,7 +155,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 					conn.Write([]byte(resp + "\n"))
 					success = true
 			*/
-			case req.Method == "create_user" && authenticated:
+			case req.Method == "create_apikey" && authenticated:
 				// {"method":"create_user"}
 				apikey := utils.NewAPIKey(12)
 				customer := Customer{Apikey: apikey}

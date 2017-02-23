@@ -163,7 +163,7 @@
 			
 			geojsonLayerControl = L.control({position: 'topright'});
 			geojsonLayerControl.onAdd = function () {
-				var div = L.DomUtil.create('div', 'info legend');
+				var div = L.DomUtil.create('div', 'info legend leaflet-bar');
 				div.innerHTML += '<i class="fa fa-search-plus" id="zoom" style="padding-left:5px; margin-right:0px;"></i><select name="geojson" id="layers"></select>';
 				return div;
 			};
@@ -212,7 +212,7 @@
 			// Choropleth options
 			featureAttributesControl = L.control({position: 'bottomright'});
 			featureAttributesControl.onAdd = function () {
-				var div = L.DomUtil.create('div', 'panel panel-default');
+				var div = L.DomUtil.create('div', 'panel panel-default leaflet-bar');
 				div.id = "filtersControl"
 				// div.innerHTML += "<div id='filters'></div>";
 				div.innerHTML += '<div class="panel-heading"><label>Filters</label></div>'
@@ -234,10 +234,12 @@
 			// Feature properties
 			featurePropertiesControl = L.control({position: 'bottomleft'});
 			featurePropertiesControl.onAdd = function () {
-				var div = L.DomUtil.create('div', 'info legend properties_form');
+				var div = L.DomUtil.create('div', 'info legend properties_form leaflet-bar');
 				div.innerHTML = "<div>";
 				div.innerHTML += "<strong>Feature Properties </strong>";
-				div.innerHTML += "<a href='#' id='add_property'>[Add Field]</a>";
+				div.innerHTML += "<button type='button' class='btn btn-xs btn-default' id='add_property'>[Add Field]</button>";
+				div.innerHTML += "<br>";
+				div.innerHTML += "<br>";
 				div.innerHTML += "</div>";
 				div.innerHTML += "<div id='properties'>";
 				div.innerHTML += "</div>";

@@ -372,7 +372,7 @@
 			payload.properties = this.getProperties();
 
 			console.log( new Date().toISOString(), "[DEBUG]:", JSON.stringify(payload) );
-
+/*
 			// Send request
 			this.api.submitFeature(
 				$('#layers').val(),
@@ -388,6 +388,36 @@
 					}
 				}
 			);
+*/
+
+
+			swal({
+				title: "Create layer",
+				text: "Are you sure you want submit feature?",
+				type: "info",
+				showCancelButton: true,
+				confirmButtonColor: "#DD6B55",
+				confirmButtonText: "Yes, pls!",
+				cancelButtonText: "No, cancel pls!",
+				showLoaderOnConfirm: true,
+			}).then(function(){
+				self.api.submitFeature(
+					$('#layers').val(),
+					JSON.stringify(payload),
+					function(error, results) {
+						if (error) {
+							swal("Error!", error, "error");
+						} else {
+							//swal("Success", "Feature has been submitted.", "success");
+							swal("Success", JSON.stringify(results), "success");
+							self._map.removeLayer(self._map.drawnItems._layers[id]);
+							$("#properties .attr").val("");
+							self.changeLayer();
+						}
+					}
+				);
+			});
+
 		},
 
 		render: function() {

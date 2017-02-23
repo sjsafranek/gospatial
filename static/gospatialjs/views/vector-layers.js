@@ -29,32 +29,27 @@
 				confirmButtonColor: "#DD6B55",
 				confirmButtonText: "Yes, pls!",
 				cancelButtonText: "No, cancel pls!",
-				closeOnConfirm: false,
-				closeOnCancel: true,
-				showLoaderOnConfirm: true
-			},
-			function(isConfirm){
-				if (isConfirm) {
-					$.ajax({
-						url: '/api/v1/layer?apikey=' + self.apikey,
-						type: 'POST',
-						success: function(result) {
-							swal("Created!", result, "success");
-							$("#layers_list").html("");
-							self.render();
-						},
-						failure: function(result) {
-							console.log(result);
-							swal("Error", JSON.stringify(result), "error");
-							throw new Error(result);
-						},
-						error: function(result) {
-							console.log(result);
-							swal("Error", JSON.stringify(result), "error");
-							throw new Error(result);
-						}
-					});
-				} 
+				showLoaderOnConfirm: true,
+			}).then(function(){
+				$.ajax({
+					url: '/api/v1/layer?apikey=' + self.apikey,
+					type: 'POST',
+					success: function(result) {
+						swal("Created!", JSON.stringify(result), "success");
+						$("#layers_list").html("");
+						self.render();
+					},
+					failure: function(result) {
+						console.log(result);
+						swal("Error", JSON.stringify(result), "error");
+						throw new Error(result);
+					},
+					error: function(result) {
+						console.log(result);
+						swal("Error", JSON.stringify(result), "error");
+						throw new Error(result);
+					}
+				}); 
 			});
 		},
 
@@ -70,17 +65,14 @@
 				confirmButtonColor: "#DD6B55",	 
 				confirmButtonText: "Yes, delete it!",	 
 				cancelButtonText: "No, cancel pls!",	 
-				closeOnConfirm: false,	 
-				closeOnCancel: false,
 				showLoaderOnConfirm: true
-			},
-			function(isConfirm){
-				if (isConfirm) {
+			}).then(
+				function(){
 					$.ajax({
 						url: '/api/v1/layer/'+ datasource_id +'?apikey=' + self.apikey,
 						type: 'DELETE',
 						success: function(result) {
-							swal("Deleted!", result, "success");
+							swal("Deleted!", JSON.stringify(result), "success");
 							var model = self.vectorlayers.get(datasource_id);
 							self.vectorlayers.remove(model);
 							self.render();
@@ -96,11 +88,13 @@
 							throw new Error(result);
 						}
 					});
-				} 
-				else {
-					swal("Cancelled", "Your data is safe :)", "error");
+				}, 
+				function(dismiss){
+					if ('cancel' == dismiss) {
+						swal("Cancelled", "Your data is safe :)", "error");
+					}
 				}
-			});
+			);
 		},
 
 		viewLayer: function() {

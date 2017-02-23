@@ -20,14 +20,14 @@
 			var datasource_id = $(this).attr("ds_id");
 			swal({
 				title: "Create tile layer",
-				text: "Are you sure you want to create a new tile lyaer",
+				text: "Are you sure you want to create a new tile layer",
 				type: "info",
 				showCancelButton: true,
 				confirmButtonColor: "#DD6B55",
 				confirmButtonText: "Yes, pls!",
 				cancelButtonText: "No, cancel pls!",
-				closeOnConfirm: false,
-				closeOnCancel: true,
+				//closeOnConfirm: false,
+				//closeOnCancel: true,
 				showLoaderOnConfirm: true
 			},
 			function(isConfirm){
@@ -75,6 +75,8 @@
 					swal("Error", "Invalid customer object: " + JSON.stringify(self.customer),"error");
 					return;
 				}
+
+				if (!self.customer.tilelayers) {return;}
 
 				for (var i=0; i < self.customer.tilelayers.length; i++) {
 					var elem = $("<tr><td>" + i + "</td><td>" + self.customer.tilelayers[i].name + "</td><td>" + self.customer.tilelayers[i].url + "</td></tr>");

@@ -83,6 +83,10 @@ div#filters {
 }
 
 
+#zoom i.fa {
+	padding-left: 0px !important;
+}
+
 /*
 .legend {
 	line-height: 18px;

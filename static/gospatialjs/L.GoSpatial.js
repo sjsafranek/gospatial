@@ -164,7 +164,8 @@
 			geojsonLayerControl = L.control({position: 'topright'});
 			geojsonLayerControl.onAdd = function () {
 				var div = L.DomUtil.create('div', 'info legend leaflet-bar');
-				div.innerHTML += '<i class="fa fa-search-plus" id="zoom" style="padding-left:5px; margin-right:0px;"></i><select name="geojson" id="layers"></select>';
+				//div.innerHTML += '<i class="fa fa-search-plus" id="zoom" style="padding-left:5px; margin-right:0px;"></i><select name="geojson" id="layers"></select>';
+				div.innerHTML += '<button id="zoom" type="button" class="btn btn-xs btn-default"> <i class="fa fa-search-plus" style="padding-left:5px; margin-right:0px;"></i> </button> <select name="geojson" id="layers"></select>';
 				return div;
 			};
 			geojsonLayerControl.addTo(this._map);

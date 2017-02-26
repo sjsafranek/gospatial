@@ -24,7 +24,7 @@ var API = new GoSpatialApiHandler({server:"test",apikey:"1234", id:"1"});
 		this.apikey = apikey;
 		this.server = server || "";
 		this.ajaxActive = 0;
-		this.debug = true;
+		this.debug = false;
 		// this.url = new URL("http://localhost:8888/map?apikey=iNx1xvBPDrZb#");
 
 		this.getCustomer = function(callback) {

@@ -24,7 +24,7 @@ var API = new GoSpatialApiHandler({server:"test",apikey:"1234", id:"1"});
 		this.apikey = apikey;
 		this.server = server || "";
 		this.ajaxActive = 0;
-		this.debug = false;
+		this.debug = true;
 		// this.url = new URL("http://localhost:8888/map?apikey=iNx1xvBPDrZb#");
 
 		this.getCustomer = function(callback) {
@@ -52,17 +52,29 @@ var API = new GoSpatialApiHandler({server:"test",apikey:"1234", id:"1"});
 			)
 		}
 		
-		this._getAjaxObject = function(route, callback) {
+		this.activeRequests = function() {
+			console.log(new Date().toISOString(), "[DEBUG] API {requests:", this.ajaxActive, "}");
+		}
+
+		this._getAjaxObject = function(url, type, data, opts, callback) {
 			var self = this;
-			return {
+			
+			if(!url || !type) {
+        		return false;
+			}
+
+			var ajaxObject = {
 				crossDomain: true,
-				url: route,
-				dataType: 'JSON',
+				url: url,
+				type: type,
+				dataType: opts.dataType || "json",
 				beforeSend: function() {
 					self.ajaxActive++;
+					if (self.debug) { self.activeRequests(); }
 				},
 				complete: function() {
 					self.ajaxActive--;
+					if (self.debug) { self.activeRequests(); }
 				},
 				success: function (data) {
 					return callback(null, data);
@@ -73,18 +85,45 @@ var API = new GoSpatialApiHandler({server:"test",apikey:"1234", id:"1"});
 					return callback(new Error(message));
 				}
 			}
+
+			if (data) {
+				ajaxObject.data = data;
+			}
+
+
+		    ajaxObject.cache = typeof opts.cache != "undefined" ? opts.cache : false;
+		    //ajaxObject.dataType = opts.dataType || "json";
+		    ajaxObject.async = typeof opts.async != "undefined" ? opts.async : false;
+		    
+		    ajaxObject.timeout = 30000 // sets timeout to 3 seconds
+		    
+		    if(type.toLowerCase() == "post"){
+		        ajaxObject.contentType = opts.contentType || "application/json";
+		    }
+
+		    var headers;
+		    if(opts.headers){
+		        headers = opts.headers;
+		        delete opts.headers;
+		    }
+		    if(headers){
+		        ajaxObject.headers = headers;
+		    }
+
+			return ajaxObject;
+
 		}
 
 		this.GET = function(route, callback) {
-			var ajaxObj = this._getAjaxObject(route, callback);
-			ajaxObject.type = "GET";
+			var ajaxObj = this._getAjaxObject(route, "GET", null, {}, callback);
+			//ajaxObject.type = "GET";
 			$.ajax(ajaxObj);
 		}
 
 		this.POST = function(route, data, callback) {
-			var ajaxObj = this._getAjaxObject(route, callback);
-			ajaxObject.type = "POST";
-			ajaxObject.data = data;
+			var ajaxObj = this._getAjaxObject(route, "POST", data, {}, callback);
+			//ajaxObject.type = "POST";
+			//ajaxObject.data = data;
 			$.ajax(ajaxObject);
 		}
 
@@ -97,20 +136,8 @@ var API = new GoSpatialApiHandler({server:"test",apikey:"1234", id:"1"});
 
 Db4iotTurnstileApi.prototype.ajaxWithOpts = function(url, type, data, opts, onError, onSuccess){
     var self = this;
-    
-    if (this.debug) {
-		console.log(new Date().toISOString(), "[DEBUG] API {requests:", self.ajaxActive, "}");
-	}
+\
 
-    if(!url || !type)
-        return false;
-    
-    var headers;
-    if(opts.headers){
-        headers = opts.headers;
-        delete opts.headers;
-    }
-    
     var ajaxObject = opts;
     
     if(type.toLowerCase() == "get"){
@@ -128,35 +155,6 @@ Db4iotTurnstileApi.prototype.ajaxWithOpts = function(url, type, data, opts, onEr
 		}
     }
     
-    ajaxObject.url = url;
-    ajaxObject.cache = typeof opts.cache != "undefined" ? opts.cache : false;
-    ajaxObject.type = type;
-    ajaxObject.dataType = opts.dataType || "json";
-    ajaxObject.async = typeof opts.async != "undefined" ? opts.async : false;
-    
-    ajaxObject.timeout = 30000 // sets timeout to 3 seconds
-    
-    if(type.toLowerCase() == "post"){
-        ajaxObject.contentType = opts.contentType || "application/json";
-    }
-    
-    if(headers){
-        ajaxObject.headers = headers;
-    }
-    
-    if(data){
-        ajaxObject.data = typeof data != "string" ? JSON.stringify(data) : data;
-    } else if ("" == data) {
-		ajaxObject.data = data;
-	}
-
-    ajaxObject.beforeSend = function() {
-		self.ajaxActive++;
-	}
-    
-    ajaxObject.complete = function() {
-		self.ajaxActive--;
-	}
     
     ajaxObject.success = onSuccess;
     ajaxObject.error = function(response){

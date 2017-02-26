@@ -72,13 +72,24 @@
 			//this._map = L.map(div, {maxZoom: 23});
 			this._map = L.drawMap(apikey, div, {maxZoom: 23});
 
-			this._addLayerControl();
+			//this._addLayerControl();
 
             osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{ 
                 attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
             });
             osm.addTo(this._map);
 
+			this.featureGroup = new L.choroplethLayer({});
+			this.featureGroup.addTo(this._map);
+
+			// this.ws = null;
+			this.drawnItems = null;
+			this._editFeatures = {};
+			this._addDrawEventHandlers();
+
+			this._addLayerControl();
+
+			// Add base layer control
             L.control.layers(
 	            {
 	                "OpenStreetMap": osm,
@@ -113,14 +124,6 @@
             		position: 'topright'
             	}
             ).addTo(this._map);
-
-			this.featureGroup = new L.choroplethLayer({});
-			this.featureGroup.addTo(this._map);
-
-			// this.ws = null;
-			this.drawnItems = null;
-			this._editFeatures = {};
-			this._addDrawEventHandlers();
 
 			this.render();
 			return this;
@@ -215,7 +218,6 @@
 			featureAttributesControl.onAdd = function () {
 				var div = L.DomUtil.create('div', 'panel panel-default leaflet-bar');
 				div.id = "filtersControl"
-				// div.innerHTML += "<div id='filters'></div>";
 				div.innerHTML += '<div class="panel-heading"><label>Filters</label></div>'
 							  +  '<div class="panel-body" id="filters"></div>';
 				return div;
@@ -229,21 +231,17 @@
 		  		maxHeight: 560,
 				maxWidth: 280
 		    });
-		    //$( "#filterControl" ).append("body");
 			this._preventPropogation(featureAttributesControl);
 
 			// Feature properties
 			featurePropertiesControl = L.control({position: 'bottomleft'});
 			featurePropertiesControl.onAdd = function () {
-				var div = L.DomUtil.create('div', 'info legend properties_form leaflet-bar');
-				div.innerHTML = "<div>";
-				div.innerHTML += "<strong>Feature Properties </strong>";
-				div.innerHTML += "<button type='button' class='btn btn-xs btn-default' id='add_property'>[Add Field]</button>";
-				div.innerHTML += "<br>";
-				div.innerHTML += "<br>";
-				div.innerHTML += "</div>";
-				div.innerHTML += "<div id='properties'>";
-				div.innerHTML += "</div>";
+				var div = L.DomUtil.create('div', 'panel panel-default properties_form leaflet-bar');
+				div.innerHTML = "<div class='panel-heading'>"
+							  + 	"<strong>Feature Properties </strong>"
+							  + 	"<button type='button' class='btn btn-xs btn-default' id='add_property'>Add Field</button>"
+				 			  + "</div>";
+				div.innerHTML += "<div class='panel-body' id='properties'></div>";
 				return div;
 			};
 			featurePropertiesControl.addTo(this._map);
@@ -372,24 +370,6 @@
 			payload.properties = this.getProperties();
 
 			console.log( new Date().toISOString(), "[DEBUG]:", JSON.stringify(payload) );
-/*
-			// Send request
-			this.api.submitFeature(
-				$('#layers').val(),
-				JSON.stringify(payload),
-				function(error, results) {
-					if (error) {
-						swal("Error!", error, "error");
-					} else {
-						swal("Success", "Feature has been submitted.", "success");
-						self._map.removeLayer(self._map.drawnItems._layers[id]);
-						$("#properties .attr").val("");
-						self.changeLayer();
-					}
-				}
-			);
-*/
-
 
 			swal({
 				title: "Create layer",

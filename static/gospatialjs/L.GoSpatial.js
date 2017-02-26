@@ -564,8 +564,7 @@ L.ChoroplethLayer = L.GeoJSON.extend({
 				case "number":
 					// color range
 					if (0 != fields[i].attrs.length) {
-						fields[i].color = d3.scale
-											.linear()
+						fields[i].color = d3.scaleLinear()
 											.domain([
 												fields[i].attrs.getMin(),
 												fields[i].attrs.getMax()
@@ -574,10 +573,10 @@ L.ChoroplethLayer = L.GeoJSON.extend({
 					}
 					break;
 				case "boolean":
-					fields[i].color = d3.scale.category10();
+					fields[i].color = d3.schemeCategory10;
 					break;
 				case "string":
-					fields[i].color = d3.scale.category10();
+					fields[i].color = d3.schemeCategory20;
 					break;
 				default:
 					console.log("[DEBUG]: Uncaught data type", fields[i]);

@@ -110,7 +110,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				// {"method":"authenticate", "authkey": "7q1qcqmsxnvw"}
 				authenticated = SuperuserKey == req.Authkey
 				if authenticated {
-					resp := `{"status": "success", "data": {}}`
+					resp := `{"status": "ok", "data": {}}`
 					conn.Write([]byte(resp + "\n"))
 				} else {
 					NetworkLogger.Warn("error: incorrect authkey", " [TCP]")
@@ -141,7 +141,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 					datasource_id := req.Datasource //["datasource_id"]
 					apikey := req.Apikey            //["apikey"]
 					customer, err := DB.GetCustomer(apikey)
-					resp := `{"status": "success", "data": {}}`
+					resp := `{"status": "ok", "data": {}}`
 					if err != nil {
 						fmt.Println("Customer key not found!")
 						resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "Customer key not found!"}}`
@@ -159,7 +159,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				// {"method":"create_user"}
 				apikey := utils.NewAPIKey(12)
 				customer := Customer{Apikey: apikey}
-				resp := `{"status": "success", "data": {"apikey": "` + apikey + `"}}`
+				resp := `{"status": "ok", "data": {"apikey": "` + apikey + `"}}`
 				err := DB.InsertCustomer(customer)
 				if err != nil {
 					fmt.Println(err)
@@ -171,7 +171,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 			//  Replay database
 			case req.Method == "insert_apikey" && authenticated:
 				customer := Customer{Apikey: req.Data.Apikey, Datasources: req.Data.Datasources}
-				resp := `{"status": "success", "data": {"apikey": "` + req.Data.Apikey + `"}}`
+				resp := `{"status": "ok", "data": {"apikey": "` + req.Data.Apikey + `"}}`
 				err := DB.InsertCustomer(customer)
 				if err != nil {
 					fmt.Println(err)

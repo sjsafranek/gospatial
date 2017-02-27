@@ -237,18 +237,39 @@ func TestDbLayers(t *testing.T) {
 // Test InsertFeature
 
 func randomInt(min, max int) int {
-	rand.Seed(time.Now().Unix())
+	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(max-min) + min
 }
 
 func randomFloat(min, max int) float64 {
-	rand.Seed(time.Now().Unix())
+	rand.Seed(time.Now().UnixNano())
 	return rand.Float64() + float64(randomInt(min, max))
 }
 
+func randomLogitude() float64 {
+	return randomFloat(-180, 180)
+}
+
+func randomLatitude() float64 {
+	return randomFloat(-90, 90)
+}
+
 func create_random_feature() {
-	log.Println(randomFloat(-85, 85))
-	log.Println(randomFloat(-180, 180))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
+	log.Println(randomInt(0, 3))
 }
 
 /*

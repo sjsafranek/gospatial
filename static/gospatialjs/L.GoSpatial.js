@@ -505,6 +505,17 @@ L.ChoroplethLayer = L.GeoJSON.extend({
 	    this._buildColorTree();
 	},
 
+	_getD3ScaleLinear: function() {
+		// check d3 version
+		if ("3" == d3.version[0]) {
+			return d3.scale.linear()
+		} else if ("4" == d3.version[0])  {
+			return d3.scaleLinear()
+		} else {
+			throw new Error("Unsupported d3 version: " + d3.version);
+		}
+	},
+
 	// @method 			_buildColorTree
 	// @description 	Scans layer features and build meta data for datasource columns
 	_buildColorTree: function() {
@@ -564,7 +575,7 @@ L.ChoroplethLayer = L.GeoJSON.extend({
 				case "number":
 					// color range
 					if (0 != fields[i].attrs.length) {
-						fields[i].color = d3.scaleLinear()
+						fields[i].color = this._getD3ScaleLinear()
 											.domain([
 												fields[i].attrs.getMin(),
 												fields[i].attrs.getMax()

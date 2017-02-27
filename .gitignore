@@ -2,6 +2,7 @@
 *.log
 *.json
 *.geojson
+chromedriver
 bin
 pkg
 src

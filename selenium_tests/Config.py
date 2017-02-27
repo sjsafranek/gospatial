@@ -19,6 +19,9 @@ class Config(object):
 		self.config['selenium'] = {}
 		self.config['selenium']['driver'] = 'firefox'
 		self.config['selenium']['executable'] = 'null'
+		self.saveConfig()
+
+	def saveConfig(self):
 		with open(self._configFile, 'w') as configfile:
 			self.config.write(configfile)
 
@@ -29,13 +32,22 @@ class Config(object):
 	def apikey(self):
 		return self.config['credentials']['apikey']
 
+	def setApikey(self, apikey, save=False):
+		self.config['credentials']['apikey'] = apikey
+		if save: 
+			self.saveConfig()
+
 	def baseUrl(self):
 		return self.config['credentials']['url']
+
+	def setBaseUrl(self, url, save=False):
+		self.config['credentials']['url'] = url
+		if save: 
+			self.saveConfig()
 
 	def driverType(self):
 		return self.config['selenium']['driver']
 
 	def driverExecutable(self):
 		return self.config['selenium']['executable']
-
 

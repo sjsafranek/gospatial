@@ -14,7 +14,7 @@ from Config import Config
 
 class WebClient(Config):
 
-	def __init__(self, config_file='config.ini'):
+	def __init__(self, config_file='config.ini', ):
 		super().__init__(config_file)
 		self.driver = None
 		if 'firefox' == self.driverType():
@@ -23,6 +23,36 @@ class WebClient(Config):
 			self.driver = webdriver.Chrome(self.driverExecutable())
 		else:
 			ValueError("Browser driver is unsupported")
+
+
+	def _getDriver(self):
+
+		browsers = {
+			'firefox': webdriver.Firefox,
+			'chrome': webdriver.Chrome,
+			'ie': webdriver.Ie,
+			'opera': webdriver.Opera,
+			'phantomjs': webdriver.PhantomJS,
+		}
+
+		browser_kwargs = dict((k, {}) for k in browsers.keys())
+		for browser in browser_kwargs.keys():
+			section = 'selenium/%s' % browser
+			if section in self.config.sections():
+				browser_kwargs[browser] = dict(self.config[section])
+
+		config_browser = self.config['selenium'].get('driver')
+		if config_browser:
+			# Fail if set browser invalid
+			self._browser = browsers[config_browser]
+			self._browser_kwargs = browser_kwargs[config_browser]
+		else:
+			# Default to using firefox
+			self._browser = browsers['firefox']
+			self._browser_kwargs = browser_kwargs['firefox']
+		
+		return self._browser(**self._browser_kwargs)
+		#return self.config["selenium"].get('browser')
 
 	def getPage(self, page, refresh=False):
 		if "/"+page not in self.driver.current_url or refresh:

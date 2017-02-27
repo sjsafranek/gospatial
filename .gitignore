@@ -3,6 +3,8 @@
 *.json
 *.geojson
 chromedriver
+__pycache__
+
 bin
 pkg
 src

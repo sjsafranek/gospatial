@@ -24,9 +24,7 @@ class WebClient(Config):
 		else:
 			ValueError("Browser driver is unsupported")
 
-
 	def _getDriver(self):
-
 		browsers = {
 			'firefox': webdriver.Firefox,
 			'chrome': webdriver.Chrome,
@@ -65,9 +63,24 @@ class WebClient(Config):
 	def mapPage(self):
 		self.getPage("map")
 
+	def getElem(self, css_selector):
+		WebDriverWait(self.driver, 10).until(
+			EC.presence_of_element_located( 
+				(By.CSS_SELECTOR, css_selector)
+			) 
+		)
+		return self.driver.find_element(By.CSS_SELECTOR, css_selector)
+
+	def getElems(self, css_selector):
+		WebDriverWait(self.driver, 10).until( 
+			EC.presence_of_element_located( 
+				(By.CSS_SELECTOR, css_selector) 
+			) 
+		)
+		return self.driver.find_elements(By.CSS_SELECTOR, css_selector)
+
 	def clickElem(self, css_selector):
-		WebDriverWait(self.driver, 10).until( EC.presence_of_element_located( (By.CSS_SELECTOR, css_selector) ) )
-		self.driver.find_element(By.CSS_SELECTOR, css_selector).click()
+		self.getElem(css_selector).click()
 
 	def confirmSwalPopup(self):
 		self.clickElem('button.swal2-confirm.swal2-styled')

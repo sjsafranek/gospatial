@@ -144,4 +144,30 @@ wc.mapPage()
 # .is_displayed()
 
 
+'''
+
+	def setEventTimestampApprox(self, event_timestamp):
+		# get variables
+		handler_elem = self.getElem("div#timecontrol-slider span")
+		# convert event_timestamp to pixel
+		ts_begin = self.getTimeRangeMin()
+		ts_end = self.getTimeRangeMax()
+		width = self.getElem("div#timecontrol-slider").size['width']
+		normalized = (event_timestamp - ts_begin)/(ts_end - ts_begin);
+		x_px_offset = width*normalized
+		# start action chain
+		action = ActionChains(self.driver)
+		# move slider to beginning
+		action.click_and_hold(handler_elem)
+		action.move_by_offset(-width,0)
+		action.release()
+		# set slider to middle
+		action.click_and_hold(handler_elem)
+		action.move_by_offset(x_px_offset, 0)
+		action.release()
+		# preform action chain
+		action.perform()
+
+
+'''
 

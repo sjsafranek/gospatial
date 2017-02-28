@@ -16,13 +16,7 @@ class WebClient(Config):
 
 	def __init__(self, config_file='config.ini', ):
 		super().__init__(config_file)
-		self.driver = None
-		if 'firefox' == self.driverType():
-			self.driver = webdriver.Firefox()
-		elif 'chrome' == self.driverType():
-			self.driver = webdriver.Chrome(self.driverExecutable())
-		else:
-			ValueError("Browser driver is unsupported")
+		self.driver = self._getDriver()
 
 	def _getDriver(self):
 		browsers = {
@@ -40,17 +34,17 @@ class WebClient(Config):
 				browser_kwargs[browser] = dict(self.config[section])
 
 		config_browser = self.config['selenium'].get('driver')
+		driver = None
 		if config_browser:
 			# Fail if set browser invalid
-			self._browser = browsers[config_browser]
-			self._browser_kwargs = browser_kwargs[config_browser]
+			driver = browsers[config_browser]
+			self._driver_kwargs = browser_kwargs[config_browser]
 		else:
 			# Default to using firefox
-			self._browser = browsers['firefox']
-			self._browser_kwargs = browser_kwargs['firefox']
+			driver = browsers['firefox']
+			self._driver_kwargs = browser_kwargs['firefox']
 		
-		return self._browser(**self._browser_kwargs)
-		#return self.config["selenium"].get('browser')
+		return driver(**self._driver_kwargs)
 
 	def getPage(self, page, refresh=False):
 		if "/"+page not in self.driver.current_url or refresh:
@@ -128,9 +122,19 @@ class WebClient(Config):
 		# datasource_id not found
 		ValueError("Datasource not found: " + datasource_id)
 
+	def destroy(self):
+		self.driver.quit()
 
- 
+
+'''
+
+python3
+from WebClient import *
 wc = WebClient()
+wc.mapPage()
+
+
+
 
 
 # browser.find_elements_by_xpath("//*[@type='submit']")
@@ -139,12 +143,8 @@ wc = WebClient()
 #wc.createNewLayer()
 #wc.deleteLayer("18cf1cc5c0db4589833af8b956dcb631")
 
-wc.mapPage()
 
 # .is_displayed()
-
-
-'''
 
 	def setEventTimestampApprox(self, event_timestamp):
 		# get variables

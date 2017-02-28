@@ -141,5 +141,7 @@ wc = WebClient()
 
 wc.mapPage()
 
+# .is_displayed()
+
 
 

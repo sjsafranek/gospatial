@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 import os
 import configparser
 
@@ -15,10 +16,15 @@ class Config(object):
 	def _createConfig(self):
 		self.config['credentials'] = {}
 		self.config['credentials']['url'] = 'http://localhost:8080'
+		#self.config['credentials']['url'] = input('testing url: ')
 		self.config['credentials']['apikey'] = self._createTestApikey()
 		self.config['selenium'] = {}
 		self.config['selenium']['driver'] = 'firefox'
-		self.config['selenium']['executable'] = 'null'
+		#self.config['selenium']['executable_path'] = 'null'
+		self.config['selenium/chrome'] = {}
+		self.config['selenium/chrome']['executable_path'] = '/usr/bin/google-chrome'
+		self.config['selenium/phantomjs'] = {}
+		self.config['selenium/phantomjs']['executable_path'] = 'null'
 		self.saveConfig()
 
 	def saveConfig(self):
@@ -31,6 +37,7 @@ class Config(object):
 
 	def apikey(self):
 		return self.config['credentials']['apikey']
+		# return self.config['credentials'].get('apikey')
 
 	def setApikey(self, apikey, save=False):
 		self.config['credentials']['apikey'] = apikey
@@ -39,6 +46,7 @@ class Config(object):
 
 	def baseUrl(self):
 		return self.config['credentials']['url']
+		# return self.config['credentials'].get('url')
 
 	def setBaseUrl(self, url, save=False):
 		self.config['credentials']['url'] = url
@@ -47,7 +55,38 @@ class Config(object):
 
 	def driverType(self):
 		return self.config['selenium']['driver']
+		# return self.config['selenium'].get('driver')
 
 	def driverExecutable(self):
-		return self.config['selenium']['executable']
+		return self.config['selenium/'+self.driverType()]['executable_path']
+		# return self.config['selenium/'+self.driverType()].get('executable_path')
 
+	def setDriverType(self, driver):
+		if driver not in ['firefox', 'chrome', 'ie', 'opera', 'phantomjs']:
+			ValueError('Unsupported driver: '+driver)
+		self.config['selenium']['driver'] = driver
+
+	def setdriverExecutable(self, driver, executable):
+		if driver not in ['firefox', 'chrome', 'ie', 'opera', 'phantomjs']:
+			ValueError('Unsupported driver: '+driver)
+		self.config['selenium/'+driver]['executable'] = executable
+
+	def driverKwargs(self):
+		browsers = [
+			'firefox',
+			'chrome',
+			'ie',
+			'opera',
+			'phantomjs',
+			'remote'
+		]
+
+		browser_kwargs = dict((k, {}) for k in browsers)
+		for browser in browser_kwargs.keys():
+			section = 'selenium/%s' % browser
+			if section in self.config.sections():
+				browser_kwargs[browser] = dict(self.config[section])
+				if "desired_capabilities" in self.config[section]:
+					browser_kwargs[browser]['desired_capabilities'] = json.loads(self.config[section]['desired_capabilities'])
+		#config_browser = self.config['selenium'].get('driver')
+		return browser_kwargs[self.driverType()]

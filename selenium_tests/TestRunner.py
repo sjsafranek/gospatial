@@ -6,43 +6,28 @@ import nose
 import os
 import glob
 from nose.plugins import Plugin
+from nose.plugins.multiprocess import MultiProcess
+from nose.plugins.xunit import Xunit
+# http://nose.readthedocs.io/en/latest/doc_tests/test_multiprocess/multiprocess.html
 
-class CsvReport(Plugin):
-    name = "csv-report"
-    results = "Test,Results,Details\n"
-
-    def write_report(self, filename=None):
-        if filename is None:
-            filename = 'report.csv'
-
-        with open(filename, "w") as report_file:
-            report_file.write(self.results)
-
-    def create_zendesk_ticket(self):
-        Zendesk.create_ticket(self.results)
-
-    def addSuccess(self, *args, **kwargs):
-        test = args[0]
-        self.results += "%s,%s,\n" % (test, "Success")
-
-    def addError(self, *args, **kwargs):
-        test, error = args[0:2]
-        self.results += "%s,%s,%s\n" % (test, "Error", error[1])
-
-    def addFailure(self, *args, **kwargs):
-        test, error = args[0:2]
-        self.results += "%s,%s,%s\n" % (test, "Failure", error[1])
-
+#from nose_xunitmp import XunitMP
 
 if __name__ == "__main__":
-    csv_report = CsvReport()
 
-    args = ["-v", "--with-csv-report"]
+    args = [
+        "-v", 
+        "--with-xunit",
+        "--xunit-file=results.xml",
+        #"--with-xunitmp",
+        #"--xunitmp-file=results.xml",
+        "--processes=10", 			# parallel tests
+        "--process-timeout=120"		# parallel tests
+    ]
+	
     if sys.argv[1:]:
         args.extend(sys.argv[1:])
     else:
-        args.extend(glob.glob(os.path.join("tests", "*.py")))
+        args.extend(glob.glob(os.path.join("tests", "*_test.py")))
 
-    nose.run(argv=args, plugins=[csv_report])
-
-    csv_report.write_report()
+    nose.run(argv=args, plugins=[MultiProcess(), Xunit()])
+    #nose.run(argv=args, plugins=[MultiProcess(), XunitMP()])

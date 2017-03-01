@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 
 import time
 
@@ -14,7 +15,7 @@ from Config import Config
 
 class WebClient(Config):
 
-	def __init__(self, config_file='config.ini', ):
+	def __init__(self, config_file='config.ini' ):
 		super().__init__(config_file)
 		self.driver = self._getDriver()
 
@@ -25,24 +26,21 @@ class WebClient(Config):
 			'ie': webdriver.Ie,
 			'opera': webdriver.Opera,
 			'phantomjs': webdriver.PhantomJS,
+			'remote': webdriver.Remote
 		}
 
-		browser_kwargs = dict((k, {}) for k in browsers.keys())
-		for browser in browser_kwargs.keys():
-			section = 'selenium/%s' % browser
-			if section in self.config.sections():
-				browser_kwargs[browser] = dict(self.config[section])
+		config_browser = self.driverType()
 
-		config_browser = self.config['selenium'].get('driver')
 		driver = None
 		if config_browser:
 			# Fail if set browser invalid
 			driver = browsers[config_browser]
-			self._driver_kwargs = browser_kwargs[config_browser]
+			self._driver_kwargs = self.driverKwargs()
 		else:
 			# Default to using firefox
+			self.setDriverType('firefox')
 			driver = browsers['firefox']
-			self._driver_kwargs = browser_kwargs['firefox']
+			self._driver_kwargs = self.driverKwargs()
 		
 		return driver(**self._driver_kwargs)
 
@@ -131,6 +129,8 @@ class WebClient(Config):
 python3
 from WebClient import *
 wc = WebClient()
+
+
 wc.mapPage()
 
 

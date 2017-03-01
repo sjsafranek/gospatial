@@ -470,7 +470,7 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 	return err
 }
 
-// EditFeature adds feature to layer. Updates layer in Database
+// EditFeature Edits feature in layer. Updates layer in Database
 // @param datasource {string}
 // @param geo_id {string}
 // @param feat {Geojson Feature}
@@ -495,7 +495,7 @@ func (self *Database) EditFeature(datasource string, geo_id string, feat *geojso
 			if err != nil {
 				return err
 			}
-			self.commit_log_queue <- `{"method": "edit_feature", "data": { "datasource": "` + datasource + `", "feature": ` + string(value) + `}}`
+			self.commit_log_queue <- `{"method": "edit_feature", "data": { "datasource": "` + datasource + `", "geo_id": "` + geo_id + `", "feature": ` + string(value) + `}}`
 		}
 	}
 

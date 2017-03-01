@@ -27,6 +27,7 @@ type TcpData struct {
 	Datasource  string                     `json:"datasource"`
 	Layer       *geojson.FeatureCollection `json:"layer"`
 	Feature     *geojson.Feature           `json:"feature"`
+	GeoId       string                     `json:"geo_id"`
 }
 
 type TcpMessage struct {

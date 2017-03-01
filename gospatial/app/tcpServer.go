@@ -189,6 +189,15 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
+			case req.Method == "edit_feature" && authenticated:
+				err = DB.EditFeature(req.Data.Datasource, req.Data.GeoId, req.Data.Feature)
+				if err != nil {
+					fmt.Println(err)
+				}
+				resp := `{"status":"ok","datasource":"` + req.Data.Datasource + `", "message":"feature added"}`
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
 			case req.Method == "new_layer" && authenticated:
 				err = DB.InsertLayer(req.Data.Datasource, req.Data.Layer)
 				if err != nil {

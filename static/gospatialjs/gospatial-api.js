@@ -122,9 +122,9 @@ var API = new GoSpatialApiHandler({server:"test",apikey:"1234", id:"1"});
 
 		this.POST = function(route, data, callback) {
 			var ajaxObj = this._getAjaxObject(route, "POST", data, {}, callback);
-			//ajaxObject.type = "POST";
-			//ajaxObject.data = data;
-			$.ajax(ajaxObject);
+			//ajaxObj.type = "POST";
+			//ajaxObj.data = data;
+			$.ajax(ajaxObj);
 		}
 
 	}

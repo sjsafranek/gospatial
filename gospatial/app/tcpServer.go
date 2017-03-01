@@ -136,25 +136,25 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 
 			success := false
 			switch {
-			/*
-				case req.Method == "assign_datasource" && authenticated:
-					datasource_id := req.Datasource //["datasource_id"]
-					apikey := req.Apikey            //["apikey"]
-					customer, err := DB.GetCustomer(apikey)
-					resp := `{"status": "ok", "data": {}}`
-					if err != nil {
-						fmt.Println("Customer key not found!")
-						resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "Customer key not found!"}}`
-					}
-					// CHECK IF DATASOURCE EXISTS
-					// *****
-					fmt.Println(DB.GetLayer(datasource_id))
 
-					customer.Datasources = append(customer.Datasources, datasource_id)
-					DB.InsertCustomer(customer)
-					conn.Write([]byte(resp + "\n"))
-					success = true
-			*/
+			case req.Method == "assign_datasource" && authenticated:
+				datasource_id := req.Datasource //["datasource_id"]
+				apikey := req.Apikey            //["apikey"]
+				customer, err := DB.GetCustomer(apikey)
+				resp := `{"status": "ok", "data": {}}`
+				if err != nil {
+					fmt.Println("Customer key not found!")
+					resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "Customer key not found!"}}`
+				}
+				// CHECK IF DATASOURCE EXISTS
+				// *****
+				fmt.Println(DB.GetLayer(datasource_id))
+
+				customer.Datasources = append(customer.Datasources, datasource_id)
+				DB.InsertCustomer(customer)
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
 			case req.Method == "create_apikey" && authenticated:
 				// {"method":"create_user"}
 				apikey := utils.NewAPIKey(12)

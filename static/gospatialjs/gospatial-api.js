@@ -43,6 +43,9 @@ var API = new GoSpatialApiHandler({server:"test",apikey:"1234", id:"1"});
 
 		this.submitFeature = function(datasource, feature, callback) {
 			var self = this;
+			if ("object" == typeof(feature)) {
+				feature = JSON.stringify(feature);
+			}
 			this.POST(
 				this.server + '/api/v1/layer/' + datasource + '/feature?apikey=' + self.apikey,
 				feature,
@@ -52,6 +55,21 @@ var API = new GoSpatialApiHandler({server:"test",apikey:"1234", id:"1"});
 			)
 		}
 		
+		this.editFeature = function(datasource, feature, callback) {
+			var self = this;
+			var geo_id = ""+feature.properties.geo_id;
+			if ("object" == typeof(feature)) {
+				feature = JSON.stringify(feature);
+			}
+			this.PUT(
+				this.server + '/api/v1/layer/' + datasource + '/feature/' + geo_id + '?apikey=' + self.apikey,
+				feature,
+				function(error, result) {
+					callback(error, result);
+				}
+			)
+		}
+
 		this.activeRequests = function() {
 			console.log(new Date().toISOString(), "[DEBUG] API {requests:", this.ajaxActive, "}");
 		}
@@ -116,14 +134,17 @@ var API = new GoSpatialApiHandler({server:"test",apikey:"1234", id:"1"});
 
 		this.GET = function(route, callback) {
 			var ajaxObj = this._getAjaxObject(route, "GET", null, {}, callback);
-			//ajaxObject.type = "GET";
 			$.ajax(ajaxObj);
 		}
 
 		this.POST = function(route, data, callback) {
 			var ajaxObj = this._getAjaxObject(route, "POST", data, {}, callback);
-			//ajaxObj.type = "POST";
-			//ajaxObj.data = data;
+			$.ajax(ajaxObj);
+		}
+
+		this.PUT = function(route, data, callback) {
+			var ajaxObj = this._getAjaxObject(route, "PUT", data, {}, callback);
+			console.log(ajaxObj.data);
 			$.ajax(ajaxObj);
 		}
 

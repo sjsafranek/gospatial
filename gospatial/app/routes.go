@@ -32,6 +32,7 @@ var routes = apiRoutes{
 	apiRoute{"NewTileLayer", "POST", "/api/v1/tilelayer", NewTileLayerHandler},
 	apiRoute{"NewFeature", "POST", "/api/v1/layer/{ds}/feature", NewFeatureHandler},
 	apiRoute{"ViewFeature", "GET", "/api/v1/layer/{ds}/feature/{k}", ViewFeatureHandler},
+	apiRoute{"EditFeature", "PUT", "/api/v1/layer/{ds}/feature/{k}", EditFeatureHandler},
 
 	// Superuser apiRoutes
 	apiRoute{"NewCustomerHandler", "POST", "/api/v1/customer", NewCustomerHandler},

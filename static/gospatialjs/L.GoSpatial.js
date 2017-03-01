@@ -135,6 +135,10 @@
 	    	'click #add_property': 'addProperty'
 	    },
 
+	    getDatasource: function() {
+	    	return $('#layers').val();
+	    },
+
 	    changeLayer: function() {
 			var self = this;
 			this.api.getLayer($('#layers').val(), function(error, result){
@@ -383,7 +387,7 @@
 			}).then(function(){
 				self.api.submitFeature(
 					$('#layers').val(),
-					JSON.stringify(payload),
+					payload,
 					function(error, results) {
 						if (error) {
 							swal("Error!", error, "error");

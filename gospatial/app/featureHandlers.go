@@ -56,16 +56,6 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fill required attributes
-	/*
-		now := time.Now().Unix()
-		feat.Properties["is_active"] = true
-		feat.Properties["is_deleted"] = false
-		feat.Properties["date_created"] = now
-		feat.Properties["date_modified"] = now
-		feat.Properties["geo_id"] = fmt.Sprintf("%v", now)
-	*/
-
 	// Save feature to database
 	err = DB.InsertFeature(ds, feat)
 	if err != nil {
@@ -149,5 +139,77 @@ func ViewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	NetworkLogger.Critical(r.RemoteAddr, message)
 	err = fmt.Errorf("Not found")
 	http.Error(w, err.Error(), http.StatusNotFound)
+}
 
+// EditFeatureHandler finds feature in layer via array index. Edits feature.
+// @param apikey customer id
+// @oaram ds datasource uuid
+func EditFeatureHandler(w http.ResponseWriter, r *http.Request) {
+	NetworkLogger.Debug("[In] ", r)
+
+	// Get request body
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		message := fmt.Sprintf(" %v %v [500]", r.Method, r.URL.Path)
+		NetworkLogger.Critical(r.RemoteAddr, message)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	r.Body.Close()
+
+	//TESTING
+	fmt.Printf(string(body))
+
+	// Get ds from url path
+	vars := mux.Vars(r)
+	ds := vars["ds"]
+	geo_id := vars["k"]
+
+	/*=======================================*/
+	apikey := GetApikeyFromRequest(w, r)
+	if apikey == "" {
+		return
+	}
+
+	customer, err := GetCustomerFromDatabase(w, r, apikey)
+	if err != nil {
+		return
+	}
+
+	if !CheckCustomerForDatasource(w, r, customer, ds) {
+		return
+	}
+	/*=======================================*/
+
+	// Unmarshal feature
+	feat, err := geojson.UnmarshalFeature(body)
+	if err != nil {
+		message := fmt.Sprintf(" %v %v [400]", r.Method, r.URL.Path)
+		NetworkLogger.Critical(r.RemoteAddr, message)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = DB.EditFeature(ds, geo_id, feat)
+	if err != nil {
+		// Feature not found
+		message := fmt.Sprintf(" %v %v [404]", r.Method, r.URL.Path)
+		NetworkLogger.Critical(r.RemoteAddr, message)
+		err = fmt.Errorf("Not found")
+		http.Error(w, err.Error(), http.StatusNotFound)
+	}
+
+	// Generate message
+	data := HttpMessageResponse{Status: "success", Datasource: ds, Data: "feature edited"}
+	js, err := MarshalJsonFromStruct(w, r, data)
+	if err != nil {
+		return
+	}
+
+	// Update websockets
+	conn := connection{ds: ds, ip: r.RemoteAddr}
+	Hub.broadcast(true, &conn)
+
+	// Feature not found
+	SendJsonResponse(w, r, js)
 }

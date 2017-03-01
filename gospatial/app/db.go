@@ -346,20 +346,7 @@ func (self *Database) SelectAll(table string) ([]string, error) {
 	return data, err
 }
 
-// InsertFeature adds feature to layer. Updates layer in Database
-// @param datasource {string}
-// @param feat {Geojson Feature}
-// @returns Error
-func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) error {
-
-	// Apply required columns
-	now := time.Now().Unix()
-	feat.Properties["is_active"] = true
-	feat.Properties["is_deleted"] = false
-	feat.Properties["date_created"] = now
-	feat.Properties["date_modified"] = now
-	feat.Properties["geo_id"] = fmt.Sprintf("%v", now)
-
+func (self *Database) normalizeGeometry(feat *geojson.Feature) *geojson.Feature {
 	// FIT TO 7 - 8 DECIMAL PLACES OF PRECISION
 	switch feat.Geometry.Type {
 
@@ -418,13 +405,13 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 		//	// log.Printf("%v\n", feat.Geometry.Geometries)
 
 	*/
+	return feat
+}
 
-	// Get layer from database
-	featCollection, err := self.GetLayer(datasource)
-	if err != nil {
-		return err
+func (self *Database) normalizeProperties(feat *geojson.Feature, featCollection *geojson.FeatureCollection) *geojson.Feature {
+	if 0 == len(featCollection.Features) {
+		return feat
 	}
-
 	// Standardize properties for new feature
 	for j := range featCollection.Features[0].Properties {
 		if _, ok := feat.Properties[j]; !ok {
@@ -441,6 +428,30 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 		}
 	}
 
+	return feat
+}
+
+// InsertFeature adds feature to layer. Updates layer in Database
+// @param datasource {string}
+// @param feat {Geojson Feature}
+// @returns Error
+func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) error {
+	// Get layer from database
+	featCollection, err := self.GetLayer(datasource)
+	if err != nil {
+		return err
+	}
+
+	// Apply required columns
+	now := time.Now().Unix()
+	feat.Properties["is_active"] = true
+	feat.Properties["is_deleted"] = false
+	feat.Properties["date_created"] = now
+	feat.Properties["date_modified"] = now
+	feat.Properties["geo_id"] = fmt.Sprintf("%v", now)
+	feat = self.normalizeGeometry(feat)
+	feat = self.normalizeProperties(feat, featCollection)
+
 	// Write to commit log
 	value, err := feat.MarshalJSON()
 	if err != nil {
@@ -450,6 +461,44 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 
 	// Add new feature to layer
 	featCollection.AddFeature(feat)
+
+	// insert layer
+	err = self.InsertLayer(datasource, featCollection)
+	if err != nil {
+		panic(err)
+	}
+	return err
+}
+
+// EditFeature adds feature to layer. Updates layer in Database
+// @param datasource {string}
+// @param geo_id {string}
+// @param feat {Geojson Feature}
+// @returns Error
+func (self *Database) EditFeature(datasource string, geo_id string, feat *geojson.Feature) error {
+	// Get layer from database
+	featCollection, err := self.GetLayer(datasource)
+	if err != nil {
+		return err
+	}
+
+	for i := range featCollection.Features {
+		if geo_id == fmt.Sprintf("%v", featCollection.Features[i].Properties["geo_id"]) {
+			//feat = featCollection.Features[i]
+			now := time.Now().Unix()
+			feat.Properties["date_modified"] = now
+			feat = self.normalizeGeometry(feat)
+			feat = self.normalizeProperties(feat, featCollection)
+			featCollection.Features[i] = feat
+			// Write to commit log
+			value, err := feat.MarshalJSON()
+			if err != nil {
+				return err
+			}
+			self.commit_log_queue <- `{"method": "edit_feature", "data": { "datasource": "` + datasource + `", "feature": ` + string(value) + `}}`
+		}
+	}
+
 	// insert layer
 	err = self.InsertLayer(datasource, featCollection)
 	if err != nil {

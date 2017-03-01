@@ -6,7 +6,7 @@ import (
 	"github.com/paulmach/go.geojson"
 	"io/ioutil"
 	"net/http"
-	"time"
+	//"time"
 )
 
 // NewFeatureHandler creates a new feature and adds it to a layer.
@@ -57,12 +57,14 @@ func NewFeatureHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fill required attributes
-	now := time.Now().Unix()
-	feat.Properties["is_active"] = true
-	feat.Properties["is_deleted"] = false
-	feat.Properties["date_created"] = now
-	feat.Properties["date_modified"] = now
-	feat.Properties["geo_id"] = fmt.Sprintf("%v", now)
+	/*
+		now := time.Now().Unix()
+		feat.Properties["is_active"] = true
+		feat.Properties["is_deleted"] = false
+		feat.Properties["date_created"] = now
+		feat.Properties["date_modified"] = now
+		feat.Properties["geo_id"] = fmt.Sprintf("%v", now)
+	*/
 
 	// Save feature to database
 	err = DB.InsertFeature(ds, feat)

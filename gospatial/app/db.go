@@ -352,6 +352,14 @@ func (self *Database) SelectAll(table string) ([]string, error) {
 // @returns Error
 func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) error {
 
+	// Apply required columns
+	now := time.Now().Unix()
+	feat.Properties["is_active"] = true
+	feat.Properties["is_deleted"] = false
+	feat.Properties["date_created"] = now
+	feat.Properties["date_modified"] = now
+	feat.Properties["geo_id"] = fmt.Sprintf("%v", now)
+
 	// FIT TO 7 - 8 DECIMAL PLACES OF PRECISION
 	switch feat.Geometry.Type {
 
@@ -416,12 +424,31 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 	if err != nil {
 		return err
 	}
-	// Add new feature to layer
+
+	// Standardize properties for new feature
+	for j := range featCollection.Features[0].Properties {
+		if _, ok := feat.Properties[j]; !ok {
+			feat.Properties[j] = ""
+		}
+	}
+
+	// Standardize properties for existing features
+	for i := range featCollection.Features {
+		for j := range feat.Properties {
+			if _, ok := featCollection.Features[i].Properties[j]; !ok {
+				featCollection.Features[i].Properties[j] = ""
+			}
+		}
+	}
+
+	// Write to commit log
 	value, err := feat.MarshalJSON()
 	if err != nil {
 		return err
 	}
 	self.commit_log_queue <- `{"method": "insert_feature", "data": { "datasource": "` + datasource + `", "feature": ` + string(value) + `}}`
+
+	// Add new feature to layer
 	featCollection.AddFeature(feat)
 	// insert layer
 	err = self.InsertLayer(datasource, featCollection)

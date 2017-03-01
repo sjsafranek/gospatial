@@ -64,12 +64,15 @@ class WebClient(Config):
 		return self.driver.find_element(By.CSS_SELECTOR, css_selector)
 
 	def getElems(self, css_selector):
-		WebDriverWait(self.driver, 10).until( 
-			EC.presence_of_element_located( 
-				(By.CSS_SELECTOR, css_selector) 
-			) 
-		)
-		return self.driver.find_elements(By.CSS_SELECTOR, css_selector)
+		try:
+			WebDriverWait(self.driver, 10).until( 
+				EC.presence_of_element_located( 
+					(By.CSS_SELECTOR, css_selector) 
+				) 
+			)
+			return self.driver.find_elements(By.CSS_SELECTOR, css_selector)
+		except:
+			return []
 
 	def clickElem(self, css_selector):
 		self.getElem(css_selector).click()
@@ -98,6 +101,13 @@ class WebClient(Config):
 		self.checkSwalApiResponse()
 		# close popup
 		self.confirmSwalPopup()
+
+	def getDatasourceIds(self):
+		datasource_ids = []
+		for elem in self.getElems('.vectorlayer'):
+			datasource_id = elem.get_attribute("ds_id")
+			datasource_ids.append(datasource_id)
+		return datasource_ids
 
 	def deleteLayer(self, datasource_id):
 		# navigate to dashboard page
@@ -129,6 +139,10 @@ class WebClient(Config):
 python3
 from WebClient import *
 wc = WebClient()
+
+wc.dashboardPage()
+
+
 
 
 wc.mapPage()

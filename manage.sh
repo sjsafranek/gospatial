@@ -8,7 +8,7 @@ case $key in
     -f|--format)
         go fmt gospatial/app/*
         go fmt gospatial/main/gospatial/*
-        go fmt gospatial/main/gospatial_cmd/*
+        go fmt gospatial/main/importer/*
     ;;
     -c|--clean)
         echo "cleaning working directory..."

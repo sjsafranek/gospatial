@@ -3,10 +3,15 @@ package app
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/paulmach/go.geojson"
 	"gospatial/utils"
+	"io/ioutil"
 	"net"
 	"net/textproto"
+	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -86,15 +91,14 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 		//message, _ := bufio.NewReader(conn).ReadString('\n') // sometimes read partial messages
 		message, _ := tp.ReadLine()
 
-		// go self.handleTcpMessage(authenticated, message, conn)
-
 		// output message received
-		NetworkLogger.Info("Message Received: ", string(message), " [TCP]")
+		NetworkLogger.Info("[TCP] Message Received: ", string([]byte(message)))
 
 		// json parse message
 		req := TcpMessage{}
 		err := json.Unmarshal([]byte(message), &req)
 		if err != nil {
+
 			// invalid message
 			// close connection
 			NetworkLogger.Warn("error:", err)
@@ -102,11 +106,34 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 			conn.Write([]byte(resp + "\n"))
 			NetworkLogger.Info("Connection closed", " [TCP]")
 			return
-		}
 
-		// get method
-		if !authenticated {
-			if req.Method == "authenticate" {
+		} else {
+
+			success := false
+			switch {
+
+			case req.Method == "ping":
+				resp := `{"status": "ok", "data": { "message": "pong", "version": "` + VERSION + `"}}`
+				conn.Write([]byte(resp + "\n"))
+				success = true
+
+			case req.Method == "help":
+				conn.Write([]byte("Methods:\n"))
+				conn.Write([]byte("\t ping\n"))
+				conn.Write([]byte("\t assign_datasource\n"))
+				conn.Write([]byte("\t create_apikey\n"))
+				conn.Write([]byte("\t insert_apikey\n"))
+				conn.Write([]byte("\t insert_feature\n"))
+				conn.Write([]byte("\t edit_feature\n"))
+				conn.Write([]byte("\t create_datasource\n"))
+				conn.Write([]byte("\t export_apikeys\n"))
+				conn.Write([]byte("\t export_apikey\n"))
+				conn.Write([]byte("\t export_datasources\n"))
+				conn.Write([]byte("\t export_datasource\n"))
+				conn.Write([]byte("\t import_file\n"))
+				success = true
+
+			case req.Method == "authenticate":
 				// {"method":"authenticate", "authkey": "7q1qcqmsxnvw"}
 				authenticated = SuperuserKey == req.Authkey
 				if authenticated {
@@ -117,25 +144,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 					resp := `{"status": "error", "error": "incorrect authkey"}`
 					conn.Write([]byte(resp + "\n"))
 				}
-			} else if req.Method == "help" {
-				conn.Write([]byte("Methods:\n"))
-				conn.Write([]byte("\t authenticate\n"))
-				conn.Write([]byte("\t create_user\n"))
-				conn.Write([]byte("\t insert_apikey\n"))
-				conn.Write([]byte("\t export_apikeys\n"))
-				conn.Write([]byte("\t export_apikey\n"))
-				conn.Write([]byte("\t new_layer\n"))
-				conn.Write([]byte("\t insert_feature\n"))
-				conn.Write([]byte("\t export_datasource\n"))
-				conn.Write([]byte("\t export_datasources\n"))
-			} else {
-				resp := `{"status": "error", "error": "connection not authenticated"}`
-				conn.Write([]byte(resp + "\n"))
-			}
-		} else {
-
-			success := false
-			switch {
+				success = true
 
 			case req.Method == "assign_datasource" && authenticated:
 				datasource_id := req.Datasource //["datasource_id"]
@@ -144,7 +153,8 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				resp := `{"status": "ok", "data": {}}`
 				if err != nil {
 					fmt.Println("Customer key not found!")
-					resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "Customer key not found!"}}`
+					//resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "Customer key not found!"}}`
+					resp = `{"status": "error", "error": "` + err.Error() + `"}`
 				}
 				// CHECK IF DATASOURCE EXISTS
 				// *****
@@ -163,7 +173,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				err := DB.InsertCustomer(customer)
 				if err != nil {
 					fmt.Println(err)
-					resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "error creating customer"}}`
+					resp = `{"status": "error", "error": "` + err.Error() + `"}`
 				}
 				conn.Write([]byte(resp + "\n"))
 				success = true
@@ -175,38 +185,53 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				err := DB.InsertCustomer(customer)
 				if err != nil {
 					fmt.Println(err)
-					resp = `{"status": "error", "data": {"error": "` + err.Error() + `", "message": "error creating customer"}}`
+					resp = `{"status": "error", "error": "` + err.Error() + `"}`
 				}
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
 			case req.Method == "insert_feature" && authenticated:
+				// {"method":"insert_feature"}
+				resp := `{"status":"ok","data": {"datasource_id":"` + req.Data.Datasource + `", "message":"feature added"}}`
 				err = DB.InsertFeature(req.Data.Datasource, req.Data.Feature)
 				if err != nil {
 					fmt.Println(err)
+					resp = `{"status": "error", "error": "` + err.Error() + `"}`
 				}
-				resp := `{"status":"ok","datasource":"` + req.Data.Datasource + `", "message":"feature added"}`
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
 			case req.Method == "edit_feature" && authenticated:
+				resp := `{"status":"ok","data": {"datasource_id":"` + req.Data.Datasource + `", "message":"feature added"}}`
 				err = DB.EditFeature(req.Data.Datasource, req.Data.GeoId, req.Data.Feature)
 				if err != nil {
 					fmt.Println(err)
+					resp = `{"status": "error", "error": "` + err.Error() + `"}`
 				}
-				resp := `{"status":"ok","datasource":"` + req.Data.Datasource + `", "message":"feature added"}`
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
-			case req.Method == "new_layer" && authenticated:
-				err = DB.InsertLayer(req.Data.Datasource, req.Data.Layer)
-				if err != nil {
-					fmt.Println(err)
+			case req.Method == "create_datasource" && authenticated:
+				if "" != req.Data.Datasource {
+					resp := `{"status":"ok","data": {"datasource_id":"` + req.Data.Datasource + `"}}`
+					err = DB.InsertLayer(req.Data.Datasource, req.Data.Layer)
+					if err != nil {
+						fmt.Println(err)
+						resp = `{"status": "error", "error": "` + err.Error() + `"}`
+					}
+					conn.Write([]byte(resp + "\n"))
+				} else {
+					datasource_id, err := DB.NewLayer()
+					resp := `{"status":"ok","data": {"datasource_id":"` + datasource_id + `"}}`
+					if err != nil {
+						fmt.Println(err)
+						resp = `{"status": "error", "error": "` + err.Error() + `"}`
+					}
+					conn.Write([]byte(resp + "\n"))
 				}
-				resp := `{"status":"ok","datasource":"` + req.Data.Datasource + `"}`
-				conn.Write([]byte(resp + "\n"))
 				success = true
 
+			// TODO: ERROR HANDLING
 			case req.Method == "export_apikeys" && authenticated:
 				// {"method":"export_apikeys"}
 				apikeys, err := DB.SelectAll("apikeys")
@@ -221,6 +246,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
+			// TODO: ERROR HANDLING
 			case req.Method == "export_apikey" && authenticated:
 				// {"method":"export_apikey","apikey":"4AvJJ3oW0zeT"}
 				apikey, err := DB.GetCustomer(req.Apikey)
@@ -236,6 +262,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
+			// TODO: ERROR HANDLING
 			case req.Method == "export_datasources" && authenticated:
 				// {"method":"export_datasources"}
 				layers, err := DB.SelectAll("layers")
@@ -250,6 +277,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
+			// TODO: ERROR HANDLING
 			case req.Method == "export_datasource" && authenticated:
 				// {"method":"export_datasource","datasource":"3b1f5d633d884b9499adfc9b49c45236"}
 				layer, err := DB.GetLayer(req.Datasource)
@@ -264,9 +292,23 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
+			case req.Method == "import_file" && authenticated:
+				// {"method":"import_file","file":"springfield_projects_edit.geojson"}
+				resp := "{}"
+				result, err := importDatasource(req.File)
+				if err != nil {
+					resp = `{"status":"error", "error":"` + err.Error() + `"}`
+				} else {
+					resp = `{"status":"ok","data": {"datasource": "` + result + `"}}`
+				}
+				conn.Write([]byte(resp + "\n"))
+				success = true
 			}
 
-			if !success {
+			if !authenticated {
+				resp := `{"status": "error", "error": "connection not authenticated"}`
+				conn.Write([]byte(resp + "\n"))
+			} else if !success {
 				resp := `{"status": "error", "error": "method not found"}`
 				conn.Write([]byte(resp + "\n"))
 			}
@@ -274,6 +316,45 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 		}
 
 	}
+}
+
+func importDatasource(importFile string) (string, error) {
+	fmt.Println("Importing", importFile)
+	// get geojson file
+	var geojsonFile string
+	ext := strings.Split(importFile, ".")[1]
+	// convert shapefile
+	if ext == "shp" {
+		// Convert .shp to .geojson
+		geojsonFile := strings.Replace(importFile, ".shp", ".geojson", -1)
+		fmt.Println("ogr2ogr", "-f", "GeoJSON", "-t_srs", "crs:84", geojsonFile, importFile)
+		out, err := exec.Command("ogr2ogr", "-f", "GeoJSON", "-t_srs", "crs:84", geojsonFile, importFile).Output()
+		if err != nil {
+			return fmt.Sprintf("%v", out), err
+		}
+	} else if ext == "geojson" {
+		geojsonFile = importFile
+	} else {
+		return fmt.Sprintf("Unsupported file type: %v", ext), errors.New(fmt.Sprintf("Unsupported file type: %v", ext))
+	}
+	// Read .geojson file
+	file, err := ioutil.ReadFile(geojsonFile)
+	if err != nil {
+		return "File error", err
+	}
+	// Unmarshal to geojson struct
+	geojs, err := geojson.UnmarshalFeatureCollection(file)
+	if err != nil {
+		return "Unmarshal GeoJSON error", err
+	}
+	// Create datasource
+	ds, _ := utils.NewUUID()
+	DB.InsertLayer(ds, geojs)
+	// Cleanup artifacts
+	if geojsonFile != importFile {
+		os.Remove(geojsonFile)
+	}
+	return ds, nil
 }
 
 /*

@@ -191,6 +191,7 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 // NewLayer creates new datasource layer
 // @returns string - datasource id
 // @returns Error
+// TODO: RENAME TO NewDatasource
 func (self *Database) NewLayer() (string, error) {
 	// create geojson
 	datasource, _ := utils.NewUUID()
@@ -200,7 +201,7 @@ func (self *Database) NewLayer() (string, error) {
 	if err != nil {
 		return "", nil
 	}
-	self.commit_log_queue <- `{"method": "new_layer", "data": { "datasource": "` + datasource + `", "layer": ` + string(value) + `}}`
+	self.commit_log_queue <- `{"method": "create_datasource", "data": { "datasource": "` + datasource + `", "layer": ` + string(value) + `}}`
 	// Insert layer into database
 	err = self.Insert("layers", datasource, value)
 	if err != nil {

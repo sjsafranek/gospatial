@@ -23,11 +23,6 @@ var (
 	database string
 )
 
-type dumpedDatabase struct {
-	Apikeys map[string]app.Customer               `json:"apikeys"`
-	Layers  map[string]*geojson.FeatureCollection `json:"layers"`
-}
-
 func usageError(message string) {
 	fmt.Println("Incorrect usage!")
 	fmt.Println(message)

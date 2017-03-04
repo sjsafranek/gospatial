@@ -36,6 +36,7 @@ type TcpMessage struct {
 	Method     string  `json:"method"`
 	Data       TcpData `json:"data"`
 	Datasource string  `json:"datasource"`
+	File       string  `json:"file"`
 }
 
 type HttpMessageResponse struct {

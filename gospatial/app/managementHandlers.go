@@ -2,17 +2,11 @@ package app
 
 import (
 	"encoding/json"
-	// "fmt"
 	"gospatial/utils"
 	"net/http"
 	"runtime"
 	"time"
 )
-
-var startTime = time.Now()
-
-// SuperuserKey api servers superuser key
-var SuperuserKey string = "su"
 
 // PingHandler provides an api route for server health check
 func PingHandler(w http.ResponseWriter, r *http.Request) {

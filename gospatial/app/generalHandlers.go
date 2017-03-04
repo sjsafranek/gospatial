@@ -6,8 +6,6 @@ import (
 	"net/http"
 )
 
-var Version string = "1.11.3"
-
 // IndexHandler returns html page containing api docs
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "http://sjsafranek.github.io/gospatial/", 200)
@@ -34,7 +32,7 @@ func MapHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, _ := template.ParseFiles(htmlFile)
 	message := fmt.Sprintf(" %v %v [200]", r.Method, r.URL.Path)
 	NetworkLogger.Info(r.RemoteAddr, message)
-	tmpl.Execute(w, PageViewData{Apikey: apikey, Version: Version})
+	tmpl.Execute(w, PageViewData{Apikey: apikey, Version: VERSION})
 
 }
 
@@ -57,6 +55,6 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, _ := template.ParseFiles(htmlFile)
 	message := fmt.Sprintf(" %v %v [200]", r.Method, r.URL.Path)
 	NetworkLogger.Info(r.RemoteAddr, message)
-	tmpl.Execute(w, PageViewData{Apikey: apikey, Version: Version})
+	tmpl.Execute(w, PageViewData{Apikey: apikey, Version: VERSION})
 
 }

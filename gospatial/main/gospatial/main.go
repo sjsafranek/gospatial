@@ -35,7 +35,6 @@ var (
 )
 
 const (
-	VERSION             string = "1.11.3"
 	DEFAULT_CONFIG_FILE string = "config.json"
 	DEFAULT_HTTP_PORT   int    = 8080
 	DEFAULT_TCP_PORT    int    = 3333
@@ -71,11 +70,9 @@ func init() {
 
 	flag.Parse()
 	if versionReport {
-		fmt.Println("Version:", VERSION)
+		fmt.Println("Version:", app.VERSION)
 		os.Exit(0)
 	}
-
-	app.Version = VERSION
 
 	app.ResetLogging()
 

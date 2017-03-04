@@ -29,24 +29,24 @@ class WebClient(Config):
 			'remote': webdriver.Remote
 		}
 
-		config_browser = self.driverType()
+		config_browser = self.driverType
 
 		driver = None
 		if config_browser:
 			# Fail if set browser invalid
 			driver = browsers[config_browser]
-			self._driver_kwargs = self.driverKwargs()
+			self._driver_kwargs = self.driverKwargs
 		else:
 			# Default to using firefox
 			self.setDriverType('firefox')
 			driver = browsers['firefox']
-			self._driver_kwargs = self.driverKwargs()
+			self._driver_kwargs = self.driverKwargs
 		
 		return driver(**self._driver_kwargs)
 
 	def getPage(self, page, refresh=False):
 		if "/"+page not in self.driver.current_url or refresh:
-			url = "{}/{}?apikey={}".format(self.baseUrl(), page, self.apikey())
+			url = "{}/{}?apikey={}".format(self.baseUrl, page, self.apikey)
 			self.driver.get( url )
 
 	def dashboardPage(self):

@@ -36,6 +36,7 @@ class Config(object):
 		import TcpClient
 		return TcpClient.newApikey()
 
+	@property
 	def apikey(self):
 		return self.config['credentials']['apikey']
 		# return self.config['credentials'].get('apikey')
@@ -45,6 +46,7 @@ class Config(object):
 		if save: 
 			self.saveConfig()
 
+	@property
 	def baseUrl(self):
 		return self.config['credentials']['url']
 		# return self.config['credentials'].get('url')
@@ -54,13 +56,13 @@ class Config(object):
 		if save: 
 			self.saveConfig()
 
+	@property
 	def driverType(self):
 		return self.config['selenium']['driver']
-		# return self.config['selenium'].get('driver')
 
+	@property
 	def driverExecutable(self):
-		return self.config['selenium/'+self.driverType()]['executable_path']
-		# return self.config['selenium/'+self.driverType()].get('executable_path')
+		return self.config['selenium/'+self.driverType]['executable_path']
 
 	def setDriverType(self, driver):
 		if driver not in ['firefox', 'chrome', 'ie', 'opera', 'phantomjs']:
@@ -72,6 +74,7 @@ class Config(object):
 			ValueError('Unsupported driver: '+driver)
 		self.config['selenium/'+driver]['executable'] = executable
 
+	@property
 	def driverKwargs(self):
 		browsers = [
 			'firefox',
@@ -90,4 +93,4 @@ class Config(object):
 				if "desired_capabilities" in self.config[section]:
 					browser_kwargs[browser]['desired_capabilities'] = json.loads(self.config[section]['desired_capabilities'])
 		#config_browser = self.config['selenium'].get('driver')
-		return browser_kwargs[self.driverType()]
+		return browser_kwargs[self.driverType]

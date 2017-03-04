@@ -1,20 +1,31 @@
 # TODO
-- add apikey to request headers
-- jsend complient messages https://labs.omniti.com/labs/jsend
+ - add apikey to request headers
+ - jsend complient messages https://labs.omniti.com/labs/jsend
+ - delete feature
+ - csv wkt export
 
 
 
 # Change Log
 
 
+
 ## [Unreleased]
+## [1.11.3] - 2017-02-28
+### Added
+ - edit feature api route, db function, and tcp method
+ - selenium unittests
+### Changed
+ - Refactor of JavaScript api
+
+
+
+
 ## [1.11.2] - 2016-11-12
 ### Changed
  - Refactor of authentication methods
  - Refactor of http response methods
-
-
-
+ 
 ## [1.11.1] - 2016-11-07
 ### Added
  - Commit log file handling

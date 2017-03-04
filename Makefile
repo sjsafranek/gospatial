@@ -13,7 +13,7 @@ GPATH = $(shell pwd)
 
 install: fmt
 	@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/${PROJECT_NAME}
-	@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/gospatial_cmd
+	@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/importer
 #	g++ -o bin/setup src/${PROJECT_NAME}/main/settings/setup.cpp
 
 fmt:

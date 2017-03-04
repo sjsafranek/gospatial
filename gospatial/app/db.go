@@ -173,7 +173,8 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 		panic(err)
 	}
 	// datasource not found
-	if val == nil {
+	//if val == nil {
+	if "" == string(val) {
 		return Customer{}, fmt.Errorf("Apikey not found")
 	}
 	// Read to struct
@@ -249,10 +250,13 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 		self.guard.RUnlock()
 		return v.Geojson, nil
 	}
-	// If page not found get from database
+	// If cache ds not found get from database
 	val, err := self.Select("layers", datasource)
 	if err != nil {
 		return nil, err
+	}
+	if "" == string(val) {
+		return nil, fmt.Errorf("Datasource not found")
 	}
 	// Read to struct
 	geojs, err := geojson.UnmarshalFeatureCollection(val)

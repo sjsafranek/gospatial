@@ -210,20 +210,30 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 			case req.Method == "insert_feature" && authenticated:
 				// {"method":"insert_feature"}
 				resp := `{"status":"ok","data": {"datasource_id":"` + req.Data.Datasource + `", "message":"feature added"}}`
-				err = DB.InsertFeature(req.Data.Datasource, req.Data.Feature)
-				if err != nil {
+				if "" == req.Data.Datasource {
+					err := errors.New("Missing required parameters")
 					resp = `{"status": "error", "error": "` + err.Error() + `"}`
+				} else {
+					err = DB.InsertFeature(req.Data.Datasource, req.Data.Feature)
+					if err != nil {
+						resp = `{"status": "error", "error": "` + err.Error() + `"}`
+					}
 				}
 				conn.Write([]byte(resp + "\n"))
 				success = true
 
 			case req.Method == "edit_feature" && authenticated:
 				// {"method":"edit_feature"}
-				resp := `{"status":"ok","data": {"datasource_id":"` + req.Data.Datasource + `", "message":"feature added"}}`
-				err = DB.EditFeature(req.Data.Datasource, req.Data.GeoId, req.Data.Feature)
-				if err != nil {
-					fmt.Println(err)
+				resp := `{"status":"ok","data": {"datasource_id":"` + req.Data.Datasource + `", "message":"feature edited"}}`
+				if "" == req.Data.Datasource {
+					err := errors.New("Missing required parameters")
 					resp = `{"status": "error", "error": "` + err.Error() + `"}`
+				} else {
+					err = DB.EditFeature(req.Data.Datasource, req.Data.GeoId, req.Data.Feature)
+					if err != nil {
+						fmt.Println(err)
+						resp = `{"status": "error", "error": "` + err.Error() + `"}`
+					}
 				}
 				conn.Write([]byte(resp + "\n"))
 				success = true
@@ -338,9 +348,13 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 }
 
 func importDatasource(importFile string) (string, error) {
-	fmt.Println("Importing", importFile)
+	//fmt.Println("Importing", importFile)
 	// get geojson file
 	var geojsonFile string
+	// check if file exists
+	if _, err := os.Stat(importFile); os.IsNotExist(err) {
+		return "", err
+	}
 	// ERROR
 	// CRASHES IF NO "." character FOUND
 	ext := strings.Split(importFile, ".")[1]
@@ -361,12 +375,12 @@ func importDatasource(importFile string) (string, error) {
 	// Read .geojson file
 	file, err := ioutil.ReadFile(geojsonFile)
 	if err != nil {
-		return "File error", err
+		return "", err
 	}
 	// Unmarshal to geojson struct
 	geojs, err := geojson.UnmarshalFeatureCollection(file)
 	if err != nil {
-		return "Unmarshal GeoJSON error", err
+		return "", err
 	}
 	// Create datasource
 	ds, _ := utils.NewUUID()

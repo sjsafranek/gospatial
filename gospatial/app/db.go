@@ -351,8 +351,12 @@ func (self *Database) SelectAll(table string) ([]string, error) {
 	return data, err
 }
 
-func (self *Database) normalizeGeometry(feat *geojson.Feature) *geojson.Feature {
+func (self *Database) normalizeGeometry(feat *geojson.Feature) (*geojson.Feature, error) {
 	// FIT TO 7 - 8 DECIMAL PLACES OF PRECISION
+	if nil == feat.Geometry {
+		return nil, fmt.Errorf("Feature has no geometry!")
+	}
+
 	switch feat.Geometry.Type {
 
 	case geojson.GeometryPoint:
@@ -410,7 +414,7 @@ func (self *Database) normalizeGeometry(feat *geojson.Feature) *geojson.Feature 
 		//	// log.Printf("%v\n", feat.Geometry.Geometries)
 
 	*/
-	return feat
+	return feat, nil
 }
 
 func (self *Database) normalizeProperties(feat *geojson.Feature, featCollection *geojson.FeatureCollection) *geojson.Feature {
@@ -441,6 +445,10 @@ func (self *Database) normalizeProperties(feat *geojson.Feature, featCollection 
 // @param feat {Geojson Feature}
 // @returns Error
 func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) error {
+	if nil == feat {
+		return fmt.Errorf("feature value is <nil>!")
+	}
+
 	// Get layer from database
 	featCollection, err := self.GetLayer(datasource)
 	if err != nil {
@@ -449,12 +457,23 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 
 	// Apply required columns
 	now := time.Now().Unix()
+
+	// check if nil map
+	if nil == feat.Properties {
+		feat.Properties = make(map[string]interface{})
+	}
+
 	feat.Properties["is_active"] = true
 	feat.Properties["is_deleted"] = false
 	feat.Properties["date_created"] = now
 	feat.Properties["date_modified"] = now
 	feat.Properties["geo_id"] = fmt.Sprintf("%v", now)
-	feat = self.normalizeGeometry(feat)
+
+	feat, err = self.normalizeGeometry(feat)
+	if nil != err {
+		return err
+	}
+
 	feat = self.normalizeProperties(feat, featCollection)
 
 	// Write to commit log
@@ -487,12 +506,19 @@ func (self *Database) EditFeature(datasource string, geo_id string, feat *geojso
 		return err
 	}
 
+	feature_exists := false
+
 	for i := range featCollection.Features {
 		if geo_id == fmt.Sprintf("%v", featCollection.Features[i].Properties["geo_id"]) {
-			//feat = featCollection.Features[i]
+
 			now := time.Now().Unix()
 			feat.Properties["date_modified"] = now
-			feat = self.normalizeGeometry(feat)
+
+			feat, err = self.normalizeGeometry(feat)
+			if nil != err {
+				return err
+			}
+
 			feat = self.normalizeProperties(feat, featCollection)
 			featCollection.Features[i] = feat
 			// Write to commit log
@@ -501,7 +527,12 @@ func (self *Database) EditFeature(datasource string, geo_id string, feat *geojso
 				return err
 			}
 			self.commit_log_queue <- `{"method": "edit_feature", "data": { "datasource": "` + datasource + `", "geo_id": "` + geo_id + `", "feature": ` + string(value) + `}}`
+			feature_exists = true
 		}
+	}
+
+	if !feature_exists {
+		return fmt.Errorf("feature not found!")
 	}
 
 	// insert layer

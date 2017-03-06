@@ -225,7 +225,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 			case req.Method == "edit_feature" && authenticated:
 				// {"method":"edit_feature"}
 				resp := `{"status":"ok","data": {"datasource_id":"` + req.Data.Datasource + `", "message":"feature edited"}}`
-				if "" == req.Data.Datasource {
+				if "" == req.Data.Datasource || "" == req.Data.GeoId {
 					err := errors.New("Missing required parameters")
 					resp = `{"status": "error", "error": "` + err.Error() + `"}`
 				} else {

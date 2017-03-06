@@ -50,18 +50,18 @@ type Database struct {
 
 // Create to bolt database. Returns open database connection.
 // @returns *bolt.DB
-func (self *Database) createDb() *bolt.DB {
+func (self *Database) createDb() {
 	conn, err := bolt.Open(self.File, 0644, nil)
 	if err != nil {
 		conn.Close()
 		panic(err)
 	}
-	return conn
+	conn.Close()
 }
 
 // Connect to bolt database. Returns open database connection.
 // @returns *bolt.DB
-func (self *Database) connect() *bolt.DB {
+func (self *Database) Connect() *bolt.DB {
 	// Check if file exists
 	_, err := os.Stat(self.File)
 	if err != nil {
@@ -71,7 +71,6 @@ func (self *Database) connect() *bolt.DB {
 	conn, err := bolt.Open(self.File, 0644, nil)
 	if err != nil {
 		conn.Close()
-		//log.Fatal(err)
 		panic(err)
 	}
 	return conn
@@ -86,11 +85,14 @@ func (self *Database) Init() error {
 	// Start db caching
 	m := make(map[string]*LayerCache)
 	self.Cache = m
+	self.Apikeys = make(map[string]Customer)
 	go self.cacheManager()
+	// start commit log
 	go self.startCommitLog()
+	// create database if not exists
+	self.createDb()
 	// connect to db
-	//conn := self.connect()
-	conn := self.createDb()
+	conn := self.Connect()
 	defer conn.Close()
 	// datasources
 	err := self.CreateTable(conn, "layers")
@@ -105,8 +107,6 @@ func (self *Database) Init() error {
 		panic(err)
 		return err
 	}
-	// create apikey/customer cache
-	self.Apikeys = make(map[string]Customer)
 	// close and return err
 	return err
 }
@@ -114,12 +114,13 @@ func (self *Database) Init() error {
 // Starts Database commit log
 func (self *Database) startCommitLog() {
 	self.commit_log_queue = make(chan string, 10000)
-	// open files r and w
+	// open file to write database commit log
 	COMMIT_LOG, err := os.OpenFile(COMMIT_LOG_FILE, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		log.Println(err)
 	}
 	defer COMMIT_LOG.Close()
+	// read from chan and write to file
 	for {
 		if len(self.commit_log_queue) > 0 {
 			line := <-self.commit_log_queue
@@ -173,7 +174,6 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 		panic(err)
 	}
 	// datasource not found
-	//if val == nil {
 	if "" == string(val) {
 		return Customer{}, fmt.Errorf("Apikey not found")
 	}
@@ -195,43 +195,43 @@ func (self *Database) GetCustomer(apikey string) (Customer, error) {
 // TODO: RENAME TO NewDatasource
 func (self *Database) NewLayer() (string, error) {
 	// create geojson
-	datasource, _ := utils.NewUUID()
+	datasource_id, _ := utils.NewUUID()
 	geojs := geojson.NewFeatureCollection()
 	// convert to bytes
 	value, err := geojs.MarshalJSON()
 	if err != nil {
 		return "", nil
 	}
-	self.commit_log_queue <- `{"method": "create_datasource", "data": { "datasource": "` + datasource + `", "layer": ` + string(value) + `}}`
+	self.commit_log_queue <- `{"method": "create_datasource", "data": { "datasource": "` + datasource_id + `", "layer": ` + string(value) + `}}`
 	// Insert layer into database
-	err = self.Insert("layers", datasource, value)
+	err = self.Insert("layers", datasource_id, value)
 	if err != nil {
 		panic(err)
 	}
-	return datasource, err
+	return datasource_id, err
 }
 
 // InsertLayer inserts layer into database
 // @param datasource {string}
 // @param geojs {Geojson}
 // @returns Error
-func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureCollection) error {
+func (self *Database) InsertLayer(datasource_id string, geojs *geojson.FeatureCollection) error {
 	// Update caching layer
-	if v, ok := self.Cache[datasource]; ok {
+	if v, ok := self.Cache[datasource_id]; ok {
 		self.guard.Lock()
 		v.Geojson = geojs
 		v.Time = time.Now()
 		self.guard.Unlock()
 	} else {
 		pgc := &LayerCache{Geojson: geojs, Time: time.Now()}
-		self.Cache[datasource] = pgc
+		self.Cache[datasource_id] = pgc
 	}
 	// convert to bytes
 	value, err := geojs.MarshalJSON()
 	if err != nil {
 		return err
 	}
-	err = self.Insert("layers", datasource, value)
+	err = self.Insert("layers", datasource_id, value)
 	if err != nil {
 		panic(err)
 	}
@@ -242,16 +242,16 @@ func (self *Database) InsertLayer(datasource string, geojs *geojson.FeatureColle
 // @param datasource {string}
 // @returns Geojson
 // @returns Error
-func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, error) {
+func (self *Database) GetLayer(datasource_id string) (*geojson.FeatureCollection, error) {
 	// Caching layer
-	if v, ok := self.Cache[datasource]; ok {
+	if v, ok := self.Cache[datasource_id]; ok {
 		self.guard.RLock()
 		v.Time = time.Now()
 		self.guard.RUnlock()
 		return v.Geojson, nil
 	}
 	// If cache ds not found get from database
-	val, err := self.Select("layers", datasource)
+	val, err := self.Select("layers", datasource_id)
 	if err != nil {
 		return nil, err
 	}
@@ -265,18 +265,18 @@ func (self *Database) GetLayer(datasource string) (*geojson.FeatureCollection, e
 	}
 	// Store page in memory cache
 	pgc := &LayerCache{Geojson: geojs, Time: time.Now()}
-	self.Cache[datasource] = pgc
+	self.Cache[datasource_id] = pgc
 	return geojs, nil
 }
 
 // DeleteLayer deletes layer from database
 // @param datasource {string}
 // @returns Error
-func (self *Database) DeleteLayer(datasource string) error {
-	conn := self.connect()
+func (self *Database) DeleteLayer(datasource_id string) error {
+	conn := self.Connect()
 	defer conn.Close()
-	key := []byte(datasource)
-	self.commit_log_queue <- `{"method": "delete_layer", "data": { "datasource": "` + datasource + `"}}`
+	key := []byte(datasource_id)
+	self.commit_log_queue <- `{"method": "delete_layer", "data": { "datasource": "` + datasource_id + `"}}`
 	err := conn.Update(func(tx *bolt.Tx) error {
 		//bucket, err := tx.CreateBucketIfNotExists([]byte("layers"))
 		//if err != nil {
@@ -294,13 +294,13 @@ func (self *Database) DeleteLayer(datasource string) error {
 		panic(err)
 	}
 	self.guard.Lock()
-	delete(self.Cache, datasource)
+	delete(self.Cache, datasource_id)
 	self.guard.Unlock()
 	return err
 }
 
 func (self *Database) Insert(table string, key string, value []byte) error {
-	conn := self.connect()
+	conn := self.Connect()
 	defer conn.Close()
 	err := conn.Update(func(tx *bolt.Tx) error {
 		//bucket, err := tx.CreateBucketIfNotExists([]byte(table))
@@ -319,7 +319,7 @@ func (self *Database) Insert(table string, key string, value []byte) error {
 }
 
 func (self *Database) Select(table string, key string) ([]byte, error) {
-	conn := self.connect()
+	conn := self.Connect()
 	defer conn.Close()
 	val := []byte{}
 	err := conn.View(func(tx *bolt.Tx) error {
@@ -334,7 +334,7 @@ func (self *Database) Select(table string, key string) ([]byte, error) {
 }
 
 func (self *Database) SelectAll(table string) ([]string, error) {
-	conn := self.connect()
+	conn := self.Connect()
 	defer conn.Close()
 	data := []string{}
 	err := conn.View(func(tx *bolt.Tx) error {
@@ -418,6 +418,12 @@ func (self *Database) normalizeGeometry(feat *geojson.Feature) (*geojson.Feature
 }
 
 func (self *Database) normalizeProperties(feat *geojson.Feature, featCollection *geojson.FeatureCollection) *geojson.Feature {
+
+	// check if nil map
+	if nil == feat.Properties {
+		feat.Properties = make(map[string]interface{})
+	}
+
 	if 0 == len(featCollection.Features) {
 		return feat
 	}
@@ -444,13 +450,13 @@ func (self *Database) normalizeProperties(feat *geojson.Feature, featCollection 
 // @param datasource {string}
 // @param feat {Geojson Feature}
 // @returns Error
-func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) error {
+func (self *Database) InsertFeature(datasource_id string, feat *geojson.Feature) error {
 	if nil == feat {
 		return fmt.Errorf("feature value is <nil>!")
 	}
 
 	// Get layer from database
-	featCollection, err := self.GetLayer(datasource)
+	featCollection, err := self.GetLayer(datasource_id)
 	if err != nil {
 		return err
 	}
@@ -481,13 +487,13 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 	if err != nil {
 		return err
 	}
-	self.commit_log_queue <- `{"method": "insert_feature", "data": { "datasource": "` + datasource + `", "feature": ` + string(value) + `}}`
+	self.commit_log_queue <- `{"method": "insert_feature", "data": { "datasource": "` + datasource_id + `", "feature": ` + string(value) + `}}`
 
 	// Add new feature to layer
 	featCollection.AddFeature(feat)
 
 	// insert layer
-	err = self.InsertLayer(datasource, featCollection)
+	err = self.InsertLayer(datasource_id, featCollection)
 	if err != nil {
 		panic(err)
 	}
@@ -499,9 +505,9 @@ func (self *Database) InsertFeature(datasource string, feat *geojson.Feature) er
 // @param geo_id {string}
 // @param feat {Geojson Feature}
 // @returns Error
-func (self *Database) EditFeature(datasource string, geo_id string, feat *geojson.Feature) error {
+func (self *Database) EditFeature(datasource_id string, geo_id string, feat *geojson.Feature) error {
 	// Get layer from database
-	featCollection, err := self.GetLayer(datasource)
+	featCollection, err := self.GetLayer(datasource_id)
 	if err != nil {
 		return err
 	}
@@ -526,7 +532,7 @@ func (self *Database) EditFeature(datasource string, geo_id string, feat *geojso
 			if err != nil {
 				return err
 			}
-			self.commit_log_queue <- `{"method": "edit_feature", "data": { "datasource": "` + datasource + `", "geo_id": "` + geo_id + `", "feature": ` + string(value) + `}}`
+			self.commit_log_queue <- `{"method": "edit_feature", "data": { "datasource": "` + datasource_id + `", "geo_id": "` + geo_id + `", "feature": ` + string(value) + `}}`
 			feature_exists = true
 		}
 	}
@@ -536,7 +542,7 @@ func (self *Database) EditFeature(datasource string, geo_id string, feat *geojso
 	}
 
 	// insert layer
-	err = self.InsertLayer(datasource, featCollection)
+	err = self.InsertLayer(datasource_id, featCollection)
 	if err != nil {
 		panic(err)
 	}

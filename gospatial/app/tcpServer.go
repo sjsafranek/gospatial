@@ -110,11 +110,11 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 		} else {
 
 			success := false
+			var resp string
 			switch {
 
 			case req.Method == "ping":
-				resp := `{"status": "ok", "data": { "message": "pong", "version": "` + VERSION + `"}}`
-				conn.Write([]byte(resp + "\n"))
+				resp = `{"status": "ok", "data": { "message": "pong", "version": "` + VERSION + `"}}`
 				success = true
 
 			case req.Method == "help":
@@ -146,205 +146,257 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 				}
 				success = true
 
-			case req.Method == "assign_datasource" && authenticated:
-				// {"method":"assign_datasource"}
-				resp := `{"status": "ok", "data": {}}`
-				datasource_id := req.Datasource
-				apikey := req.Apikey
-
-				if "" == datasource_id || "" == apikey {
-					err := errors.New("Missing required parameters")
-					resp = `{"status": "error", "error": "` + err.Error() + `"}`
-				} else {
-
-					customer, err := DB.GetCustomer(apikey)
-					resp = `{"status": "ok", "data": {}}`
-					if err != nil {
-						resp = `{"status": "error", "error": "` + err.Error() + `"}`
-					}
-
-					_, err = DB.GetLayer(datasource_id)
-					if err != nil {
-						resp = `{"status": "error", "error": "` + err.Error() + `"}`
-					} else {
-						customer.Datasources = append(customer.Datasources, datasource_id)
-						DB.InsertCustomer(customer)
-					}
-				}
-
-				conn.Write([]byte(resp + "\n"))
-				success = true
-
+			// APIKEYS
 			case req.Method == "create_apikey" && authenticated:
-				// {"method":"create_apikey"}
-				apikey := utils.NewAPIKey(12)
-				customer := Customer{Apikey: apikey}
-				resp := `{"status": "ok", "data": {"apikey": "` + apikey + `"}}`
-				err := DB.InsertCustomer(customer)
-				if err != nil {
-					fmt.Println(err)
-					resp = `{"status": "error", "error": "` + err.Error() + `"}`
-				}
-				conn.Write([]byte(resp + "\n"))
+				resp = self.create_apikey(req)
 				success = true
 
 			case req.Method == "insert_apikey" && authenticated:
-				// {"method": "insert_apikey"}
-				resp := `{"status": "ok", "data": {}}`
-				if "" == req.Data.Apikey {
-					err := errors.New("Missing required parameters")
-					resp = `{"status": "error", "error": "` + err.Error() + `"}`
-				} else {
-
-					customer := Customer{Apikey: req.Data.Apikey, Datasources: req.Data.Datasources}
-					resp = `{"status": "ok", "data": {"apikey": "` + req.Data.Apikey + `"}}`
-					err := DB.InsertCustomer(customer)
-					if err != nil {
-						fmt.Println(err)
-						resp = `{"status": "error", "error": "` + err.Error() + `"}`
-					}
-				}
-				conn.Write([]byte(resp + "\n"))
-				success = true
-
-			case req.Method == "insert_feature" && authenticated:
-				// {"method":"insert_feature"}
-				resp := `{"status":"ok","data": {"datasource_id":"` + req.Data.Datasource + `", "message":"feature added"}}`
-				if "" == req.Data.Datasource {
-					err := errors.New("Missing required parameters")
-					resp = `{"status": "error", "error": "` + err.Error() + `"}`
-				} else {
-					err = DB.InsertFeature(req.Data.Datasource, req.Data.Feature)
-					if err != nil {
-						resp = `{"status": "error", "error": "` + err.Error() + `"}`
-					}
-				}
-				conn.Write([]byte(resp + "\n"))
-				success = true
-
-			case req.Method == "edit_feature" && authenticated:
-				// {"method":"edit_feature"}
-				resp := `{"status":"ok","data": {"datasource_id":"` + req.Data.Datasource + `", "message":"feature edited"}}`
-				if "" == req.Data.Datasource || "" == req.Data.GeoId {
-					err := errors.New("Missing required parameters")
-					resp = `{"status": "error", "error": "` + err.Error() + `"}`
-				} else {
-					err = DB.EditFeature(req.Data.Datasource, req.Data.GeoId, req.Data.Feature)
-					if err != nil {
-						fmt.Println(err)
-						resp = `{"status": "error", "error": "` + err.Error() + `"}`
-					}
-				}
-				conn.Write([]byte(resp + "\n"))
-				success = true
-
-			case req.Method == "create_datasource" && authenticated:
-				// {"method":"create_datasource"}
-				resp := `{"status":"ok","data":{}}`
-				if "" != req.Data.Datasource {
-					resp = `{"status":"ok","data": {"datasource_id":"` + req.Data.Datasource + `"}}`
-					err = DB.InsertLayer(req.Data.Datasource, req.Data.Layer)
-					if err != nil {
-						resp = `{"status": "error", "error": "` + err.Error() + `"}`
-					}
-				} else {
-					datasource_id, err := DB.NewLayer()
-					resp = `{"status":"ok","data": {"datasource_id":"` + datasource_id + `"}}`
-					if err != nil {
-						resp = `{"status": "error", "error": "` + err.Error() + `"}`
-					}
-				}
-				conn.Write([]byte(resp + "\n"))
+				resp = self.insert_apikey(req)
 				success = true
 
 			case req.Method == "export_apikeys" && authenticated:
-				// {"method":"export_apikeys"}
-				resp := `{"status":"ok","data":{}}`
-				apikeys, err := DB.SelectAll("apikeys")
-				if err != nil {
-					resp = `{"status":"error", "error":"` + err.Error() + `"}`
-				} else {
-					js, err := json.Marshal(apikeys)
-					resp = `{"status":"ok","data":` + string(js) + `}`
-					if err != nil {
-						resp = `{"status":"error", "error":"` + err.Error() + `"}`
-					}
-				}
-				conn.Write([]byte(resp + "\n"))
+				resp = self.export_apikeys(req)
 				success = true
 
 			case req.Method == "export_apikey" && authenticated:
-				// {"method":"export_apikey","apikey":"12dB6BlenIeB"}
-				resp := `{"status":"ok","data":{}}`
-				apikey, err := DB.GetCustomer(req.Apikey)
-				if err != nil {
-					resp = `{"status":"error", "error":"` + err.Error() + `"}`
-				} else {
-					js, err := json.Marshal(apikey)
-					resp = `{"status":"ok","data":` + string(js) + `}`
-					if err != nil {
-						resp = `{"status":"error", "error":"` + err.Error() + `"}`
-					}
-				}
-				conn.Write([]byte(resp + "\n"))
+				resp = self.export_apikey(req)
+				success = true
+
+			case req.Method == "insert_feature" && authenticated:
+				resp = self.insert_feature(req)
+				success = true
+
+			case req.Method == "edit_feature" && authenticated:
+				resp = self.edit_feature(req)
+				success = true
+
+			// DATASOURCES
+			case req.Method == "assign_datasource" && authenticated:
+				resp = self.assign_datasource(req)
+				success = true
+
+			case req.Method == "create_datasource" && authenticated:
+				resp = self.create_datasource(req)
 				success = true
 
 			// TODO: ERROR HANDLING
 			case req.Method == "export_datasources" && authenticated:
-				// {"method":"export_datasources"}
-				resp := `{"status":"ok","data":{}}`
-				layers, err := DB.SelectAll("layers")
-				if err != nil {
-					resp = `{"status":"error", "error":"` + err.Error() + `"}`
-				} else {
-					js, err := json.Marshal(layers)
-					resp = `{"status":"ok","data":"` + string(js) + `"}`
-					if err != nil {
-						resp = `{"status":"error", "error":"` + err.Error() + `"}`
-					}
-				}
-				conn.Write([]byte(resp + "\n"))
+				resp = self.export_datasources(req)
 				success = true
 
 			case req.Method == "export_datasource" && authenticated:
-				// {"method":"export_datasource","datasource":"3b1f5d633d884b9499adfc9b49c45236"}
-				resp := `{"status":"ok","data":{}}`
-				layer, err := DB.GetLayer(req.Datasource)
-				if err != nil {
-					resp = `{"status":"error", "error":"` + err.Error() + `"}`
-				} else {
-					js, err := json.Marshal(layer)
-					resp = `{"status":"ok","data":"` + string(js) + `"}`
-					if err != nil {
-						resp = `{"status":"error", "error":"` + err.Error() + `"}`
-					}
-				}
-				conn.Write([]byte(resp + "\n"))
+				resp = self.export_datasource(req)
 				success = true
 
 			case req.Method == "import_file" && authenticated:
-				// {"method":"import_file","file":"springfield_projects_edit.geojson"}
-				resp := `{"status":"ok","data":{}}`
-				result, err := importDatasource(req.File)
-				resp = `{"status":"ok","data": {"datasource": "` + result + `"}}`
-				if err != nil {
-					resp = `{"status":"error", "error":"` + err.Error() + `"}`
-				}
-				conn.Write([]byte(resp + "\n"))
+				resp = self.import_file(req)
 				success = true
 			}
 
 			if !authenticated {
-				resp := `{"status": "error", "error": "connection not authenticated"}`
-				conn.Write([]byte(resp + "\n"))
+				resp = `{"status": "error", "error": "connection not authenticated"}`
 			} else if !success {
-				resp := `{"status": "error", "error": "method not found"}`
-				conn.Write([]byte(resp + "\n"))
+				resp = `{"status": "error", "error": "method not found"}`
 			}
+
+			conn.Write([]byte(resp + "\n"))
 
 		}
 
 	}
+}
+
+// APIKEYS
+func (self TcpServer) create_apikey(req TcpMessage) string {
+	// {"method":"create_apikey"}
+	apikey := utils.NewAPIKey(12)
+	customer := Customer{Apikey: apikey}
+	resp := `{"status": "ok", "data": {"apikey": "` + apikey + `"}}`
+	err := DB.InsertCustomer(customer)
+	if err != nil {
+		fmt.Println(err)
+		resp = `{"status": "error", "error": "` + err.Error() + `"}`
+	}
+	return resp
+}
+
+func (self TcpServer) insert_apikey(req TcpMessage) string {
+	// {"method": "insert_apikey"}
+	resp := `{"status": "ok", "data": {}}`
+	if "" == req.Data.Apikey {
+		err := errors.New("Missing required parameters")
+		resp = `{"status": "error", "error": "` + err.Error() + `"}`
+	} else {
+
+		customer := Customer{Apikey: req.Data.Apikey, Datasources: req.Data.Datasources}
+		resp = `{"status": "ok", "data": {"apikey": "` + req.Data.Apikey + `"}}`
+		err := DB.InsertCustomer(customer)
+		if err != nil {
+			fmt.Println(err)
+			resp = `{"status": "error", "error": "` + err.Error() + `"}`
+		}
+	}
+	return resp
+}
+
+func (self TcpServer) export_apikeys(req TcpMessage) string {
+	// {"method":"export_apikeys"}
+	resp := `{"status":"ok","data":{}}`
+	apikeys, err := DB.SelectAll("apikeys")
+	if err != nil {
+		resp = `{"status":"error", "error":"` + err.Error() + `"}`
+	} else {
+		js, err := json.Marshal(apikeys)
+		resp = `{"status":"ok","data":` + string(js) + `}`
+		if err != nil {
+			resp = `{"status":"error", "error":"` + err.Error() + `"}`
+		}
+	}
+	return resp
+}
+
+func (self TcpServer) export_apikey(req TcpMessage) string {
+	// {"method":"export_apikey","apikey":"12dB6BlenIeB"}
+	resp := `{"status":"ok","data":{}}`
+	apikey, err := DB.GetCustomer(req.Apikey)
+	if err != nil {
+		resp = `{"status":"error", "error":"` + err.Error() + `"}`
+	} else {
+		js, err := json.Marshal(apikey)
+		resp = `{"status":"ok","data":` + string(js) + `}`
+		if err != nil {
+			resp = `{"status":"error", "error":"` + err.Error() + `"}`
+		}
+	}
+	return resp
+}
+
+// DATASOURCES
+func (self TcpServer) assign_datasource(req TcpMessage) string {
+	// {"method":"assign_datasource"}
+	resp := `{"status": "ok", "data": {}}`
+	datasource_id := req.Datasource
+	apikey := req.Apikey
+
+	if "" == datasource_id || "" == apikey {
+		err := errors.New("Missing required parameters")
+		resp = `{"status": "error", "error": "` + err.Error() + `"}`
+	} else {
+
+		customer, err := DB.GetCustomer(apikey)
+		resp = `{"status": "ok", "data": {}}`
+		if err != nil {
+			resp = `{"status": "error", "error": "` + err.Error() + `"}`
+		}
+
+		_, err = DB.GetLayer(datasource_id)
+		if err != nil {
+			resp = `{"status": "error", "error": "` + err.Error() + `"}`
+		} else {
+			if !utils.StringInSlice(datasource_id, customer.Datasources) {
+				customer.Datasources = append(customer.Datasources, datasource_id)
+				DB.InsertCustomer(customer)
+			}
+		}
+	}
+
+	return resp
+}
+
+func (self TcpServer) create_datasource(req TcpMessage) string {
+	// {"method":"create_datasource"}
+	resp := `{"status":"ok","data":{}}`
+	if "" != req.Data.Datasource {
+		resp = `{"status":"ok","data": {"datasource_id":"` + req.Data.Datasource + `"}}`
+		err := DB.InsertLayer(req.Data.Datasource, req.Data.Layer)
+		if err != nil {
+			resp = `{"status": "error", "error": "` + err.Error() + `"}`
+		}
+	} else {
+		datasource_id, err := DB.NewLayer()
+		resp = `{"status":"ok","data": {"datasource_id":"` + datasource_id + `"}}`
+		if err != nil {
+			resp = `{"status": "error", "error": "` + err.Error() + `"}`
+		}
+	}
+	return resp
+}
+
+func (self TcpServer) export_datasources(req TcpMessage) string {
+	// {"method":"export_datasources"}
+	resp := `{"status":"ok","data":{}}`
+	layers, err := DB.SelectAll("layers")
+	if err != nil {
+		resp = `{"status":"error", "error":"` + err.Error() + `"}`
+	} else {
+		js, err := json.Marshal(layers)
+		resp = `{"status":"ok","data":"` + string(js) + `"}`
+		if err != nil {
+			resp = `{"status":"error", "error":"` + err.Error() + `"}`
+		}
+	}
+	return resp
+}
+
+func (self TcpServer) export_datasource(req TcpMessage) string {
+	// {"method":"export_datasource","datasource":"3b1f5d633d884b9499adfc9b49c45236"}
+	resp := `{"status":"ok","data":{}}`
+	layer, err := DB.GetLayer(req.Datasource)
+	if err != nil {
+		resp = `{"status":"error", "error":"` + err.Error() + `"}`
+	} else {
+		js, err := json.Marshal(layer)
+		resp = `{"status":"ok","data":"` + string(js) + `"}`
+		if err != nil {
+			resp = `{"status":"error", "error":"` + err.Error() + `"}`
+		}
+	}
+	return resp
+}
+
+// FEATURES
+func (self TcpServer) insert_feature(req TcpMessage) string {
+	// {"method":"insert_feature"}
+	resp := `{"status":"ok","data": {"datasource_id":"` + req.Data.Datasource + `", "message":"feature added"}}`
+	if "" == req.Data.Datasource {
+		err := errors.New("Missing required parameters")
+		resp = `{"status": "error", "error": "` + err.Error() + `"}`
+	} else {
+		err := DB.InsertFeature(req.Data.Datasource, req.Data.Feature)
+		if err != nil {
+			resp = `{"status": "error", "error": "` + err.Error() + `"}`
+		}
+	}
+	return resp
+}
+
+func (self TcpServer) edit_feature(req TcpMessage) string {
+	// {"method":"edit_feature"}
+	resp := `{"status":"ok","data": {"datasource_id":"` + req.Data.Datasource + `", "message":"feature edited"}}`
+	if "" == req.Data.Datasource || "" == req.Data.GeoId {
+		err := errors.New("Missing required parameters")
+		resp = `{"status": "error", "error": "` + err.Error() + `"}`
+	} else {
+		err := DB.EditFeature(req.Data.Datasource, req.Data.GeoId, req.Data.Feature)
+		if err != nil {
+			fmt.Println(err)
+			resp = `{"status": "error", "error": "` + err.Error() + `"}`
+		}
+	}
+	return resp
+}
+
+// FILE
+func (self TcpServer) import_file(req TcpMessage) string {
+	// {"method":"import_file","file":"springfield_projects_edit.geojson"}
+	resp := `{"status":"ok","data":{}}`
+	result, err := importDatasource(req.File)
+	resp = `{"status":"ok","data": {"datasource": "` + result + `"}}`
+	if err != nil {
+		resp = `{"status":"error", "error":"` + err.Error() + `"}`
+	}
+	return resp
 }
 
 func importDatasource(importFile string) (string, error) {

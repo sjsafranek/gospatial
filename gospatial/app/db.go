@@ -46,6 +46,7 @@ type Database struct {
 	guard            sync.RWMutex
 	commit_log_queue chan string
 	Precision        int
+	WriteLock        bool
 }
 
 // Create to bolt database. Returns open database connection.
@@ -82,6 +83,8 @@ func (self *Database) Connect() *bolt.DB {
 func (self *Database) Init() error {
 	// Set initial data precision
 	self.Precision = 8
+	// Set write lock for shut down
+	self.WriteLock = false
 	// Start db caching
 	m := make(map[string]*LayerCache)
 	self.Cache = m
@@ -133,6 +136,15 @@ func (self *Database) startCommitLog() {
 	}
 }
 
+// CommitQueueLength returns length of database commit_log_queue
+// @returns int
+func (self *Database) CommitQueueLength() int {
+	return len(self.commit_log_queue)
+}
+
+// CreateTable
+// @param table
+// @returns Error
 func (self *Database) CreateTable(conn *bolt.DB, table string) error {
 	err := conn.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(table))
@@ -145,6 +157,11 @@ func (self *Database) CreateTable(conn *bolt.DB, table string) error {
 // @param customer {Customer}
 // @returns Error
 func (self *Database) InsertCustomer(customer Customer) error {
+	// write lock for shutdown process
+	if self.WriteLock {
+		return fmt.Errorf("Server shutting down!")
+	}
+
 	self.Apikeys[customer.Apikey] = customer
 	value, err := json.Marshal(customer)
 	if err != nil {
@@ -216,6 +233,10 @@ func (self *Database) NewLayer() (string, error) {
 // @param geojs {Geojson}
 // @returns Error
 func (self *Database) InsertLayer(datasource_id string, geojs *geojson.FeatureCollection) error {
+	// write lock for shutdown process
+	if self.WriteLock {
+		return fmt.Errorf("Server shutting down!")
+	}
 	// Update caching layer
 	if v, ok := self.Cache[datasource_id]; ok {
 		self.guard.Lock()
@@ -300,6 +321,11 @@ func (self *Database) DeleteLayer(datasource_id string) error {
 }
 
 func (self *Database) Insert(table string, key string, value []byte) error {
+	// write lock for shutdown process
+	if self.WriteLock {
+		return fmt.Errorf("Server shutting down!")
+	}
+	// connect to database and write to table
 	conn := self.Connect()
 	defer conn.Close()
 	err := conn.Update(func(tx *bolt.Tx) error {
@@ -451,6 +477,11 @@ func (self *Database) normalizeProperties(feat *geojson.Feature, featCollection 
 // @param feat {Geojson Feature}
 // @returns Error
 func (self *Database) InsertFeature(datasource_id string, feat *geojson.Feature) error {
+	// write lock for shutdown process
+	if self.WriteLock {
+		return fmt.Errorf("Server shutting down!")
+	}
+
 	if nil == feat {
 		return fmt.Errorf("feature value is <nil>!")
 	}
@@ -506,6 +537,11 @@ func (self *Database) InsertFeature(datasource_id string, feat *geojson.Feature)
 // @param feat {Geojson Feature}
 // @returns Error
 func (self *Database) EditFeature(datasource_id string, geo_id string, feat *geojson.Feature) error {
+	// write lock for shutdown process
+	if self.WriteLock {
+		return fmt.Errorf("Server shutting down!")
+	}
+
 	// Get layer from database
 	featCollection, err := self.GetLayer(datasource_id)
 	if err != nil {

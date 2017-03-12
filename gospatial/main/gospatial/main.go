@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"runtime/pprof"
 	"strings"
+	"time"
 )
 
 var (
@@ -162,8 +163,14 @@ func main() {
 			app.ServerLogger.Info("Recieved ", sig)
 			app.ServerLogger.Info("Gracefully shutting down")
 			app.ServerLogger.Info("Waiting for sockets to close...")
+			app.DB.WriteLock = true
+			now := time.Now()
 			for {
-				if len(app.Hub.Sockets) == 0 && app.ActiveTcpClients == 0 {
+				if 0 == len(app.Hub.Sockets) && 0 == app.ActiveTcpClients {
+					app.ServerLogger.Info("Shutting down...")
+					os.Exit(0)
+				}
+				if 10 < time.Since(now).Seconds() || 0 == app.DB.CommitQueueLength() {
 					app.ServerLogger.Info("Shutting down...")
 					os.Exit(0)
 				}

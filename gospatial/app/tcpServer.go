@@ -21,9 +21,14 @@ const (
 	TCP_DEFAULT_CONN_TYPE = "tcp"
 )
 
+var (
+	ActiveTcpClients int
+)
+
 type TcpServer struct {
-	Host string
-	Port string
+	Host             string
+	Port             string
+	ActiveTcpClients int
 }
 
 func (self TcpServer) Start() {
@@ -73,13 +78,22 @@ func (self TcpServer) Start() {
 	}()
 }
 
+// close tcp client
+func (self TcpServer) closeClient(conn net.Conn) {
+	ActiveTcpClients--
+	conn.Close()
+}
+
 // Handles incoming requests.
 func (self TcpServer) tcpClientHandler(conn net.Conn) {
+
+	ActiveTcpClients++
 
 	reader := bufio.NewReader(conn)
 	tp := textproto.NewReader(reader)
 
-	defer conn.Close()
+	//	defer conn.Close()
+	defer self.closeClient(conn)
 
 	// DEBUGGING
 	//	authenticated := false
@@ -92,7 +106,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 		message, _ := tp.ReadLine()
 
 		// output message received
-		NetworkLogger.Info("[TCP] Message Received: ", string([]byte(message)))
+		NetworkLogger.Info("[TCP] Message Received: ", string([]byte(message)), message, os.Interrupt)
 
 		// json parse message
 		req := TcpMessage{}
@@ -101,6 +115,7 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 
 			// invalid message
 			// close connection
+			// '\x04' end of transmittion character
 			NetworkLogger.Warn("error:", err)
 			resp := `{"status": "error", "error": "` + fmt.Sprintf("%v", err) + `",""}`
 			conn.Write([]byte(resp + "\n"))

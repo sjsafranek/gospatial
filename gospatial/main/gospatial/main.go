@@ -163,7 +163,7 @@ func main() {
 			app.ServerLogger.Info("Gracefully shutting down")
 			app.ServerLogger.Info("Waiting for sockets to close...")
 			for {
-				if len(app.Hub.Sockets) == 0 {
+				if len(app.Hub.Sockets) == 0 && app.ActiveTcpClients == 0 {
 					app.ServerLogger.Info("Shutting down...")
 					os.Exit(0)
 				}

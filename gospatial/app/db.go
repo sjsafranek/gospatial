@@ -142,7 +142,7 @@ func (self *Database) CommitQueueLength() int {
 	return len(self.commit_log_queue)
 }
 
-// CreateTable
+// CreateTable creates bucket to store data
 // @param table
 // @returns Error
 func (self *Database) CreateTable(conn *bolt.DB, table string) error {

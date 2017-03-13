@@ -4,8 +4,11 @@ import (
 	//"errors"
 	// /"github.com/paulmach/go.geojson"
 	"encoding/json"
+	"fmt"
 	"log"
+	"strings"
 	"testing"
+	"time"
 )
 
 // go test -bench=.
@@ -31,15 +34,7 @@ func init() {
 
 /*
 
-{"method":"export_datasources"}
-{"method":"export_apikeys"}
-{"method": "insert_apikey", "data":{ "apikey": "test"}}
-
-{"method":"create_apikey"}
-{"method":"create_datasource"}
 {"method":"assign_datasource","apikey":"70P78vbIeKex","datasource":"bf1f964abdab49aea6739bf7f6b32867"}
-{"method":"export_apikey","apikey":"70P78vbIeKex"}
-{"method":"export_datasource","datasource":"bf1f964abdab49aea6739bf7f6b32867"}
 
 {"method":"import_file","file":"springfield_projects_edit.geojson"}
 {"method":"import_file","file":"test.geojson"}
@@ -47,7 +42,7 @@ func init() {
 {"method":"edit_feature"}
 {"method":"edit_feature","data":{"datasource":"bf1f964abdab49aea6739bf7f6b32867","geo_id":"0"}}
 {"method":"insert_feature","data":{"datasource":"bf1f964abdab49aea6739bf7f6b32867","feature":{}}}
-
+{"method":"insert_feature","data":{"datasource":"bf1f964abdab49aea6739bf7f6b32867","feature":{"type":"Feature","geometry":{"type":"Point","coordinates":[47.279229,47.27922900257082]},"properties":{"date_created":1.487653451e+09,"date_modified":1.487653451e+09,"geo_id":"1487653451","is_active":true,"is_deleted":false,"name":"Dot"}}}}
 
 */
 
@@ -60,17 +55,86 @@ func parseRequest(message string) TcpMessage {
 	return req
 }
 
-func TestTCPCreateApikey(t *testing.T) {
+func parseResponse(message string) map[string]interface {
+	data := map[string]interface{}
+	//var data interface{}
+	err := json.Umarshal(&data)
+	if err != nil {
+		log.Println(err)
+	}
+	return data
+}
+
+func TestTCPCreateApikeySuccess(t *testing.T) {
 	req := parseRequest(`{"method": "create_apikey"}`)
 	resp := testTcpServer.create_apikey(req)
-	log.Println(resp)
-
-	if resp != "" {
+	// check for error in response
+	if strings.Contains(resp, `"status": "error"`) {
 		t.Error(resp)
 	}
-	/*
-		if customer.Apikey != testCustomerApikey {
-			t.Errorf("Apikey does not match: %s %s", testCustomerApikey, customer.Apikey)
-		}
-	*/
+	// check if "apikey" in response
+	if !strings.Contains(resp, `"apikey":`) {
+		t.Error(resp)
+	}
 }
+
+/*
+func TestTCPMethodError(t *testing.T) {
+	req := parseRequest(`{"method": "this_is_not_a_supported_method"}`)
+	resp := testTcpServer.create_apikey(req)
+
+	log.Println(resp)
+
+	// check for error in response
+	if strings.Contains(resp, `"status": "error"`) {
+		t.Error(resp)
+	}
+}
+*/
+
+func TestTCPInsertExportApikeySuccess(t *testing.T) {
+	// create and insert apikey
+	now := time.Now().Second()
+	test_apikey := fmt.Sprintf("test_apikey_%s", now)
+	req := parseRequest(`{"method": "insert_apikey", "data": { "apikey": "` + test_apikey + `" } }`)
+	resp := testTcpServer.insert_apikey(req)
+	// check for error in response
+	if !strings.Contains(resp, `"status": "ok"`) {
+		t.Error(resp)
+	}
+	// check if "test_apikey" in response
+	if !strings.Contains(resp, test_apikey) {
+		t.Error(resp)
+	}
+	//
+	req = parseRequest(`{"method": "export_apikey", "apikey": "` + test_apikey + `" }`)
+	resp = testTcpServer.export_apikey(req)
+	// check if "test_apikey" in response
+	if !strings.Contains(resp, test_apikey) {
+		t.Error(resp)
+	}
+	//
+	req = parseRequest(`{"method": "export_apikeys"}`)
+	resp = testTcpServer.export_apikeys(req)
+	// check if "test_apikey" in response
+	if !strings.Contains(resp, test_apikey) {
+		t.Error(resp)
+	}
+}
+
+func TestTCPCreateExportDatasources(t *testing.T) {
+	req := parseRequest(`{"method":"create_datasource"}`)
+	resp := testTcpServer.create_datasource(req)
+	// check for error in response
+	if strings.Contains(resp, `"status": "error"`) {
+		t.Error(resp)
+	}
+	// // check if "apikey" in response
+	// if !strings.Contains(resp, `"apikey":`) {
+	// 	t.Error(resp)
+	// }
+	log.Println(parseResponse(resp))
+}
+
+// {"method":"export_datasource","datasource":"bf1f964abdab49aea6739bf7f6b32867"}
+// {"method":"export_datasources"}

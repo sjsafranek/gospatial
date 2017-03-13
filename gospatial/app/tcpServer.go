@@ -96,7 +96,6 @@ func (self TcpServer) tcpClientHandler(conn net.Conn) {
 	defer self.closeClient(conn)
 
 	// DEBUGGING
-	//	authenticated := false
 	authenticated := true
 
 	for {

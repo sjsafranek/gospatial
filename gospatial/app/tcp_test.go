@@ -2,7 +2,7 @@ package app
 
 import (
 	//"errors"
-	// /"github.com/paulmach/go.geojson"
+	//"github.com/paulmach/go.geojson"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -55,10 +55,10 @@ func parseRequest(message string) TcpMessage {
 	return req
 }
 
-func parseResponse(message string) map[string]interface {
-	data := map[string]interface{}
-	//var data interface{}
-	err := json.Unmarshal(message &data)
+func parseResponse(message string) map[string]interface{} {
+	//data := map[string]interface{}
+	var data map[string]interface{}
+	err := json.Unmarshal(message & data)
 	if err != nil {
 		log.Println(err)
 	}

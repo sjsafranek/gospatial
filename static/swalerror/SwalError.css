@@ -1,0 +1,14 @@
+/* pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; } */
+pre.well { 
+	padding: 5px; 
+	margin: 5px; 
+	text-align: left;
+} 
+/* .string { color: green; } */
+/* .string { color: #2e2e2e; } */
+/* .number { color: darkorange; } */
+.number { color: darkorange; }
+.boolean { color: blue; }
+.null { color: magenta; }
+/* .key { color: red; } */
+/* .key { color: #2e2e2e; } */

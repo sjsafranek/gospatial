@@ -34,3 +34,48 @@ function Utils() {
 	}
 
 }
+
+
+// Source: Stacked Overflow
+// http://stackoverflow.com/questions/1960473/unique-values-in-an-array
+Array.prototype.getUnique = function(){
+	var u = {}, a = [];
+	for(var i = 0, l = this.length; i < l; ++i){
+		if(u.hasOwnProperty(this[i])) {
+			continue;
+		}
+		a.push(this[i]);
+		u[this[i]] = 1;
+	}
+	return a;
+}
+
+Array.prototype.getMin = function() {
+	var n = null;
+	for (var i=0; i<this.length; i++) {
+		if ("number" == typeof(this[i])) {
+			if (null == n) {
+				n = this[i];
+			}
+			if (n > this[i]) {
+				n = this[i];
+			}
+		}
+	}
+	return n;
+}
+
+Array.prototype.getMax = function() {
+	var n = null;
+	for (var i=0; i<this.length; i++) {
+		if ("number" == typeof(this[i])) {
+			if (null == n) {
+				n = this[i];
+			}
+			if (n < this[i]) {
+				n = this[i];
+			}
+		}
+	}
+	return n;
+}

@@ -86,10 +86,17 @@
         <!-- Font Awesome CSS -->
         <link rel="stylesheet" href="/font-awesome-4.6.3/css/font-awesome.min.css">
 
+        <!-- SwalError -->
+        <script src='/swalerror/SwalJSON.js?{{.Version}}'></script> 
+        <link href="/swalerror/SwalError.css?{{.Version}}" rel="stylesheet">
+
         <!-- MapClient -->
         <script src="/gospatialjs/Utils.js?{{.Version}}"></script>
         <script src="/gospatialjs/gospatial-api.js?{{.Version}}"></script>
-        <script src='/gospatialjs/L.GoSpatial.js?{{.Version}}'></script> 
+        <script src='/gospatialjs/L.DrawMap.js?{{.Version}}'></script> 
+        <script src='/gospatialjs/L.ChoroplethLayer.js?{{.Version}}'></script> 
+        <script src='/gospatialjs/MapView.js?{{.Version}}'></script>
+        <!--<script src='/gospatialjs/L.GoSpatial.js?{{.Version}}'></script> -->
         <link href="/gospatialjs/find-style.css?{{.Version}}" rel="stylesheet">
 
     </head>

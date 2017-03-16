@@ -1,50 +1,4 @@
 
-	// Source: Stacked Overflow
-	// http://stackoverflow.com/questions/1960473/unique-values-in-an-array
-	Array.prototype.getUnique = function(){
-	   var u = {}, a = [];
-	   for(var i = 0, l = this.length; i < l; ++i){
-	      if(u.hasOwnProperty(this[i])) {
-	         continue;
-	      }
-	      a.push(this[i]);
-	      u[this[i]] = 1;
-	   }
-	   return a;
-	}
-
-	Array.prototype.getMin = function() {
-		var n = null;
-		for (var i=0; i<this.length; i++) {
-			if ("number" == typeof(this[i])) {
-				if (null == n) {
-					n = this[i];
-				}
-				if (n > this[i]) {
-					n = this[i];
-				}
-			}
-		}
-		return n;
-	}
-
-	Array.prototype.getMax = function() {
-		var n = null;
-		for (var i=0; i<this.length; i++) {
-			if ("number" == typeof(this[i])) {
-				if (null == n) {
-					n = this[i];
-				}
-				if (n < this[i]) {
-					n = this[i];
-				}
-			}
-		}
-		return n;
-	}
-
-
-
 	var MapView = Backbone.View.extend({
 		
 		el: "#map",
@@ -143,7 +97,8 @@
 			var self = this;
 			this.api.getLayer($('#layers').val(), function(error, result){
 				if (error) {
-					swal("Error!", error, "error");
+					new SwalError("ApiError", error);
+					return;
 				}
 				self.featureGroup.setGeoJSON(result);
 				try {
@@ -179,8 +134,7 @@
 
 			this.api.getCustomer(function(error,result){
 				if (error) {
-					 swal("Error!", error, "error");
-					 throw new Error(error);
+					new SwalError("ApiError", error);
 				} else {
 					self.customer = result;
 					var datasources = self.customer.datasources;
@@ -373,7 +327,7 @@
 			var payload = feature.toGeoJSON();
 			payload.properties = this.getProperties();
 
-			console.log( new Date().toISOString(), "[DEBUG]:", JSON.stringify(payload) );
+			// console.log( new Date().toISOString(), "[DEBUG]:", JSON.stringify(payload) );
 
 			swal({
 				title: "Create layer",
@@ -390,14 +344,14 @@
 					payload,
 					function(error, results) {
 						if (error) {
-							swal("Error!", error, "error");
-						} else {
-							//swal("Success", "Feature has been submitted.", "success");
-							swal("Success", JSON.stringify(results), "success");
-							self._map.removeLayer(self._map.drawnItems._layers[id]);
-							$("#properties .attr").val("");
-							self.changeLayer();
+							new SwalError("ApiError", error);
+							return;
 						}
+						//swal("Success", JSON.stringify(results), "success");
+						new SwalJSON("Success", results, "success");
+						self._map.removeLayer(self._map.drawnItems._layers[id]);
+						$("#properties .attr").val("");
+						self.changeLayer();
 					}
 				);
 			});
@@ -410,356 +364,3 @@
 		}
 
 	});
-
-
-
-/**
- * Choropleth GeoJSON Layer
- */
-L.ChoroplethLayer = L.GeoJSON.extend({
-
-	options: {
-		
-		filter: function(feature, layer) {
-			return true;
-        },
-		
-		style: {
-			weight: 2, 
-			color: "#000", 
-			fillOpacity: 0.25,
-		},
-
-		pointToLayer: function(feature, latlng) {
-			return L.circleMarker(latlng, {
-				radius: 4,
-				weight: 1,
-				fillOpacity: 0.25,
-				color: '#000'
-			});
-		},
-
-		onEachFeature: function (feature, layer) {
-			
-			if (feature.properties) {
-					var results = "<table>";
-					results += "<th>Field</th><th>Attribute</th>";
-					for (var item in feature.properties) {
-						results += "<tr><td>" + item + "</td><td>" + feature.properties[item] + "</td></tr>";
-					}
-					results += "</table>";
-				layer.bindPopup(results);
-			}
-
-			layer.on({
-
-				mouseover: function(e) {
-					// highlight feature
-					e.target.setStyle({
-						weight: 4,
-						radius: 6
-					});
-					if (!L.Browser.ie && !L.Browser.opera) {
-						e.target.bringToFront();
-					}
-				},
-				
-				mouseout: function(e){
-					// reset style
-					e.target.setStyle({
-						weight: 1,
-						radius: 4
-					});
-				},
-				
-				dblclick: function(e) {
-					// center map on feature
-					e.target._map.setView(e.target.getBounds().getCenter());
-				},
-				
-				click: function(e) {
-					// center map on feature
-					e.target._map.setView(e.target.getBounds().getCenter());
-				},
-				
-				contextmenu: function(e) { 
-					e.target._map.fitBounds(e.target.getBounds(), {maxZoom:12});
-				}
-
-			});
-		}
-	},
-
-	initialize: function(geojson, options) {
-		this._layers = {};
-		this.datasource_id = "";
-	},
-
-	addTo: function(map) {
-		this._map = map;
-		return this;
-	},
-
-	// @method 			setGeoJSON
-	// @description 	clears layers and creates new layers from supplied geojson
-	// @params 			geojson{object} 
-	setGeoJSON: function(geojson) {
-	    this.clearLayers();
-	    this.addData(geojson);
-	    this._buildColorTree();
-	},
-
-	_getD3ScaleLinear: function() {
-		// check d3 version
-		if ("3" == d3.version[0]) {
-			return d3.scale.linear()
-		} else if ("4" == d3.version[0])  {
-			return d3.scaleLinear()
-		} else {
-			throw new Error("Unsupported d3 version: " + d3.version);
-		}
-	},
-
-	// @method 			_buildColorTree
-	// @description 	Scans layer features and build meta data for datasource columns
-	_buildColorTree: function() {
-		var fields = {};
-		
-		// loop through features features
-		this.eachLayer(function(layer) { 
-			var properties = layer.feature.properties;
-			for (var j in properties) {
-				if (!fields.hasOwnProperty(j)) {
-					fields[j] = {
-						attrs:[], 
-						type:"", 
-						color:null, 
-						name: j
-					};
-				}
-				// get field values from feature properties
-				fields[j].attrs.push(properties[j]);
-			}
-		});
-
-		// get unique field values
-		for (var i in fields) {
-			fields[i].attrs = fields[i].attrs.getUnique();
-			for (var j in fields[i].attrs) {
-				var item = fields[i].attrs[j];
-				if ("string" == typeof(item)) {
-					fields[i].type = "string";
-					break;
-				} else if ("boolean" == typeof(item)) {
-					if ( -1 != ["", "boolean"].indexOf(fields[i].type) ) {
-						fields[i].type = "boolean";
-					} else {
-						fields[i].type = "string";
-						break;
-					}
-				} else if ("number" == typeof(item)) {
-					if ( -1 != ["","number"].indexOf(fields[i].type) ) {
-						fields[i].type = "number";
-					} else {
-						fields[i].type = "string";
-						break;	
-					}
-				}
-			}
-
-			// sort field values
-			if ("number" == fields[i].type) {
-				fields[i].attrs.sort(function(a, b){return a-b});
-			} else {
-				fields[i].attrs.sort();
-			}
-
-			// create color based on data type
-			switch(fields[i].type) {
-				case "number":
-					// color range
-					if (0 != fields[i].attrs.length) {
-						fields[i].color = this._getD3ScaleLinear()
-											.domain([
-												fields[i].attrs.getMin(),
-												fields[i].attrs.getMax()
-											])
-											.range(["#330F53", "#FFDC00"]);
-					}
-					break;
-				case "boolean":
-					fields[i].color = d3.schemeCategory10;
-					break;
-				case "string":
-					fields[i].color = d3.schemeCategory20;
-					break;
-				default:
-					console.log("[DEBUG]: Uncaught data type", fields[i]);
-			}
-
-		}
-
-		this.columns = fields;
-
-	},
-
-	// @method 			getColumnNames
-	// @description 	Returns array of column names
-	// @returns 		{array}
-	getColumnNames: function() {
-		return Object.keys(this.columns);
-	},
-
-	// @method 			hasColumn
-	// @description 	Checks if datasource has column
-	// @params 			column_name{string} 
-	// @returns 		{boolean}
-	hasColumn: function(column_name) {
-		return this.columns.hasOwnProperty(column_name);
-	},
-
-	// @method 			getColumn
-	// @description 	Returns datasource column object 
-	// @params 			column_name{string} 	
-	// @returns 		{object}
-	getColumn: function(column_name) {
-		if (!this.hasColumn(column_name)) {
-			throw new Error("Column not found");
-		}
-		return this.columns[column_name];
-	},
-
-	//
-	updateColorLegend: function() {
-
-	},
-
-	// @method 			choropleth
-	// @description 	colors layer features by selected column
-	// @params 			column_name{string} 
-	choropleth: function(column_name) {
-		var self = this;
-		var column = this.getColumn(column_name);
-		this.eachLayer(function(layer) {
-			var feature = layer.feature; 
-			if (column.type == "number" ) {
-				layer.setStyle({ 
-					weight: 2, 
-					color: column.color(feature.properties[column.name]), 
-					fillOpacity: 0.8,
-					fillColor: column.color(feature.properties[column.name])
-				});
-			} else {
-				var index = column.attrs.indexOf(feature.properties[column.name]);
-				layer.setStyle({
-					weight: 2, 
-					color: column.color(index),
-					fillOpacity: 0.8,
-					fillColor: column.color(index)
-				});
-			}
-		});
-		this.updateColorLegend();
-	}
-
-});
-
-L.choroplethLayer = function(geojson, options) {
-	return new L.ChoroplethLayer(geojson, options);
-};
-
-
-
-
-
-/**
- * GoSpatial Map Client
- * Author: Stefan Safranek
- * Email:  sjsafranek@gmail.com
- */
-L.DrawMap = L.Map.extend({
-
-	initialize: function(apikey, id, options) {
-		var self = this;
-		L.Map.prototype.initialize.call(this, id, options);
-		this.drawnItems = {};
-		this._addDrawingControl();
-	},
-
-	_addDrawingControl: function() {
-		this.drawnItems = L.featureGroup().addTo(this);
-		this.addControl(
-			new L.Control.Draw({
-				draw: { circle: false },
-				edit: { featureGroup: this.drawnItems }
-			})
-		);
-	}
-
-});
-
-L.drawMap = function(apikey, container, options) {
-	return new L.DrawMap(apikey, container, options);
-};
-
-
-
-
-	// getWebSocket: function() {
-	// 	var self = this;
-	// 	console.log("Opening websocket");
-	// 	try { 
-	// 		var url = "ws://" + window.location.host + "/ws/" + self.datasources[0];
-	// 		ws = new WebSocket(url);
-	// 	}
-	// 	catch(err) {
-	// 		console.log(err);
-	// 		var url = "wss://" + window.location.host + "/ws/" + self.datasources[0];
-	// 		ws = new WebSocket(url);
-	// 	}
-	// 	ws.onopen = function(e) { 
-	// 		console.log("Websocket is open");
-	// 	};
-	// 	ws.onmessage = function(e) {
-	// 		console.log(e.data);
-	// 		var data = JSON.parse(e.data);
-	// 		console.log(data);
-	// 		if (data.update) {
-	// 			self.apiClient.getLayer($('#layers').val(), function(error, result){
-	// 				if (error) {
-	// 					throw error;
-	// 					self.errorMessage(error);
-	// 				} else {apiClient
-	// 					self.updateFeatureLayers(result);
-	// 				}
-	// 			});
-	// 		}
-	// 		$("#viewers").text(data.viewers);
-	// 		if (data.key) {
-	// 			if (!self._editFeatures.hasOwnProperty(data.client)) {
-	// 				self._editFeatures[data.client] = {
-	// 					color: self.utils.randomColor()
-	// 				};
-	// 			}
-	// 			if (self._editFeatures[data.client].hasOwnProperty(data.key)) {
-	// 				self._map.removeLayer(self._editFeatures[data.client][data.key]);
-	// 			}
-	// 			if (data.feature) {
-	// 				var featureLayer = L.geoJson(data.feature, {
-	// 					style: {
-	// 						fillOpacity: 0.5,
-	// 						color: self._editFeatures[data.client].color
-	// 					}
-	// 				});
-	// 				// featureLayer.editable.enable();
-	// 				self._editFeatures[data.client][data.key] = featureLayer;
-	// 				self._editFeatures[data.client][data.key].addTo(self._map);
-	// 			}
-	// 		}
-	// 	};
-	// 	ws.onclose = function(e) { 
-	// 		console.log("Websocket is closed"); 
-	// 	}
-	// 	ws.onerror = function(e) { console.log(e); }
-	// 	return ws;
-	// }

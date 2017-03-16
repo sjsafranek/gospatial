@@ -35,18 +35,21 @@
 					url: '/api/v1/layer?apikey=' + self.apikey,
 					type: 'POST',
 					success: function(result) {
-						swal("Created!", JSON.stringify(result), "success");
+						//swal("Created!", JSON.stringify(result), "success");
+						new SwalJSON("Created!", result, "success");
 						$("#layers_list").html("");
 						self.render();
 					},
 					failure: function(result) {
 						console.log(result);
-						swal("Error", JSON.stringify(result), "error");
+						//swal("Error", JSON.stringify(result), "error");
+						new SwalError("Error", result);
 						throw new Error(result);
 					},
 					error: function(result) {
 						console.log(result);
-						swal("Error", JSON.stringify(result), "error");
+						new SwalError("Error", result);
+						//swal("Error", JSON.stringify(result), "error");
 						throw new Error(result);
 					}
 				}); 
@@ -72,19 +75,22 @@
 						url: '/api/v1/layer/'+ datasource_id +'?apikey=' + self.apikey,
 						type: 'DELETE',
 						success: function(result) {
-							swal("Deleted!", JSON.stringify(result), "success");
+							//swal("Deleted!", JSON.stringify(result), "success");
+							new SwalJSON("Deleted!", result, "success");
 							var model = self.vectorlayers.get(datasource_id);
 							self.vectorlayers.remove(model);
 							self.render();
 						},
 						failure: function(result) {
 							console.log(result);
-							swal("Error", JSON.stringify(result), "error");
+							//swal("Error", JSON.stringify(result), "error");
+							new SwalError("Error", result);
 							throw new Error(result);
 						},
 						error: function(result) {
 							console.log(result);
-							swal("Error", JSON.stringify(result), "error");
+							//swal("Error", JSON.stringify(result), "error");
+							new SwalError("Error", result);
 							throw new Error(result);
 						}
 					});

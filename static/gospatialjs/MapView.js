@@ -347,7 +347,6 @@
 							new SwalError("ApiError", error);
 							return;
 						}
-						//swal("Success", JSON.stringify(results), "success");
 						new SwalJSON("Success", results, "success");
 						self._map.removeLayer(self._map.drawnItems._layers[id]);
 						$("#properties .attr").val("");

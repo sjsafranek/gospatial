@@ -1,5 +1,6 @@
 
-var SwalJSON = Backbone.Model.extend({
+// SwalPrettyPrint
+var SwalPrettyPrint = Backbone.Model.extend({
 
 	debug: false,
 	width: 500,
@@ -47,7 +48,7 @@ var SwalJSON = Backbone.Model.extend({
 	display: function() {
 		var self = this;
 		swal({
-			title: this.get("title"),
+			title: "<h3>" + this.get("title") + "</h3>",
 			html: (function() {
 					return	 "<pre class='well'>"
 							+	"<small>"
@@ -67,13 +68,13 @@ var SwalJSON = Backbone.Model.extend({
 });
 
 
-
-var SwalError = SwalJSON.extend({
+// SwalPpError
+var SwalPpError = SwalPrettyPrint.extend({
 
 	width: 725,
 
 	initialize: function(title, data) {
-		SwalJSON.prototype.initialize.call(
+		SwalPrettyPrint.prototype.initialize.call(
 			this, 
 			title, 
 			new Error(data).stack, 
@@ -83,3 +84,97 @@ var SwalError = SwalJSON.extend({
 });
 
 
+var SwalPpSuccess = SwalPrettyPrint.extend({
+
+	initialize: function(title, data) {
+		SwalPrettyPrint.prototype.initialize.call(
+			this, 
+			title, 
+			data, 
+			"success");
+	}
+
+});
+
+
+
+
+
+
+
+// SwalConfirm( 
+// 	"Create layer?", 
+// 	"Are you sure you want submit feature?", 
+// 	"info",
+// 	function(){
+// 		self.api.submitFeature(
+// 			$('#layers').val(),
+// 			payload,
+// 			function(error, results) {
+// 				if (error) {
+// 					new SwalPpError("ApiError", error);
+// 					return;
+// 				}
+// 				new SwalPpSuccess("Success", results);
+// 				self._map.removeLayer(self._map.drawnItems._layers[id]);
+// 				$("#properties .attr").val("");
+// 				self.changeLayer();
+// 			}
+// 		);
+// 	}
+// );
+
+
+var SwalConfirm = Backbone.Model.extend({
+
+	debug: false,
+
+	defaults: {
+		data: "",
+		title: "Info",
+		type: "info"
+	},
+
+	initialize: function(title, data, type, successCallback, cancelCallback) {
+		this.set("type", type || "info");
+		this.set("title", title || "Info");
+		this.set("data", data);
+		this.successCallback = successCallback;
+		this.cancelCallback  = cancelCallback || function(dismiss) {};
+		this.display();
+	},
+	
+	text: function() {
+		return JSON.stringify(this.toJSON());
+	},
+
+	display: function() {
+		var self = this;
+
+		var confirmColor = ""
+		if ("info" == self.get("type")) {
+			confirmColor = "#337ab7";
+		}
+		else if ("warning" == self.get("type")) {
+			confirmColor = "#DD6B55";
+		}
+
+		swal({
+			title: self.get("title"),
+			text: self.get("data"),
+			type: self.get("type"),
+			showCancelButton: true,
+			//confirmButtonColor: "#337ab7",
+			confirmButtonColor: confirmColor,
+			confirmButtonText: "Yes, pls!",
+			cancelButtonText: "No, cancel pls!",
+			showLoaderOnConfirm: true
+		}).then(
+			this.successCallback,
+			this.cancelCallback
+		);
+
+		if (this.debug) { debugger; }
+	}
+	
+});

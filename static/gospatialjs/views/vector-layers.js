@@ -21,76 +21,88 @@
 
 		createLayer: function() {
 			var self = this;
-			swal({
-				title: "Create layer",
-				text: "Are you sure you want to create a new layer",
-				type: "info",
-				showCancelButton: true,
-				confirmButtonColor: "#DD6B55",
-				confirmButtonText: "Yes, pls!",
-				cancelButtonText: "No, cancel pls!",
-				showLoaderOnConfirm: true,
-			}).then(function(){
-				$.ajax({
-					url: '/api/v1/layer?apikey=' + self.apikey,
-					type: 'POST',
-					success: function(result) {
-						//swal("Created!", JSON.stringify(result), "success");
-						new SwalJSON("Created!", result, "success");
-						$("#layers_list").html("");
-						self.render();
-					},
-					failure: function(result) {
-						console.log(result);
-						//swal("Error", JSON.stringify(result), "error");
-						new SwalError("Error", result);
-						throw new Error(result);
-					},
-					error: function(result) {
-						console.log(result);
-						new SwalError("Error", result);
-						//swal("Error", JSON.stringify(result), "error");
-						throw new Error(result);
-					}
-				}); 
-			});
+
+			new SwalConfirm( 
+				"Create layer?", 
+				"Are you sure you want to create a new layer?", 
+				"info",
+				function(){
+					$.ajax({
+						url: '/api/v1/layer?apikey=' + self.apikey,
+						type: 'POST',
+						success: function(result) {
+							new SwalPpSuccess("Created!", result);
+							$("#layers_list").html("");
+							self.render();
+						},
+						failure: function(result) {
+							new SwalPpError("ApiError", result);
+							throw new Error(result);
+						},
+						error: function(result) {
+							new SwalPpError("ApiError", result);
+							throw new Error(result);
+						}
+					}); 
+				}
+			);
+
+			// swal({
+			// 	title: "Create layer",
+			// 	text: "Are you sure you want to create a new layer",
+			// 	type: "info",
+			// 	showCancelButton: true,
+			// 	confirmButtonColor: "#337ab7",
+			// 	confirmButtonText: "Yes, pls!",
+			// 	cancelButtonText: "No, cancel pls!",
+			// 	showLoaderOnConfirm: true,
+			// }).then(function(){
+			// 	$.ajax({
+			// 		url: '/api/v1/layer?apikey=' + self.apikey,
+			// 		type: 'POST',
+			// 		success: function(result) {
+			// 			new SwalPpSuccess("Created!", result);
+			// 			$("#layers_list").html("");
+			// 			self.render();
+			// 		},
+			// 		failure: function(result) {
+			// 			new SwalPpError("ApiError", result);
+			// 			throw new Error(result);
+			// 		},
+			// 		error: function(result) {
+			// 			new SwalPpError("ApiError", result);
+			// 			throw new Error(result);
+			// 		}
+			// 	}); 
+			// });
+
 		},
 
 		deleteLayer: function(event) {
 			var self = this;
 			var datasource_id = $(event.target).attr("ds_id");
 			// HANDLE IF CLICK ON ICON!!!
-			swal({
-				title: "Delete layer",
-				text: "Are you sure you want to delete " + datasource_id,
-				type: "warning",	 
-				showCancelButton: true,	 
-				confirmButtonColor: "#DD6B55",	 
-				confirmButtonText: "Yes, delete it!",	 
-				cancelButtonText: "No, cancel pls!",	 
-				showLoaderOnConfirm: true
-			}).then(
+
+			new SwalConfirm( 
+				"Delete layer?", 
+				"Are you sure you want to delete " + datasource_id,
+				"warning",
 				function(){
 					$.ajax({
 						url: '/api/v1/layer/'+ datasource_id +'?apikey=' + self.apikey,
 						type: 'DELETE',
 						success: function(result) {
-							//swal("Deleted!", JSON.stringify(result), "success");
-							new SwalJSON("Deleted!", result, "success");
+							new SwalPpSuccess("Deleted!", result);
 							var model = self.vectorlayers.get(datasource_id);
 							self.vectorlayers.remove(model);
 							self.render();
 						},
 						failure: function(result) {
-							console.log(result);
-							//swal("Error", JSON.stringify(result), "error");
-							new SwalError("Error", result);
+							new SwalPpError("ApiError", result);
 							throw new Error(result);
 						},
 						error: function(result) {
-							console.log(result);
-							//swal("Error", JSON.stringify(result), "error");
-							new SwalError("Error", result);
+							new SwalPpError("ApiError", result);
 							throw new Error(result);
 						}
 					});
@@ -101,6 +113,43 @@
 					}
 				}
 			);
+
+			// swal({
+			// 	title: "Delete layer",
+			// 	text: "Are you sure you want to delete " + datasource_id,
+			// 	type: "warning",	 
+			// 	showCancelButton: true,	 
+			// 	confirmButtonColor: "#DD6B55",	 
+			// 	confirmButtonText: "Yes, delete it!",	 
+			// 	cancelButtonText: "No, cancel pls!",	 
+			// 	showLoaderOnConfirm: true
+			// }).then(
+			// 	function(){
+			// 		$.ajax({
+			// 			url: '/api/v1/layer/'+ datasource_id +'?apikey=' + self.apikey,
+			// 			type: 'DELETE',
+			// 			success: function(result) {
+			// 				new SwalPpSuccess("Deleted!", result);
+			// 				var model = self.vectorlayers.get(datasource_id);
+			// 				self.vectorlayers.remove(model);
+			// 				self.render();
+			// 			},
+			// 			failure: function(result) {
+			// 				new SwalPpError("ApiError", result);
+			// 				throw new Error(result);
+			// 			},
+			// 			error: function(result) {
+			// 				new SwalPpError("ApiError", result);
+			// 				throw new Error(result);
+			// 			}
+			// 		});
+			// 	}, 
+			// 	function(dismiss){
+			// 		if ('cancel' == dismiss) {
+			// 			swal("Cancelled", "Your data is safe :)", "error");
+			// 		}
+			// 	}
+			// );
 		},
 
 		viewLayer: function() {
@@ -143,18 +192,18 @@
 					if ($(container).find(".raw-json").html() == "") {
 						self.gospatial.getLayer(datasource_id, function(error, data) {
 							if (error) {
-								throw new Error(error);
-							} else {
-								// $(container).find(".raw-json").html(JSON.stringify(data, null, 2));
-								var metadata = {
-									size: JSON.stringify(data).length,
-									features: data.features.length
-								};
-								$(container).find(".raw-json").html(JSON.stringify(metadata, null, 2));
-								// download link for geojson file
-								var link = $(container).find("a");
-								link.href = makeGeoJSONFile(data);
+								SwalPpError("ApiError", error)
+								return;
 							}
+							// $(container).find(".raw-json").html(JSON.stringify(data, null, 2));
+							var metadata = {
+								size: JSON.stringify(data).length,
+								features: data.features.length
+							};
+							$(container).find(".raw-json").html(JSON.stringify(metadata, null, 2));
+							// download link for geojson file
+							var link = $(container).find("a");
+							link.href = makeGeoJSONFile(data);
 						});
 					}
 				}
@@ -167,14 +216,14 @@
 			
 			this.gospatial.getCustomer(function(error,result) {
 				if (error) {
-					swal("Error", error, "error");
+					SwalPpError("ApiError", error);
 					self.customer = undefined;
 					return;
 				}
 				self.customer = result;
 
 				if (!self.customer.hasOwnProperty("datasources")) {
-					swal("Error", "Invalid customer object: " + JSON.stringify(self.customer),"error");
+					SwalPpError("ApiResponseError", self.customer);
 					return;
 				}
 

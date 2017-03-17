@@ -97,7 +97,7 @@
 			var self = this;
 			this.api.getLayer($('#layers').val(), function(error, result){
 				if (error) {
-					new SwalError("ApiError", error);
+					new SwalPpError("ApiError", error);
 					return;
 				}
 				self.featureGroup.setGeoJSON(result);
@@ -134,7 +134,7 @@
 
 			this.api.getCustomer(function(error,result){
 				if (error) {
-					new SwalError("ApiError", error);
+					new SwaPplError("ApiError", error);
 				} else {
 					self.customer = result;
 					var datasources = self.customer.datasources;
@@ -327,33 +327,55 @@
 			var payload = feature.toGeoJSON();
 			payload.properties = this.getProperties();
 
-			// console.log( new Date().toISOString(), "[DEBUG]:", JSON.stringify(payload) );
 
-			swal({
-				title: "Create layer",
-				text: "Are you sure you want submit feature?",
-				type: "info",
-				showCancelButton: true,
-				confirmButtonColor: "#DD6B55",
-				confirmButtonText: "Yes, pls!",
-				cancelButtonText: "No, cancel pls!",
-				showLoaderOnConfirm: true,
-			}).then(function(){
-				self.api.submitFeature(
-					$('#layers').val(),
-					payload,
-					function(error, results) {
-						if (error) {
-							new SwalError("ApiError", error);
-							return;
+			new SwalConfirm( 
+				"Create feature?", 
+				"Are you sure you want submit feature?", 
+				"info",
+				function(){
+					self.api.submitFeature(
+						$('#layers').val(),
+						payload,
+						function(error, results) {
+							if (error) {
+								new SwalPpError("ApiError", error);
+								return;
+							}
+							new SwalPpSuccess("Success", results);
+							self._map.removeLayer(self._map.drawnItems._layers[id]);
+							$("#properties .attr").val("");
+							self.changeLayer();
 						}
-						new SwalJSON("Success", results, "success");
-						self._map.removeLayer(self._map.drawnItems._layers[id]);
-						$("#properties .attr").val("");
-						self.changeLayer();
-					}
-				);
-			});
+					);
+				}
+			);
+
+
+			// swal({
+			// 	title: "Create layer",
+			// 	text: "Are you sure you want submit feature?",
+			// 	type: "info",
+			// 	showCancelButton: true,
+			// 	confirmButtonColor: "#337ab7",
+			// 	confirmButtonText: "Yes, pls!",
+			// 	cancelButtonText: "No, cancel pls!",
+			// 	showLoaderOnConfirm: true,
+			// }).then(function(){
+			// 	self.api.submitFeature(
+			// 		$('#layers').val(),
+			// 		payload,
+			// 		function(error, results) {
+			// 			if (error) {
+			// 				new SwalPpError("ApiError", error);
+			// 				return;
+			// 			}
+			// 			new SwalPpSuccess("Success", results);
+			// 			self._map.removeLayer(self._map.drawnItems._layers[id]);
+			// 			$("#properties .attr").val("");
+			// 			self.changeLayer();
+			// 		}
+			// 	);
+			// });
 
 		},
 

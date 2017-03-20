@@ -6,13 +6,16 @@ import (
 	"errors"
 	"fmt"
 	"github.com/paulmach/go.geojson"
-	"gospatial/utils"
 	"io/ioutil"
 	"net"
 	"net/textproto"
 	"os"
 	"os/exec"
 	"strings"
+)
+
+import (
+	"./utils"
 )
 
 const (

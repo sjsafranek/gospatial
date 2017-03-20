@@ -7,13 +7,16 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/paulmach/go.geojson"
-	"gospatial/utils"
 	"io"
 	"log"
 	"math"
 	"os"
 	"sync"
 	"time"
+)
+
+import (
+	"./utils"
 )
 
 // https://gist.github.com/DavidVaini/10308388

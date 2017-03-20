@@ -6,7 +6,6 @@ import (
 	"github.com/paulmach/go.geojson"
 	"io/ioutil"
 	"net/http"
-	//"time"
 )
 
 // NewFeatureHandler creates a new feature and adds it to a layer.

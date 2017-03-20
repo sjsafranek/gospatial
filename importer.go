@@ -11,13 +11,17 @@ import (
 	"fmt"
 	//"github.com/boltdb/bolt"
 	"github.com/paulmach/go.geojson"
-	"gospatial/app"
-	"gospatial/utils"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
 )
+
+import (
+	"./gospatial"
+	"./gospatial/utils"
+)
+
 
 var (
 	database string

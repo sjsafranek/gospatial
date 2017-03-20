@@ -3,8 +3,11 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-	"gospatial/utils"
 	"net/http"
+)
+
+import (
+	"./utils"
 )
 
 func MarshalJsonFromString(w http.ResponseWriter, r *http.Request, data string) ([]byte, error) {

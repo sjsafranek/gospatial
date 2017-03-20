@@ -2,10 +2,13 @@ package app
 
 import (
 	"encoding/json"
-	"gospatial/utils"
 	"net/http"
 	"runtime"
 	"time"
+)
+
+import (
+	"./utils"
 )
 
 // PingHandler provides an api route for server health check

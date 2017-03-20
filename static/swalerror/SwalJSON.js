@@ -1,5 +1,6 @@
 
-// SwalPrettyPrint
+
+
 var SwalPrettyPrint = Backbone.Model.extend({
 
 	debug: false,
@@ -68,7 +69,7 @@ var SwalPrettyPrint = Backbone.Model.extend({
 });
 
 
-// SwalPpError
+
 var SwalPpError = SwalPrettyPrint.extend({
 
 	width: 725,
@@ -84,6 +85,7 @@ var SwalPpError = SwalPrettyPrint.extend({
 });
 
 
+
 var SwalPpSuccess = SwalPrettyPrint.extend({
 
 	initialize: function(title, data) {
@@ -96,33 +98,6 @@ var SwalPpSuccess = SwalPrettyPrint.extend({
 
 });
 
-
-
-
-
-
-
-// SwalConfirm( 
-// 	"Create layer?", 
-// 	"Are you sure you want submit feature?", 
-// 	"info",
-// 	function(){
-// 		self.api.submitFeature(
-// 			$('#layers').val(),
-// 			payload,
-// 			function(error, results) {
-// 				if (error) {
-// 					new SwalPpError("ApiError", error);
-// 					return;
-// 				}
-// 				new SwalPpSuccess("Success", results);
-// 				self._map.removeLayer(self._map.drawnItems._layers[id]);
-// 				$("#properties .attr").val("");
-// 				self.changeLayer();
-// 			}
-// 		);
-// 	}
-// );
 
 
 var SwalConfirm = Backbone.Model.extend({

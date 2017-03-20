@@ -1,4 +1,4 @@
-##=======================================================================##
+  ##=======================================================================##
 ## Makefile
 ## Created: Wed Aug 05 14:35:14 PDT 2015 @941 /Internet Time/
 # :mode=makefile:tabSize=3:indentSize=3:
@@ -12,12 +12,13 @@ GPATH = $(shell pwd)
 .PHONY: fmt install get scrape build clean 
 
 install: fmt
-	@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/${PROJECT_NAME}
-	@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/importer
-#	g++ -o bin/setup src/${PROJECT_NAME}/main/settings/setup.cpp
+	#@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/${PROJECT_NAME}
+	#@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/importer
+	@GOPATH=${GPATH} go build server.go
+	@GOPATH=${GPATH} go build importer.go
 
 fmt:
-	@GOPATH=${GPATH} gofmt -s -w src/${PROJECT_NAME}
+	@GOPATH=${GPATH} gofmt -s -w ${PROJECT_NAME}
 
 get:
 	@GOPATH=${GPATH} go get ${OPTS} ${ARGS}

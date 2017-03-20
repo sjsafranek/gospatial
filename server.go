@@ -10,8 +10,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"gospatial/app"
-	"gospatial/utils"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -22,6 +20,11 @@ import (
 	"runtime/pprof"
 	"strings"
 	"time"
+)
+
+import (
+	"./gospatial"
+	"./gospatial/utils"
 )
 
 var (

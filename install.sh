@@ -17,12 +17,12 @@ if [ ! -d "`pwd`/log" ]; then
 fi
 if [ ! -d "`pwd`/src" ]; then
     mkdir src
-    mkdir src/gospatial
+    #mkdir src/gospatial
 fi
 
 # Move source files
-echo "copying source files..."
-cp -R gospatial/* src/gospatial/
+#echo "copying source files..."
+#cp -R gospatial/* src/gospatial/
 
 # Download required libraries
 echo "checking requirements..."

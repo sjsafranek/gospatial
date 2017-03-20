@@ -4,11 +4,15 @@ import (
 	"time"
 )
 
+import (
+	"./utils"
+)
+
 const (
-	VERSION string = "1.11.4"
+	VERSION string = "1.11.3"
 )
 
 var (
 	startTime           = time.Now()
-	SuperuserKey string = "su"
+	SuperuserKey string = utils.NewAPIKey(12)
 )

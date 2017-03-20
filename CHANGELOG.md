@@ -17,7 +17,7 @@
  - selenium unittests
 ### Changed
  - Refactor of JavaScript api
-
+ - Refactor of folder directories and makefile
 
 
 

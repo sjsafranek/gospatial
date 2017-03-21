@@ -12,13 +12,13 @@ GPATH = $(shell pwd)
 .PHONY: fmt install get scrape build clean 
 
 install: fmt
-	#@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/${PROJECT_NAME}
-	#@GOPATH=${GPATH} go install ${PROJECT_NAME}/main/importer
 	@GOPATH=${GPATH} go build server.go
 	@GOPATH=${GPATH} go build importer.go
 
 fmt:
 	@GOPATH=${GPATH} gofmt -s -w ${PROJECT_NAME}
+	@GOPATH=${GPATH} gofmt -s -w server.go
+	@GOPATH=${GPATH} gofmt -s -w importer.go
 
 get:
 	@GOPATH=${GPATH} go get ${OPTS} ${ARGS}

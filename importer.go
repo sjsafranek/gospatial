@@ -9,7 +9,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	//"github.com/boltdb/bolt"
 	"github.com/paulmach/go.geojson"
 	"io/ioutil"
 	"os"
@@ -21,7 +20,6 @@ import (
 	"./gospatial"
 	"./gospatial/utils"
 )
-
 
 var (
 	database string

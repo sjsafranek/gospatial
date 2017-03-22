@@ -13,7 +13,7 @@ GPATH = $(shell pwd)
 
 install: fmt deps
 	@GOPATH=${GPATH} go build -o gospatial-server server.go
-	@GOPATH=${GPATH} go build -o gospatail-importer importer.go
+	@GOPATH=${GPATH} go build -o gospatial-importer importer.go
 
 build: fmt deps
 	@GOPATH=${GPATH} go build -o skeleton-cli client.go

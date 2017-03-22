@@ -1,0 +1,20 @@
+
+{"method":"export_datasources"}
+{"method":"export_apikeys"}
+{"method": "insert_apikey", "data":{ "apikey": "test"}}
+
+{"method":"create_apikey"}
+{"method":"create_datasource"}
+{"method":"assign_datasource","apikey":"70P78vbIeKex","datasource":"bf1f964abdab49aea6739bf7f6b32867"}
+{"method":"export_apikey","apikey":"70P78vbIeKex"}
+{"method":"export_datasource","datasource":"bf1f964abdab49aea6739bf7f6b32867"}
+
+{"method":"import_file","file":"springfield_projects_edit.geojson"}
+{"method":"import_file","file":"test.geojson"}
+
+{"method":"edit_feature"}
+
+{"method":"edit_feature","data":{"datasource":"bf1f964abdab49aea6739bf7f6b32867","geo_id":"0"}}
+{"method":"insert_feature","data":{"datasource":"bf1f964abdab49aea6739bf7f6b32867","feature":{}}}
+
+{"method":"insert_feature","data":{"datasource":"bf1f964abdab49aea6739bf7f6b32867","feature":{"type":"Feature","geometry":{"type":"Point","coordinates":[47.279229,47.27922900257082]},"properties":{"date_created":1.487653451e+09,"date_modified":1.487653451e+09,"geo_id":"1487653451","is_active":true,"is_deleted":false,"name":"Dot"}}}}

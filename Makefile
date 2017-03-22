@@ -14,6 +14,7 @@ GPATH = $(shell pwd)
 install: fmt deps
 	@GOPATH=${GPATH} go build -o gospatial-server server.go
 	@GOPATH=${GPATH} go build -o gospatial-importer importer.go
+	@GOPATH=${GPATH} go build -o gospatial-ts timeseries_tool.go
 
 build: fmt deps
 	@GOPATH=${GPATH} go build -o skeleton-cli client.go
@@ -27,11 +28,14 @@ deps:
 	@GOPATH=${GPATH} go get github.com/gorilla/mux
 	@GOPATH=${GPATH} go get github.com/gorilla/websocket
 	@GOPATH=${GPATH} go get github.com/paulmach/go.geojson
+	@GOPATH=${GPATH} go get github.com/sjsafranek/DiffDB/diff_store
+	@GOPATH=${GPATH} go get github.com/sjsafranek/DiffDB/skeleton_db
 
 fmt:
 	@GOPATH=${GPATH} gofmt -s -w ${PROJECT_NAME}
 	@GOPATH=${GPATH} gofmt -s -w server.go
 	@GOPATH=${GPATH} gofmt -s -w importer.go
+	@GOPATH=${GPATH} gofmt -s -w timeseries_tool.go
 
 test:
 	##./tcp_test.sh

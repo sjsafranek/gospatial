@@ -5,8 +5,6 @@ import (
 	"compress/flate"
 	"encoding/json"
 	"fmt"
-	"github.com/boltdb/bolt"
-	"github.com/paulmach/go.geojson"
 	"io"
 	"log"
 	"math"
@@ -17,6 +15,11 @@ import (
 
 import (
 	"./utils"
+)
+
+import (
+	"github.com/boltdb/bolt"
+	"github.com/paulmach/go.geojson"
 )
 
 // https://gist.github.com/DavidVaini/10308388
@@ -259,6 +262,10 @@ func (self *Database) InsertLayer(datasource_id string, geojs *geojson.FeatureCo
 	if err != nil {
 		panic(err)
 	}
+
+	// debugging
+	go update_timeseries_datasource(datasource_id, value)
+
 	return err
 }
 
@@ -302,11 +309,6 @@ func (self *Database) DeleteLayer(datasource_id string) error {
 	key := []byte(datasource_id)
 	self.commit_log_queue <- `{"method": "delete_layer", "data": { "datasource": "` + datasource_id + `"}}`
 	err := conn.Update(func(tx *bolt.Tx) error {
-		//bucket, err := tx.CreateBucketIfNotExists([]byte("layers"))
-		//if err != nil {
-		//	return err
-		//}
-		//err = bucket.Delete(key)
 		bucket := tx.Bucket([]byte("layers"))
 		if bucket == nil {
 			return fmt.Errorf("Bucket layers not found!")
@@ -332,11 +334,6 @@ func (self *Database) Insert(table string, key string, value []byte) error {
 	conn := self.Connect()
 	defer conn.Close()
 	err := conn.Update(func(tx *bolt.Tx) error {
-		//bucket, err := tx.CreateBucketIfNotExists([]byte(table))
-		//if err != nil {
-		//	return err
-		//}
-		//err = bucket.Put([]byte(key), self.compressByte(value))
 		bucket := tx.Bucket([]byte(table))
 		if bucket == nil {
 			return fmt.Errorf("Bucket %q not found!", table)

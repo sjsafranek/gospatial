@@ -16,9 +16,9 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
-	"path/filepath"
+	// "path/filepath"
 	"runtime/pprof"
-	"strings"
+	//"strings"
 	"time"
 )
 
@@ -54,11 +54,12 @@ type serverConfig struct {
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 func init() {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		app.ServerLogger.Error(err)
-	}
-	db := strings.Replace(dir, "bin", "bolt", -1)
+	//dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	//if err != nil {
+	//	app.ServerLogger.Error(err)
+	//}
+	// /db := strings.Replace(dir, "bin", "bolt", -1)
+	db := "bolt"
 	flag.StringVar(&configFile, "c", DEFAULT_CONFIG_FILE, "server config file")
 	flag.IntVar(&port, "p", DEFAULT_HTTP_PORT, "http server port")
 	flag.IntVar(&tcp_port, "tcp_port", DEFAULT_TCP_PORT, "tcp server port")

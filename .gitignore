@@ -5,10 +5,11 @@
 chromedriver
 __pycache__
 
+log
 bin
 pkg
 src
 setup
 
-importer
-server
+gospatial-importer
+gospatial-server

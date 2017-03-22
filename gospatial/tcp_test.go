@@ -11,15 +11,6 @@ import (
 	"time"
 )
 
-// go test -bench=.
-// go test -bench=. -test.benchmem
-
-// const (
-// 	testDbFile         string = "./test.db"
-// 	testCustomerApikey string = "testKey"
-// 	testDatasource     string = "testLayer"
-// )
-
 //var testDb Database
 var testTcpServer TcpServer
 

@@ -16,9 +16,7 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
-	// "path/filepath"
 	"runtime/pprof"
-	//"strings"
 	"time"
 )
 
@@ -54,32 +52,25 @@ type serverConfig struct {
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 func init() {
-	//dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	//if err != nil {
-	//	app.ServerLogger.Error(err)
-	//}
-	// /db := strings.Replace(dir, "bin", "bolt", -1)
 	db := "bolt"
 	flag.StringVar(&configFile, "c", DEFAULT_CONFIG_FILE, "server config file")
 	flag.IntVar(&port, "p", DEFAULT_HTTP_PORT, "http server port")
 	flag.IntVar(&tcp_port, "tcp_port", DEFAULT_TCP_PORT, "tcp server port")
-	//flag.IntVar(&port, "p", 8888, "server port")
 	flag.StringVar(&database, "db", db, "app database")
-	// flag.StringVar(&app.SuperuserKey, "s", "7q1qcqmsxnvw", "superuser key")
-	flag.StringVar(&app.SuperuserKey, "s", "su", "superuser key")
+	flag.StringVar(&gospatial.SuperuserKey, "s", "su", "superuser key")
 	flag.BoolVar(&versionReport, "V", false, "App Version")
-	flag.BoolVar(&app.Verbose, "v", false, "verbose")
+	flag.BoolVar(&gospatial.Verbose, "v", false, "verbose")
 	flag.BoolVar(&debugMode, "d", false, "Enable debug mode")
-	flag.StringVar(&app.LogDirectory, "L", "log", "logging directory") // check if directory exists
-	flag.StringVar(&app.LogLevel, "l", "trace", "logging level")
+	flag.StringVar(&gospatial.LogDirectory, "L", "log", "logging directory") // check if directory exists
+	flag.StringVar(&gospatial.LogLevel, "l", "trace", "logging level")
 
 	flag.Parse()
 	if versionReport {
-		fmt.Println("Version:", app.VERSION)
+		fmt.Println("Version:", gospatial.VERSION)
 		os.Exit(0)
 	}
 
-	app.ResetLogging()
+	gospatial.ResetLogging()
 
 	// check if config file exists!!!
 	if _, err := os.Stat(configFile); err != nil {
@@ -91,10 +82,10 @@ func init() {
 		configuration.Db = database
 
 		// superuser key
-		if "su" == app.SuperuserKey {
+		if "su" == gospatial.SuperuserKey {
 			authkey := utils.NewAPIKey(12)
 			configuration.Authkey = authkey
-			app.SuperuserKey = authkey
+			gospatial.SuperuserKey = authkey
 		}
 
 		// write to file
@@ -119,8 +110,8 @@ func init() {
 		}
 
 		// apply commandline args as overrides
-		if "su" == app.SuperuserKey {
-			app.SuperuserKey = configuration.Authkey
+		if "su" == gospatial.SuperuserKey {
+			gospatial.SuperuserKey = configuration.Authkey
 		}
 
 		if DEFAULT_HTTP_PORT != port {
@@ -131,7 +122,7 @@ func init() {
 		}
 
 		//configuration.Db = strings.Replace(database, ".db", "", -1) //database
-		//app.ServerLogger.Info(strings.Replace(database, ".db", "", -1))
+		//gospatial.ServerLogger.Info(strings.Replace(database, ".db", "", -1))
 	}
 
 }
@@ -164,52 +155,52 @@ func main() {
 	go func() {
 		for sig := range sigs {
 			// sig is a ^C, handle it
-			app.ServerLogger.Info("Recieved ", sig)
-			app.ServerLogger.Info("Gracefully shutting down")
-			app.ServerLogger.Info("Waiting for sockets to close...")
-			app.DB.WriteLock = true
+			gospatial.ServerLogger.Info("Recieved ", sig)
+			gospatial.ServerLogger.Info("Gracefully shutting down")
+			gospatial.ServerLogger.Info("Waiting for sockets to close...")
+			gospatial.DB.WriteLock = true
 			now := time.Now()
 			for {
-				if 0 == len(app.Hub.Sockets) && 0 == app.ActiveTcpClients {
-					app.ServerLogger.Info("Shutting down...")
+				if 0 == len(gospatial.Hub.Sockets) && 0 == gospatial.ActiveTcpClients {
+					gospatial.ServerLogger.Info("Shutting down...")
 					os.Exit(0)
 				}
-				if 10 < time.Since(now).Seconds() || 0 == app.DB.CommitQueueLength() {
-					app.ServerLogger.Info("Shutting down...")
+				if 10 < time.Since(now).Seconds() || 0 == gospatial.DB.CommitQueueLength() {
+					gospatial.ServerLogger.Info("Shutting down...")
 					os.Exit(0)
 				}
 			}
 		}
 	}()
 
-	app.ServerLogger.Info("Authkey:", app.SuperuserKey)
-	app.ServerLogger.Info("Database:", database)
+	gospatial.ServerLogger.Info("Authkey:", gospatial.SuperuserKey)
+	gospatial.ServerLogger.Info("Database:", database)
 
 	if debugMode {
 		// https://golang.org/pkg/net/http/pprof/
 		go func() {
-			app.ServerLogger.Info("Profiling happens on port 6060\n")
-			app.ServerLogger.Info(http.ListenAndServe(":6060", nil))
+			gospatial.ServerLogger.Info("Profiling happens on port 6060\n")
+			gospatial.ServerLogger.Info(http.ListenAndServe(":6060", nil))
 		}()
 	}
 
 	// Initiate Database
-	app.COMMIT_LOG_FILE = database + "_commit.log"
-	app.DB = app.Database{File: database + ".db"}
-	err := app.DB.Init()
+	gospatial.COMMIT_LOG_FILE = database + "_commit.log"
+	gospatial.DB = gospatial.Database{File: database + ".db"}
+	err := gospatial.DB.Init()
 	if err != nil {
 		panic(err)
 	}
 
-	app.ServerLogger.Info(configuration)
+	gospatial.ServerLogger.Info(configuration)
 
 	// start tcp server
-	//tcpServer := app.TcpServer{Host: "localhost", Port: "3333"}
-	tcpServer := app.TcpServer{Host: "localhost", Port: fmt.Sprintf("%v", configuration.TcpPort)}
+	//tcpServer := gospatial.TcpServer{Host: "localhost", Port: "3333"}
+	tcpServer := gospatial.TcpServer{Host: "localhost", Port: fmt.Sprintf("%v", configuration.TcpPort)}
 	tcpServer.Start()
 
 	// start http server
-	httpServer := app.HttpServer{Port: configuration.HttpPort}
+	httpServer := gospatial.HttpServer{Port: configuration.HttpPort}
 	httpServer.Start()
 
 }

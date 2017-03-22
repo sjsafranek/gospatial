@@ -1,11 +1,14 @@
-package app
+package gospatial
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/paulmach/go.geojson"
 	"io/ioutil"
 	"net/http"
+)
+
+import (
+	"github.com/gorilla/mux"
+	"github.com/paulmach/go.geojson"
 )
 
 // NewFeatureHandler creates a new feature and adds it to a layer.

@@ -1,8 +1,7 @@
-package app
+package gospatial
 
 import (
 	"github.com/gorilla/mux"
-	// "log"
 	"net/http"
 )
 

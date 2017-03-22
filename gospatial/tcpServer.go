@@ -1,11 +1,10 @@
-package app
+package gospatial
 
 import (
 	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/paulmach/go.geojson"
 	"io/ioutil"
 	"net"
 	"net/textproto"
@@ -17,6 +16,8 @@ import (
 import (
 	"./utils"
 )
+
+import "github.com/paulmach/go.geojson"
 
 const (
 	TCP_DEFAULT_CONN_HOST = "localhost"

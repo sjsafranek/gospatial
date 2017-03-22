@@ -1,7 +1,6 @@
-package app
+package gospatial
 
 import (
-	// "encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"

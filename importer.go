@@ -32,8 +32,8 @@ func usageError(message string) {
 }
 
 func setupDb() {
-	app.DB = app.Database{File: "./" + database + ".db"}
-	app.DB.Init()
+	gospatial.DB = gospatial.Database{File: "./" + database + ".db"}
+	gospatial.DB.Init()
 }
 
 func importDatasource(importFile string) {
@@ -77,7 +77,7 @@ func importDatasource(importFile string) {
 	}
 	// Create datasource
 	ds, _ := utils.NewUUID()
-	app.DB.InsertLayer(ds, geojs)
+	gospatial.DB.InsertLayer(ds, geojs)
 	fmt.Println("Datasource created:", ds)
 	// Cleanup artifacts
 	if geojsonFile != importFile {

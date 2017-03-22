@@ -1,4 +1,4 @@
-package app
+package gospatial
 
 import "github.com/paulmach/go.geojson"
 

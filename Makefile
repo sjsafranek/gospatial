@@ -12,12 +12,14 @@ GPATH = $(shell pwd)
 .PHONY: fmt deps test install build scrape clean
 
 install: fmt deps
-	@GOPATH=${GPATH} go build -o gospatial-server server.go
-	@GOPATH=${GPATH} go build -o gospatial-importer importer.go
-	@GOPATH=${GPATH} go build -o gospatial-ts timeseries_tool.go
+	@GOPATH=${GPATH} go build -o gospatial_server server.go
+	@GOPATH=${GPATH} go build -o gospatial_importer importer.go
+	@GOPATH=${GPATH} go build -o gospatial_ts timeseries_tool.go
 
 build: fmt deps
-	@GOPATH=${GPATH} go build -o skeleton-cli client.go
+	@GOPATH=${GPATH} go build -o gospatial_server server.go
+	@GOPATH=${GPATH} go build -o gospatial_importer importer.go
+	@GOPATH=${GPATH} go build -o gospatial_ts timeseries_tool.go
 
 deps:
 	mkdir -p "src"

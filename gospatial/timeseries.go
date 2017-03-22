@@ -1,4 +1,4 @@
-package app
+package gospatial
 
 import "github.com/sjsafranek/DiffDB/diff_store"
 import "github.com/sjsafranek/DiffDB/skeleton_db"

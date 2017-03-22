@@ -1,10 +1,13 @@
-package app
+package gospatial
+
+import (
+	"net/http"
+	"sync"
+)
 
 import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-	"net/http"
-	"sync"
 )
 
 type connection struct {

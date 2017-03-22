@@ -9,7 +9,8 @@ log
 bin
 pkg
 src
-setup
 
-gospatial-importer
-gospatial-server
+setup
+gospatial_server
+gospatial_importer
+gospatial_ts

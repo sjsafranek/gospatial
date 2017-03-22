@@ -58,7 +58,7 @@ func parseRequest(message string) TcpMessage {
 func parseResponse(message string) map[string]interface{} {
 	//data := map[string]interface{}
 	var data map[string]interface{}
-	err := json.Unmarshal(message & data)
+	err := json.Unmarshal([]byte(message), &data)
 	if err != nil {
 		log.Println(err)
 	}

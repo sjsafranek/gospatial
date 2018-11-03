@@ -75,7 +75,8 @@ func (self *Database) Connect() *bolt.DB {
 		panic("Database not found!")
 	}
 	// Open database connection
-	conn, err := bolt.Open(self.File, 0644, nil)
+	config := &bolt.Options{Timeout: 30 * time.Second}
+	conn, err := bolt.Open(self.File, 0644, config)
 	if err != nil {
 		conn.Close()
 		panic(err)

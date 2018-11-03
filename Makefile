@@ -31,7 +31,7 @@ deps:
 	@GOPATH=${GPATH} go get github.com/gorilla/websocket
 	@GOPATH=${GPATH} go get github.com/paulmach/go.geojson
 	@GOPATH=${GPATH} go get github.com/sjsafranek/DiffDB/diff_store
-	@GOPATH=${GPATH} go get github.com/sjsafranek/DiffDB/skeleton_db
+	@GOPATH=${GPATH} go get github.com/sjsafranek/DiffDB/diff_db
 
 fmt:
 	@GOPATH=${GPATH} gofmt -s -w ${PROJECT_NAME}
